@@ -1,8 +1,7 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { LoginButton } from '../../components/auth/login-button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { LoginButton } from '@/components/auth/login-button';
 
-export default function Login() {
+export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Card className="w-[400px]">

@@ -1,13 +1,6 @@
-import React from 'react';
-import { AuthCheck } from '../components/auth/auth-check';
-import TradingDashboard from '../components/trading-dashboard';
+import { redirect } from 'next/navigation';
 
-export default function Home() {
-  return (
-    <AuthCheck>
-      <main className="min-h-screen bg-gray-50">
-        <TradingDashboard />
-      </main>
-    </AuthCheck>
-  );
+export default async function Home() {
+  console.log("home confirmed")
+  redirect('/login');
 }

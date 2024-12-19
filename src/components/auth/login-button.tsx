@@ -1,15 +1,15 @@
+// components/auth/login-button.tsx
 'use client';
 
-import React from 'react';
-import { Button } from '../ui/button';
+import { Button } from "../ui/button";
+import { signIn } from "next-auth/react";
 
 export function LoginButton() {
-  const handleLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/google`;
-  };
-
   return (
-    <Button onClick={handleLogin} className="w-full">
+    <Button
+      onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+      className="w-full"
+    >
       Google로 로그인
     </Button>
   );

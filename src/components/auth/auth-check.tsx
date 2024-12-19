@@ -1,25 +1,19 @@
+// components/auth/auth-check.tsx
 'use client';
 
-import React from 'react';
-import { useEffect } from 'react';
-import type { ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../../lib/auth';
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
-export function AuthCheck({ children }: { children: ReactNode }) {
-  const router = useRouter();
-  const { checkAuth } = useAuth();
+export function AuthCheck({ children }: { children: React.ReactNode }) {
+  const { status } = useSession();
 
-  useEffect(() => {
-    const verify = async () => {
-      const isAuthenticated = await checkAuth();
-      if (!isAuthenticated) {
-        router.push('/login');
-      }
-    };
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
-    verify();
-  }, [checkAuth, router]);
+  if (status === "unauthenticated") {
+    redirect('/login');
+  }
 
   return <>{children}</>;
 }
