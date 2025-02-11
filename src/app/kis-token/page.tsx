@@ -7,6 +7,7 @@ interface User {
   email: string;
   name: string;
   role: string;
+  accountNumber: string;
 }
 
 interface KisToken {
@@ -56,21 +57,36 @@ export default function KisToken() {
 
   const handleGetKisToken = async () => {
     try {
+      const accessToken = sessionStorage.getItem("access_token");
+      if (!accessToken) {
+        console.log("No token found, redirecting to login");
+        window.location.href = "/login";
+        return;
+      }
+
       const appKeyInput = document.getElementById("appKey") as HTMLInputElement;
       const appSecretInput = document.getElementById(
         "appSecret"
       ) as HTMLInputElement;
+      const accountNumberInput = document.getElementById(
+        "accountNumber"
+      ) as HTMLInputElement;
 
-      const response = await fetch("https://localhost:7072/api/account/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          appKey: appKeyInput.value,
-          appSecret: appSecretInput.value,
-        }),
-      });
+      const response = await fetch(
+        "https://localhost:7072/api/account/userInfo",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            appKey: appKeyInput.value,
+            appSecret: appSecretInput.value,
+            accountNumber: accountNumberInput.value,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to get KIS token");
@@ -88,21 +104,21 @@ export default function KisToken() {
     return <div>Error: {error}</div>;
   }
 
-  if (!user) {
-    return (
+  return (
+    <div>
       <div>
-        <div>
-          <label>AppKey:</label>
-          <input type="text" id="appKey" />
-        </div>
-        <div>
-          <label>AppSecret:</label>
-          <input type="text" id="appSecret" />
-        </div>
-        <button onClick={handleGetKisToken}>Get KIS Token</button>
+        <label>AppKey:</label>
+        <input type="text" id="appKey" />
       </div>
-    );
-  }
-
-  return <div>Token received!</div>;
+      <div>
+        <label>AppSecret:</label>
+        <input type="text" id="appSecret" />
+      </div>
+      <div>
+        <label>Account Number:</label>
+        <input type="text" id="accountNumber" />
+      </div>
+      <button onClick={handleGetKisToken}>Get KIS Token</button>
+    </div>
+  );
 }

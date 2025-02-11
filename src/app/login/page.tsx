@@ -24,12 +24,18 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      console.log("Login response:", data);
 
       sessionStorage.setItem("access_token", data.token);
-
       sessionStorage.setItem("loginSuccess", "true");
-      window.location.href = "/kis-token";
+
+      // 약간의 지연을 주어 세션 스토리지 저장을 보장
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      if (!data.user.kisAppKey || !data.user.kisAppSecret) {
+        window.location.replace("/kis-token");
+      } else {
+        window.location.replace("/dashboard");
+      }
     } catch (error) {
       console.error("Login error:", error);
     }
