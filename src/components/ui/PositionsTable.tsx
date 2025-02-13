@@ -49,16 +49,22 @@ export const PositionsTable = ({ positions }: PositionsTableProps) => {
         </tr>
       </thead>
       <tbody>
-        {sortedPositions.map((position) => (
-          <tr key={position.stockCode}>
-            <td>{position.stockName}</td>
-            <td>{parseInt(position.quantity).toLocaleString()}</td>
-            <td>{formatKRW(position.averagePrice)}</td>
-            <td>{formatKRW(position.currentPrice)}</td>
-            <td>{formatKRW(position.profitLoss)}</td>
-            <td>{formatKRW(position.profitLossRate)}</td>
+        {sortedPositions.length > 0 ? (
+          sortedPositions.map((position) => (
+            <tr key={position.stockCode}>
+              <td>{position.stockName}</td>
+              <td>{parseInt(position.quantity).toLocaleString()}</td>
+              <td>{formatKRW(position.averagePrice)}</td>
+              <td>{formatKRW(position.currentPrice)}</td>
+              <td>{formatKRW(position.profitLoss)}</td>
+              <td>{formatKRW(position.profitLossRate)}</td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td>No data</td>
           </tr>
-        ))}
+        )}
       </tbody>
     </table>
   );

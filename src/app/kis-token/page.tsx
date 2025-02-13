@@ -93,7 +93,7 @@ export default function KisToken() {
       }
       const data = await response.json();
       setKisToken(data);
-      window.location.href = "/dashboard";
+      window.location.href = "/balance";
     } catch (error) {
       console.error("Error getting KIS token:", error);
       setError("Failed to get KIS token");

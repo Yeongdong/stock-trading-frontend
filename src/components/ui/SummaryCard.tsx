@@ -5,7 +5,7 @@ interface SummaryCardsProps {
   summary: Summary;
 }
 
-export const SummaryCards = ({ summary }: SummaryCardsProps) => {
+export const SummaryCard = ({ summary }: SummaryCardsProps) => {
   return (
     <div className="summary-cards">
       <div className="card">
