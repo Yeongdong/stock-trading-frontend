@@ -21,6 +21,7 @@ export interface StockBalance {
 
 export interface StockOrder {
   acntPrdtCd: string; // 계좌상품코드
+  trId: string; // 거래ID
   pdno: string; // 종목코드
   orderDvsn: string; // 주문구분
   ordQty: string; // 주문수량
