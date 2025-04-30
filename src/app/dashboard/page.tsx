@@ -5,10 +5,10 @@ import { StockOrder } from "@/types";
 import toast from "@/utils/toast";
 
 export default function DashboardPage() {
-  const [acntPrdtCd, setAcntPrdtCd] = useState<string>("00");
-  const [trId, setTrId] = useState<string>("");
-  const [pdno, setPdno] = useState<string>("00");
-  const [orderDvsn, setOrderDvsn] = useState<string>("00");
+  const [acntPrdtCd, setAcntPrdtCd] = useState<string>("01");
+  const [trId, setTrId] = useState<string>("VTTC0802U");
+  const [pdno, setPdno] = useState<string>("");
+  const [ordDvsn, setOrderDvsn] = useState<string>("00: 지정가");
   const [ordQty, setOrdQty] = useState<string>("");
   const [ordUnpr, setOrdUnpr] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -30,11 +30,12 @@ export default function DashboardPage() {
   }, []);
 
   const handleOrder = () => {
+    const processedOrderDvsn = ordDvsn.substring(0, 2);
     const orderData: StockOrder = {
       acntPrdtCd,
       trId,
       pdno,
-      orderDvsn,
+      ordDvsn: processedOrderDvsn,
       ordQty,
       ordUnpr,
     };
@@ -42,7 +43,7 @@ export default function DashboardPage() {
     toast.confirm(toast.createOrderConfirmMsg(orderData), {
       onConfirm: async () => {
         try {
-          setIsLoading(false);
+          setIsLoading(true);
 
           const accessToken = sessionStorage.getItem("access_token");
           console.log(orderData);
@@ -59,13 +60,13 @@ export default function DashboardPage() {
             }
           );
 
-          if (!response) {
+          if (!response.ok) {
             throw new Error("주문 처리 중 오류 발생");
           }
 
-          setTrId("");
+          setTrId("VTTC0802U");
           setPdno("");
-          setOrderDvsn("");
+          setOrderDvsn("00: 지정가");
           setOrdQty("");
           setOrdUnpr("");
         } catch (error) {
@@ -86,7 +87,7 @@ export default function DashboardPage() {
           <input
             type="radio"
             name="trId"
-            value="buy"
+            value="VTTC0802U"
             id="buy"
             onChange={(e) => setTrId(e.target.value)}
           />
@@ -94,7 +95,7 @@ export default function DashboardPage() {
           <input
             type="radio"
             name="trId"
-            value="sell"
+            value="VTTC0801U"
             id="sell"
             onChange={(e) => setTrId(e.target.value)}
           />
@@ -119,26 +120,26 @@ export default function DashboardPage() {
           <div>
             <label>주문 구분</label>
             <select
-              value={orderDvsn}
+              value={ordDvsn}
               onChange={(e) => setOrderDvsn(e.target.value)}
             >
               <option>00: 지정가</option>
-              <option>01 : 시장가</option>
-              <option>02 : 조건부지정가</option>
-              <option>03 : 최유리지정가</option>
-              <option>04 : 최우선지정가</option>
-              <option>05 : 장전 시간외 (08:20~08:40)</option>
-              <option>06 : 장후 시간외 (15:30~16:00)</option>
-              <option>07 : 시간외 단일가(16:00~18:00)</option>
-              <option>08 : 자기주식</option>
-              <option>09 : 자기주식S-Option</option>
-              <option>10 : 자기주식금전신탁</option>
-              <option>11 : IOC지정가 (즉시체결,잔량취소)</option>
-              <option>12 : FOK지정가 (즉시체결,전량취소)</option>
-              <option>13 : IOC시장가 (즉시체결,잔량취소)</option>
-              <option>14 : FOK시장가 (즉시체결,전량취소)</option>
-              <option>15 : IOC최유리 (즉시체결,잔량취소)</option>
-              <option>16 : FOK최유리 (즉시체결,전량취소)</option>
+              <option>01: 시장가</option>
+              <option>02: 조건부지정가</option>
+              <option>03: 최유리지정가</option>
+              <option>04: 최우선지정가</option>
+              <option>05: 장전 시간외 (08:20~08:40)</option>
+              <option>06: 장후 시간외 (15:30~16:00)</option>
+              <option>07: 시간외 단일가(16:00~18:00)</option>
+              <option>08: 자기주식</option>
+              <option>09: 자기주식S-Option</option>
+              <option>10: 자기주식금전신탁</option>
+              <option>11: IOC지정가 (즉시체결,잔량취소)</option>
+              <option>12: FOK지정가 (즉시체결,전량취소)</option>
+              <option>13: IOC시장가 (즉시체결,잔량취소)</option>
+              <option>14: FOK시장가 (즉시체결,전량취소)</option>
+              <option>15: IOC최유리 (즉시체결,잔량취소)</option>
+              <option>16: FOK최유리 (즉시체결,전량취소)</option>
             </select>
           </div>
           <div>

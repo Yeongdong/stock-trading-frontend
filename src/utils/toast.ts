@@ -12,7 +12,7 @@ export const toast = {
         거래 구분: ${orderInfo.trId === "buy" ? "매수" : "매도"}
         주문 종목: ${orderInfo.pdno}
         주문 수량: ${orderInfo.ordQty}주
-        주문 구분: ${orderInfo.orderDvsn}
+        주문 구분: ${orderInfo.ordDvsn}
         주문 단가: ${orderInfo.ordUnpr}원
         ─────────────────
         주문을 진행하시겠습니까?`;
