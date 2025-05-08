@@ -1,12 +1,23 @@
 import * as signalR from "@microsoft/signalr";
-import { StockTransaction } from "@/types";
+import {
+  StockTransaction,
+  TradeExecutionData,
+  EventTypes,
+  EventDataMap,
+} from "@/types";
 import { STORAGE_KEYS, LIMITS, TIMINGS } from "@/constants";
 
 export class RealTimeService {
   private hubConnection: signalR.HubConnection | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = LIMITS.MAX_RECONNECT_ATTEMPTS;
-  private subscribers: { [key: string]: ((data: any) => void)[] } = {};
+  private subscribers: {
+    [K in EventTypes]: Array<(data: EventDataMap[K]) => void>;
+  } = {
+    stockPrice: [],
+    tradeExecution: [],
+    connected: [],
+  };
 
   constructor(
     private readonly hubUrl: string = process.env.NEXT_PUBLIC_SIGNALR_HUB_URL ||
@@ -72,9 +83,12 @@ export class RealTimeService {
     });
 
     // 거래 체결 정보 수신 이벤트
-    this.hubConnection.on("ReceiveTradeExecution", (data: any) => {
-      this.notifySubscribers("tradeExecution", data);
-    });
+    this.hubConnection.on(
+      "ReceiveTradeExecution",
+      (data: TradeExecutionData) => {
+        this.notifySubscribers("tradeExecution", data);
+      }
+    );
 
     // 연결 해제 이벤트
     this.hubConnection.onclose((error) => {
@@ -102,26 +116,26 @@ export class RealTimeService {
   }
 
   // 이벤트 구독
-  public subscribe(
-    eventName: string,
-    callback: (data: any) => void
+  public subscribe<T extends EventTypes>(
+    eventName: T,
+    callback: (data: EventDataMap[T]) => void
   ): () => void {
-    if (!this.subscribers[eventName]) {
-      this.subscribers[eventName] = [];
-    }
-
     this.subscribers[eventName].push(callback);
 
     // 구독 취소 함수 반환
     return () => {
-      this.subscribers[eventName] = this.subscribers[eventName].filter(
-        (cb) => cb !== callback
-      );
+      const index = this.subscribers[eventName].indexOf(callback);
+      if (index !== -1) {
+        this.subscribers[eventName].splice(index, 1);
+      }
     };
   }
 
   // 구독자에게 데이터 전달
-  private notifySubscribers(eventName: string, data: any): void {
+  private notifySubscribers<T extends EventTypes>(
+    eventName: T,
+    data: EventDataMap[T]
+  ): void {
     if (this.subscribers[eventName]) {
       this.subscribers[eventName].forEach((callback) => {
         try {
@@ -134,7 +148,7 @@ export class RealTimeService {
   }
 
   // 서버 메서드 호출(종목 구독 요청 등)
-  public async invoke(methodName: string, ...args: any[]): Promise<any> {
+  public async invoke<T>(methodName: string, ...args: unknown[]): Promise<T> {
     if (!this.hubConnection) {
       await this.start();
     }

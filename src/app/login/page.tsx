@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GoogleLogin } from "@react-oauth/google";
 import { CredentialResponse } from "@react-oauth/google";
 import { STORAGE_KEYS, API, AUTH } from "@/constants";
+import { LoginResponse } from "@/types";
 
 export default function LoginPage() {
   const handleGoogleSuccess = async (
@@ -24,7 +25,7 @@ export default function LoginPage() {
         throw new Error("Login failed");
       }
 
-      const data = await response.json();
+      const data: LoginResponse = await response.json();
 
       sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.token);
       sessionStorage.setItem(STORAGE_KEYS.LOGIN_SUCCESS, "true");

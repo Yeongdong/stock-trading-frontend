@@ -38,3 +38,55 @@ export interface StockTransaction {
   totalVolume: number; // 누적거래량
   transactionTime: string; // 거래시간
 }
+
+// 실시간 데이터
+export interface StockPriceSubscriber {
+  (data: StockTransaction): void;
+}
+
+export interface TradeExecutionData {
+  OrderId: string;
+  StockCode: string;
+  Quantity: number;
+  Price: number;
+  ExecutionTime: string;
+  Status: string;
+}
+
+export interface ConnectionData {
+  connectionId: string;
+}
+
+export interface EventDataMap {
+  stockPrice: StockTransaction;
+  tradeExecution: TradeExecutionData;
+  connected: ConnectionData;
+}
+
+export type EventTypes = keyof EventDataMap;
+
+// 로그인 응답 타입
+export interface ApiResponse<T> {
+  message?: string;
+  error?: string;
+  data?: T;
+}
+
+export interface SubscriptionsResponse {
+  symbols: string[];
+}
+
+export interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    kisToken?: {
+      id: number;
+      accessToken: string;
+      expiresIn: string;
+      tokenType: string;
+    } | null;
+  };
+}
