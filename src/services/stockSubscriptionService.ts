@@ -1,0 +1,204 @@
+import { realTimeService } from "./realTimeService";
+
+const SUBSCRIBED_SYMBOLS_KEY = "subscribed_symbols";
+
+export class StockSubscriptionService {
+  // 현재 구독중인 종목 코드 목록
+  private subscribedSymbols: string[] = [];
+
+  constructor() {
+    // 로컬 스토리지에서 구독 정보 로드
+    this.loadSubscriptions();
+  }
+
+  // 로컬 스토리지에서 구독 정보 로드
+  private loadSubscriptions(): void {
+    try {
+      const savedSymbols = localStorage.getItem(SUBSCRIBED_SYMBOLS_KEY);
+      if (savedSymbols) {
+        this.subscribedSymbols = JSON.parse(savedSymbols);
+        console.log("저장된 구독 목록 로드:", this.subscribedSymbols);
+      }
+    } catch (error) {
+      console.error("구독 목록 로드 중 오류", error);
+      this.subscribedSymbols = [];
+    }
+  }
+
+  // 로컬 스토리지에 구독 정보 저장
+  private saveSubscriptions(): void {
+    try {
+      localStorage.setItem(
+        SUBSCRIBED_SYMBOLS_KEY,
+        JSON.stringify(this.subscribedSymbols)
+      );
+    } catch (error) {
+      console.error("구독 목록 저장 중 오류:", error);
+    }
+  }
+
+  // 모든 구독된 종목 코드 가져오기
+  public getSubscribedSymbols(): string[] {
+    return [...this.subscribedSymbols];
+  }
+
+  // 특정 종목이 구독 중인지 확인
+  public isSubscribed(symbol: string): boolean {
+    return this.subscribedSymbols.includes(symbol);
+  }
+
+  // 새로운 종목 구독
+  public async subscribeSymbol(symbol: string): Promise<boolean> {
+    if (this.isSubscribed(symbol)) {
+      console.log(`이미 구독중인 종목: ${symbol}`);
+      return true;
+    }
+
+    try {
+      await this.callSubscribeApi(symbol);
+
+      // 구독 목록에 추가
+      this.subscribedSymbols.push(symbol);
+      this.saveSubscriptions();
+
+      console.log(`새 종목 구독 완료: ${symbol}`);
+      return true;
+    } catch (error) {
+      console.error(`종목 구독 실패: ${symbol}`, error);
+      return false;
+    }
+  }
+
+  // 종목 구독 취소
+  public async unsubscribeSymbol(symbol: string): Promise<boolean> {
+    if (!this.isSubscribed(symbol)) {
+      console.log(`구독 중이 아닌 종목: ${symbol}`);
+      return true;
+    }
+
+    try {
+      await this.callUnsubscribeApi(symbol);
+
+      // 구독 목록에서 제거
+      this.subscribedSymbols = this.subscribedSymbols.filter(
+        (s) => s !== symbol
+      );
+      this.saveSubscriptions();
+
+      console.log(`종목 구독 취소 완료: ${symbol}`);
+      return true;
+    } catch (error) {
+      console.error(`종목 구독 취소 실패: ${symbol}`, error);
+      return false;
+    }
+  }
+
+  // 백엔드 API 호출 - 종목 구독
+  private async callSubscribeApi(symbol: string): Promise<void> {
+    try {
+      const response = await fetch(
+        `https://localhost:7072/api/realtime/subscribe/${symbol}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+            "Contenty-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API 오류: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("구독 API 응답:", data);
+    } catch (error) {
+      console.error("구독 API 호출 중 오류:", error);
+      throw error;
+    }
+  }
+
+  // 백엔드 API 호출 - 종목 구독 취소
+  private async callUnsubscribeApi(symbol: string): Promise<void> {
+    try {
+      const response = await fetch(
+        `https://localhost:7072/api/realtime/subscribe/${symbol}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+            "Contenty-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API 오류: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("구독 취소 API 응답:", data);
+    } catch (error) {
+      console.error("구독 취소 API 호출 중 오류:", error);
+      throw error;
+    }
+  }
+
+  // 모든 종목 초기화(앱 시작시)
+  public async initializeSubscriptions(): Promise<void> {
+    try {
+      // 서버의 구독 목록 가져오기
+      const serverSubscriptions = await this.fetchSubscriptionsFromServer();
+
+      // 로컬 구독 목록과 서버 구독 목록 비교 및 동기화
+      const localOnly = this.subscribedSymbols.filter(
+        (s) => !serverSubscriptions.includes(s)
+      );
+      const serverOnly = serverSubscriptions.filter(
+        (s) => !this.subscribedSymbols.includes(s)
+      );
+
+      // 서버에 없는 로컬 구독 추가
+      for (const symbol of localOnly) {
+        await this.callSubscribeApi(symbol);
+      }
+
+      // 로컬에 없는 서버 구독 추가
+      for (const symbol of serverOnly) {
+        this.subscribedSymbols.push(symbol);
+      }
+
+      this.saveSubscriptions();
+      console.log("구독 목록 초기화 완료");
+    } catch (error) {
+      console.error("구독 목록 초기화 중 오류:", error);
+    }
+  }
+
+  // 서버의 구독 목록 가져오기
+  private async fetchSubscriptionsFromServer(): Promise<string[]> {
+    try {
+      const response = await fetch(
+        "https://localhost:7072/api/realtime/subscriptions",
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API 오류: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.symbols || [];
+    } catch (error) {
+      console.error("서버 구독 목록 조회 중 오류:", error);
+      return [];
+    }
+  }
+}
+
+export const stockSubscriptionService = new StockSubscriptionService();
