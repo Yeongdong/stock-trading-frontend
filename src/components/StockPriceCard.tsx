@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StockTransaction } from "@/types";
 import { useStockData } from "@/contexts/StockDataContext";
+import StockMiniChart from "./StockMiniChart";
 
 interface StockPriceCardProps {
   symbol: string;
@@ -84,7 +85,9 @@ const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
           {stockData.changeRate.toFixed(2)}%)
         </div>
       </div>
-
+      <div className="chart-container">
+        <StockMiniChart symbol={symbol} />
+      </div>
       <div className="trading-info">
         <div className="volume">
           <span className="label">거래량:</span>

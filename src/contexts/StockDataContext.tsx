@@ -10,9 +10,20 @@ import { StockTransaction } from "@/types";
 import { realTimeService } from "@/services/realTimeService";
 import { stockSubscriptionService } from "@/services/stockSubscriptionService";
 
+// 차트 데이터 포인트 인터페이스
+interface PriceDataPoint {
+  time: string;
+  price: number;
+}
+
 // 주가 데이터 저장 인터페이스
 interface StockDataState {
   [symbol: string]: StockTransaction;
+}
+
+// 차트 데이터를 저장할 인터페이스
+interface ChartDataState {
+  [symbol: string]: PriceDataPoint[];
 }
 
 // 컨텍스트에서 제공할 값들의 인터페이스
@@ -21,10 +32,12 @@ interface StockDataContextType {
   subscribedSymbols: string[];
   isLoading: boolean;
   error: string | null;
+  chartData: ChartDataState;
   subscribeSymbol: (symbol: string) => Promise<boolean>;
   unsubscribeSymbol: (symbol: string) => Promise<boolean>;
   isSubscribed: (symbol: string) => boolean;
   getStockData: (symbol: string) => StockTransaction | null;
+  getChartData: (symbol: string) => PriceDataPoint[];
 }
 
 // 기본값으로 빈 객체를 가진 컨텍스트 생성
@@ -33,10 +46,12 @@ const StockDataContext = createContext<StockDataContextType>({
   subscribedSymbols: [],
   isLoading: false,
   error: null,
+  chartData: {},
   subscribeSymbol: async () => false,
   unsubscribeSymbol: async () => false,
   isSubscribed: () => false,
   getStockData: () => null,
+  getChartData: () => [],
 });
 
 // 컨텍스트 사용을 위한 커스텀 훅
@@ -46,13 +61,14 @@ export const useStockData = () => useContext(StockDataContext);
 export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // 상태 정의
   const [stockData, setStockData] = useState<StockDataState>({});
   const [subscribedSymbols, setSubscribedSymbols] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isRealtimeConnected, setIsRealtimeConnected] =
     useState<boolean>(false);
+  const [chartData, setChartData] = useState<ChartDataState>({});
+  const MAX_DATA_POINTS = 30;
 
   // 종목 구독 상태 업데이트 함수
   const updateSubscribedSymbols = useCallback(() => {
@@ -66,7 +82,35 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
       ...prevData,
       [data.symbol]: data,
     }));
+
+    setChartData((prevChartData) => {
+      const symbol = data.symbol;
+      const newDataPoint = {
+        time: new Date().toLocaleTimeString(),
+        price: data.price,
+      };
+
+      const currentData = prevChartData[symbol] || [];
+
+      // 최대 길이 제한을 위해 필요시 오래된 데이터 제거
+      const updatedData = [...currentData, newDataPoint].slice(
+        -MAX_DATA_POINTS
+      );
+
+      return {
+        ...prevChartData,
+        [symbol]: updatedData,
+      };
+    });
   }, []);
+
+  // 차트 데이터 조회 함수
+  const getChartData = useCallback(
+    (symbol: string): PriceDataPoint[] => {
+      return chartData[symbol] || [];
+    },
+    [chartData]
+  );
 
   // 종목 구독 함수
   const subscribeSymbol = useCallback(
@@ -181,20 +225,24 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
       subscribedSymbols,
       isLoading,
       error,
+      chartData,
       subscribeSymbol,
       unsubscribeSymbol,
       isSubscribed,
       getStockData,
+      getChartData,
     }),
     [
       stockData,
       subscribedSymbols,
       isLoading,
       error,
+      chartData,
       subscribeSymbol,
       unsubscribeSymbol,
       isSubscribed,
       getStockData,
+      getChartData,
     ]
   );
   return (

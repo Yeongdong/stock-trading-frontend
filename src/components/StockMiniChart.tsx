@@ -1,0 +1,150 @@
+import React, { useMemo } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  ReferenceLine,
+  Tooltip,
+} from "recharts";
+import { useStockData } from "@/context/StockDataContext";
+
+interface StockMiniChartProps {
+  symbol: string;
+  height?: number;
+}
+
+const StockMiniChart: React.FC<StockMiniChartProps> = ({
+  symbol,
+  height = 120,
+}) => {
+  const { getChartData, getStockData } = useStockData();
+  const chartData = getChartData(symbol);
+  const currentStock = getStockData(symbol);
+
+  // 차트 데이터가 충분한지 확인
+  const hasData = chartData.length > 1;
+
+  // Y축 최소/최대값 계산
+  const yDomain = useMemo(() => {
+    if (!hasData) return [0, 0];
+
+    const prices = chartData.map((point) => point.price);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+
+    // 마진 약간 추가(범위의 5%)
+    const margin = (max - min) * 0.05;
+    return [Math.floor(min - margin), Math.ceil(max + margin)];
+  }, [chartData, hasData]);
+
+  // 시작 가격(첫 번째 데이터 포인트)
+  const startPrice = hasData ? chartData[0].price : 0;
+
+  // 가격 변화에 따른 선 색상
+  const lineColor = useMemo(() => {
+    if (!hasData || chartData.length < 2) return "#ccc";
+
+    const lastPrice = chartData[chartData.length - 1].price;
+    if (lastPrice > startPrice) return "#e53935"; // 상승(빨강)
+    if (lastPrice < startPrice) return "#2196f3"; // 하락(파랑)
+    return "#757575"; // 변동 없음(회색)
+  }, [chartData, startPrice, hasData]);
+
+  if (!hasData) {
+    return (
+      <div className="stock-mini-chart-placeholder">
+        <p>차트 데이터 수집 중...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="stock-mini-chart">
+      <ResponsiveContainer width="100%" height={height}>
+        <LineChart
+          data={chartData}
+          margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+        >
+          {/* X축 (시간) */}
+          <XAxis
+            dataKey="time"
+            tick={{ fontSize: 10 }}
+            tickFormatter={(time) => time.split(":")[1]} // 분:초만 표시
+            minTickGap={15}
+            height={20}
+          />
+
+          {/* Y축 (가격) */}
+          <YAxis
+            domain={yDomain}
+            tick={{ fontSize: 10 }}
+            tickFormatter={(price) => price.toLocaleString()} // 천 단위 구분
+            width={40}
+          />
+
+          {/* 시작 가격 기준선 */}
+          <ReferenceLine
+            y={startPrice}
+            strokeDasharray="3 3"
+            stroke="#757575"
+          />
+
+          {/* 툴팁 */}
+          <Tooltip
+            formatter={(value) => [
+              `${Number(value).toLocaleString()} 원`,
+              "가격",
+            ]}
+            labelFormatter={(time) => `시간: ${time}`}
+          />
+
+          {/* 가격선 */}
+          <Line
+            type="monotone"
+            dataKey="price"
+            stroke={lineColor}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false} // 실시간 데이터에서 애니메이션 비활성화
+          />
+        </LineChart>
+      </ResponsiveContainer>
+
+      {/* 차트 정보 */}
+      <div className="chart-info">
+        <div className="chart-label">
+          <span>시작:</span>
+          <span className="chart-value">{startPrice.toLocaleString()} 원</span>
+        </div>
+        {currentStock && (
+          <div className="chart-label">
+            <span>현재:</span>
+            <span className="chart-value">
+              {currentStock.price.toLocaleString()} 원{" "}
+              <span
+                className={
+                  currentStock.price > startPrice
+                    ? "price-up"
+                    : currentStock.price < startPrice
+                    ? "price-down"
+                    : ""
+                }
+              >
+                (
+                {(
+                  ((currentStock.price - startPrice) / startPrice) *
+                  100
+                ).toFixed(2)}
+                %)
+              </span>
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default StockMiniChart;
