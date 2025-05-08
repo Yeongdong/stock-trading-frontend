@@ -8,7 +8,7 @@ import {
   ReferenceLine,
   Tooltip,
 } from "recharts";
-import { useStockData } from "@/context/StockDataContext";
+import { useStockData } from "@/contexts/StockDataContext";
 
 interface StockMiniChartProps {
   symbol: string;
