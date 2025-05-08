@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { StockBalance } from "@/types";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { PositionsTable } from "@/components/ui/PositionsTable";
+import { API, STORAGE_KEYS } from "@/constants";
 
 export default function BalancePage() {
   const [balanceData, setBalanceData] = useState<StockBalance | null>(null);
@@ -13,9 +14,9 @@ export default function BalancePage() {
   const fetchBalanceData = async () => {
     try {
       setIsLoading(true);
-      const accessToken = sessionStorage.getItem("access_token");
+      const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 
-      const response = await fetch("https://localhost:7072/api/stock/balance", {
+      const response = await fetch(API.STOCK.BALANCE, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,

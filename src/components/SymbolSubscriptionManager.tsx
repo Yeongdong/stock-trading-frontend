@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useStockData } from "@/contexts/StockDataContext";
+import { ERROR_MESSAGES } from "@/constants";
 
 const SymbolSubscriptionManager: React.FC = () => {
   const { subscribeSymbol, isLoading, error } = useStockData();
@@ -18,13 +19,13 @@ const SymbolSubscriptionManager: React.FC = () => {
 
     // 입력 유효성 검사
     if (!symbolInput.trim()) {
-      setErrorMessage("종목 코드를 입력하세요.");
+      setErrorMessage(ERROR_MESSAGES.REQUIRED_SYMBOL);
       return;
     }
 
     // 한국 주식 종목 코드 형식 검사(6자리 숫자)
     if (!/^\d{6}$/.test(symbolInput)) {
-      setErrorMessage("유효한 종목 코드를 입력해주세요. (6자리 숫자)");
+      setErrorMessage(ERROR_MESSAGES.INVALID_SYMBOL);
       return;
     }
 
@@ -33,10 +34,10 @@ const SymbolSubscriptionManager: React.FC = () => {
       if (success) {
         setSymbolInput(""); // 입력 필드 초기화
       } else {
-        setErrorMessage("종목 구독에 실패했습니다.");
+        setErrorMessage(ERROR_MESSAGES.SUBSCRIBE_FAIL);
       }
     } catch (err) {
-      setErrorMessage("종목 구독 중 오류가 발생했습니다.");
+      setErrorMessage(ERROR_MESSAGES.SUBSCRIBE_ERROR);
       console.error("Subscribe error:", err);
     }
   };

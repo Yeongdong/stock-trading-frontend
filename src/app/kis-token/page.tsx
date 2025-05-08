@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API, STORAGE_KEYS } from "@/constants";
 
 interface User {
   id: number;
@@ -24,7 +25,7 @@ export default function KisToken() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const accessToken = sessionStorage.getItem("access_token");
+        const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 
         if (!accessToken) {
           console.log("No token found, redirecting to login");
@@ -32,7 +33,7 @@ export default function KisToken() {
           return;
         }
 
-        const response = await fetch("https://localhost:7072/api/user", {
+        const response = await fetch(API.USER.GET_CURRENT, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
@@ -57,7 +58,7 @@ export default function KisToken() {
 
   const handleGetKisToken = async () => {
     try {
-      const accessToken = sessionStorage.getItem("access_token");
+      const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
       if (!accessToken) {
         console.log("No token found, redirecting to login");
         window.location.href = "/login";
@@ -72,21 +73,18 @@ export default function KisToken() {
         "accountNumber"
       ) as HTMLInputElement;
 
-      const response = await fetch(
-        "https://localhost:7072/api/account/userInfo",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            appKey: appKeyInput.value,
-            appSecret: appSecretInput.value,
-            accountNumber: accountNumberInput.value,
-          }),
-        }
-      );
+      const response = await fetch(API.USER.USER_INFO, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          appKey: appKeyInput.value,
+          appSecret: appSecretInput.value,
+          accountNumber: accountNumberInput.value,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to get KIS token");

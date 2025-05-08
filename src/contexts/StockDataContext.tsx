@@ -9,6 +9,7 @@ import React, {
 import { StockTransaction } from "@/types";
 import { realTimeService } from "@/services/realTimeService";
 import { stockSubscriptionService } from "@/services/stockSubscriptionService";
+import { LIMITS } from "@/constants";
 
 // 차트 데이터 포인트 인터페이스
 interface PriceDataPoint {
@@ -68,7 +69,6 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isRealtimeConnected, setIsRealtimeConnected] =
     useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartDataState>({});
-  const MAX_DATA_POINTS = 30;
 
   // 종목 구독 상태 업데이트 함수
   const updateSubscribedSymbols = useCallback(() => {
@@ -94,7 +94,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // 최대 길이 제한을 위해 필요시 오래된 데이터 제거
       const updatedData = [...currentData, newDataPoint].slice(
-        -MAX_DATA_POINTS
+        -(-LIMITS.MAX_CHART_DATA_POINTS)
       );
 
       return {

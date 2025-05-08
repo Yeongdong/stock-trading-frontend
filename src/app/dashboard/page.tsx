@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { StockOrder } from "@/types";
 import toast from "@/utils/toast";
+import { API, STORAGE_KEYS } from "@/constants";
 
 export default function DashboardPage() {
   const [acntPrdtCd, setAcntPrdtCd] = useState<string>("01");
@@ -16,7 +17,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const accessToken = sessionStorage.getItem("access_token");
+        const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 
         if (!accessToken) {
           window.location.href = "/login";
@@ -45,20 +46,17 @@ export default function DashboardPage() {
         try {
           setIsLoading(true);
 
-          const accessToken = sessionStorage.getItem("access_token");
+          const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
           console.log(orderData);
 
-          const response = await fetch(
-            "https://localhost:7072/api/stock/order",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(orderData),
-            }
-          );
+          const response = await fetch(API.STOCK.ORDER, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+          });
 
           if (!response.ok) {
             throw new Error("주문 처리 중 오류 발생");

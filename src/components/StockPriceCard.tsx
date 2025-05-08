@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StockTransaction } from "@/types";
 import { useStockData } from "@/contexts/StockDataContext";
 import StockMiniChart from "./StockMiniChart";
+import { TIMINGS, ANIMATIONS } from "@/constants";
 
 interface StockPriceCardProps {
   symbol: string;
@@ -29,11 +30,11 @@ const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
           // 효과 초기화를 위한 타이머
           setTimeout(() => {
             setBlinkClass("");
-          }, 1000);
+          }, ANIMATIONS.BLINK_DURATION);
         }
         setStockData(latestData);
       }
-    }, 200); // 200ms마다 데이터 확인
+    }, TIMINGS.STOCK_PRICE_CHECK_INTERVAL); // 200ms마다 데이터 확인
 
     return () => clearInterval(intervalId);
   }, [symbol, stockData, getStockData]);

@@ -1,6 +1,4 @@
-import { realTimeService } from "./realTimeService";
-
-const SUBSCRIBED_SYMBOLS_KEY = "subscribed_symbols";
+import { API, STORAGE_KEYS, ERROR_MESSAGES } from "@/constants";
 
 export class StockSubscriptionService {
   // 현재 구독중인 종목 코드 목록
@@ -14,7 +12,9 @@ export class StockSubscriptionService {
   // 로컬 스토리지에서 구독 정보 로드
   private loadSubscriptions(): void {
     try {
-      const savedSymbols = localStorage.getItem(SUBSCRIBED_SYMBOLS_KEY);
+      const savedSymbols = localStorage.getItem(
+        STORAGE_KEYS.SUBSCRIBED_SYMBOLS
+      );
       if (savedSymbols) {
         this.subscribedSymbols = JSON.parse(savedSymbols);
         console.log("저장된 구독 목록 로드:", this.subscribedSymbols);
@@ -29,7 +29,7 @@ export class StockSubscriptionService {
   private saveSubscriptions(): void {
     try {
       localStorage.setItem(
-        SUBSCRIBED_SYMBOLS_KEY,
+        STORAGE_KEYS.SUBSCRIBED_SYMBOLS,
         JSON.stringify(this.subscribedSymbols)
       );
     } catch (error) {
@@ -96,19 +96,20 @@ export class StockSubscriptionService {
   // 백엔드 API 호출 - 종목 구독
   private async callSubscribeApi(symbol: string): Promise<void> {
     try {
-      const response = await fetch(
-        `https://localhost:7072/api/realtime/subscribe/${symbol}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
-            "Contenty-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(API.REALTIME.SUBSCRIBE(symbol), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem(
+            STORAGE_KEYS.ACCESS_TOKEN
+          )}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
-        throw new Error(`API 오류: ${response.status} ${response.statusText}`);
+        throw new Error(
+          ERROR_MESSAGES.API_ERROR(response.status, response.statusText)
+        );
       }
 
       const data = await response.json();
@@ -122,19 +123,20 @@ export class StockSubscriptionService {
   // 백엔드 API 호출 - 종목 구독 취소
   private async callUnsubscribeApi(symbol: string): Promise<void> {
     try {
-      const response = await fetch(
-        `https://localhost:7072/api/realtime/subscribe/${symbol}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
-            "Contenty-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(API.REALTIME.SUBSCRIBE(symbol), {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem(
+            STORAGE_KEYS.ACCESS_TOKEN
+          )}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
-        throw new Error(`API 오류: ${response.status} ${response.statusText}`);
+        throw new Error(
+          ERROR_MESSAGES.API_ERROR(response.status, response.statusText)
+        );
       }
 
       const data = await response.json();
@@ -180,10 +182,13 @@ export class StockSubscriptionService {
   private async fetchSubscriptionsFromServer(): Promise<string[]> {
     try {
       const response = await fetch(
-        "https://localhost:7072/api/realtime/subscriptions",
+        API.REALTIME.SUBSCRIPTIONS ||
+          "https://localhost:7072/api/realtime/subscriptions",
         {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${sessionStorage.getItem(
+              STORAGE_KEYS.ACCESS_TOKEN
+            )}`,
           },
         }
       );

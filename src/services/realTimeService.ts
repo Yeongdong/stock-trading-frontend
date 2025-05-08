@@ -1,14 +1,16 @@
 import * as signalR from "@microsoft/signalr";
 import { StockTransaction } from "@/types";
+import { STORAGE_KEYS, LIMITS, TIMINGS } from "@/constants";
 
 export class RealTimeService {
   private hubConnection: signalR.HubConnection | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
+  private maxReconnectAttempts = LIMITS.MAX_RECONNECT_ATTEMPTS;
   private subscribers: { [key: string]: ((data: any) => void)[] } = {};
 
   constructor(
-    private readonly hubUrl: string = "https://localhost:7072/stockhub"
+    private readonly hubUrl: string = process.env.NEXT_PUBLIC_SIGNALR_HUB_URL ||
+      "https://localhost:7072/stockhub"
   ) {}
 
   public async start(): Promise<boolean> {
@@ -52,7 +54,7 @@ export class RealTimeService {
 
   // 인증 토큰 가져오기
   private getAuthToken(): string {
-    return sessionStorage.getItem("access_token") || "";
+    return sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN) || "";
   }
 
   // 이벤트 핸들러 등록
@@ -96,7 +98,7 @@ export class RealTimeService {
 
     setTimeout(() => {
       this.start();
-    }, 2000 * this.reconnectAttempts);
+    }, TIMINGS.RECONNECT_DELAY * this.reconnectAttempts);
   }
 
   // 이벤트 구독
