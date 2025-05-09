@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { StockTransaction } from "@/types";
 import { useStockData } from "@/contexts/StockDataContext";
 import { useError } from "@/contexts/ErrorContext";
+import StockPriceHeader from "./StockPriceHeader";
+import PriceDisplay from "./PriceDisplay";
+import TradingInfo from "./TradingInfo";
 import StockMiniChart from "./StockMiniChart";
 import { TIMINGS, ANIMATIONS, ERROR_MESSAGES } from "@/constants";
 
@@ -67,57 +70,29 @@ const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
     );
   }
 
-  // 가격 변화에 따른 스타일 클래스
-  const priceChangeClass =
-    stockData.priceChange > 0
-      ? "price-up"
-      : stockData.priceChange < 0
-      ? "price-down"
-      : "price-unchanged";
-
   return (
     <div className={`stock-card ${blinkClass}`}>
-      <div className="card-header">
-        <div className="stock-symbol">{symbol}</div>
-        <div className="stock-name">{stockData.symbol}</div>
-        <button
-          className="unsubscribe-btn"
-          onClick={handleUnsubscribe}
-          title="구독 취소"
-          disabled={isUnsubscribing}
-        >
-          {isUnsubscribing ? "..." : "×"}
-        </button>
-      </div>
+      <StockPriceHeader
+        symbol={symbol}
+        name={stockData.symbol}
+        isUnsubscribing={isUnsubscribing}
+        onUnsubscribe={handleUnsubscribe}
+      />
 
-      <div className="price-container">
-        <div className={`current-price ${priceChangeClass}`}>
-          {Number(stockData.price).toLocaleString()} 원
-        </div>
+      <PriceDisplay
+        price={stockData.price}
+        priceChange={stockData.priceChange}
+        changeRate={stockData.changeRate}
+      />
 
-        <div className={`price-change ${priceChangeClass}`}>
-          {stockData.priceChange > 0 ? "+" : ""}
-          {Number(stockData.priceChange).toLocaleString()} 원 (
-          {stockData.changeRate.toFixed(2)}%)
-        </div>
-      </div>
       <div className="chart-container">
         <StockMiniChart symbol={symbol} />
       </div>
-      <div className="trading-info">
-        <div className="volume">
-          <span className="label">거래량:</span>
-          <span className="value">
-            {Number(stockData.volume).toLocaleString()}
-          </span>
-        </div>
-        <div className="time">
-          <span className="label">업데이트:</span>
-          <span className="value">
-            {new Date(stockData.transactionTime).toLocaleTimeString()}
-          </span>
-        </div>
-      </div>
+
+      <TradingInfo
+        volume={stockData.volume}
+        time={new Date(stockData.transactionTime).toLocaleTimeString()}
+      />
     </div>
   );
 };
