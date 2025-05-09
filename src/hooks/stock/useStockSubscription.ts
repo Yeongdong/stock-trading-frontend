@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
-import { stockSubscriptionService } from "@/services/stockSubscriptionService";
+import { stockSubscriptionService } from "@/services/realtime/stockSubscriptionService";
 
 export const useStockSubscription = () => {
   const [subscribedSymbols, setSubscribedSymbols] = useState<string[]>([]);

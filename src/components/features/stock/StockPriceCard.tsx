@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StockTransaction } from "@/types/types";
+import { StockTransaction } from "@/types";
 import { useStockData } from "@/contexts/StockDataContext";
 import { useError } from "@/contexts/ErrorContext";
 import StockMiniChart from "./StockMiniChart";
@@ -48,6 +48,7 @@ const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
       setIsUnsubscribing(true);
       await unsubscribeSymbol(symbol);
     } catch (error) {
+      console.error(error);
       addError({
         message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
         severity: "error",

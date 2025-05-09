@@ -1,5 +1,3 @@
-// src/contexts/StockDataContext.tsx
-
 import React, {
   createContext,
   useContext,
@@ -8,16 +6,16 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { StockTransaction } from "@/types/types";
-import { realTimeService } from "@/services/realTimeService";
+import { StockTransaction } from "@/types";
+import { realTimeService } from "@/services/realtime/realTimeService";
 import { ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
-import { useStockSubscription } from "@/hooks/useStockSubscription";
+import { useStockSubscription } from "@/hooks/stock/useStockSubscription";
 import {
   useChartData,
   PriceDataPoint,
   ChartDataState,
-} from "@/hooks/useChartData";
+} from "@/hooks/stock/useChartData";
 
 // 주가 데이터 저장 인터페이스
 interface StockDataState {

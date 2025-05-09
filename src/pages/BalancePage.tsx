@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { StockBalance } from "@/types/types";
-import { SummaryCard } from "@/components/features/account/SummaryCard";
-import { PositionsTable } from "@/components/features/account/PositionTable";
+import { StockBalance } from "@/types/stock/balance";
 import { useError } from "@/contexts/ErrorContext";
-import { apiClient } from "@/services/apiClient";
-import { API, ERROR_MESSAGES } from "@/constants";
+import { apiClient } from "@/services/api/common/apiClient";
+import { ERROR_MESSAGES } from "@/constants/errors";
+import { API } from "@/constants/api";
+import AccountBalanceView from "@/components/features/account/AccountBalanceView";
 
 export default function BalancePage() {
   const [balanceData, setBalanceData] = useState<StockBalance | null>(null);
@@ -38,26 +38,6 @@ export default function BalancePage() {
     fetchBalanceData();
   });
 
-  if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>{ERROR_MESSAGES.BALANCE.DATA_LOADING}</p>
-      </div>
-    );
-  }
-
-  if (!balanceData) {
-    return (
-      <div className="error-state">
-        <h1>잔고 데이터를 불러올 수 없습니다</h1>
-        <button onClick={fetchBalanceData} className="retry-button">
-          다시 시도
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="balance-page">
       <div className="page-header">
@@ -71,15 +51,11 @@ export default function BalancePage() {
         </button>
       </div>
 
-      <SummaryCard summary={balanceData.summary} />
-
-      {balanceData.positions.length > 0 ? (
-        <PositionsTable positions={balanceData.positions} />
-      ) : (
-        <div className="empty-positions">
-          <p>{ERROR_MESSAGES.BALANCE.EMPTY_POSITIONS}</p>
-        </div>
-      )}
+      <AccountBalanceView
+        balanceData={balanceData}
+        isLoading={isLoading}
+        onRefresh={fetchBalanceData}
+      />
     </div>
   );
 }

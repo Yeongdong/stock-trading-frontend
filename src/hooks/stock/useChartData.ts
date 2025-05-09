@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { LIMITS } from "@/constants";
-import { StockTransaction } from "@/types/types";
+import { StockTransaction } from "@/types";
 
 // 차트 데이터 포인트 인터페이스
 export interface PriceDataPoint {
