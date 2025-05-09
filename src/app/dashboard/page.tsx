@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { StockOrder } from "@/types";
 import toast from "@/utils/toast";
-import { API, STORAGE_KEYS } from "@/constants";
+import { API, STORAGE_KEYS, ERROR_MESSAGES } from "@/constants";
+import { useError } from "@/contexts/ErrorContext";
+import { apiClient } from "@/services/apiClient";
 
 export default function DashboardPage() {
   const [acntPrdtCd, setAcntPrdtCd] = useState<string>("01");
@@ -13,6 +15,8 @@ export default function DashboardPage() {
   const [ordQty, setOrdQty] = useState<string>("");
   const [ordUnpr, setOrdUnpr] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const { addError } = useError();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -25,12 +29,46 @@ export default function DashboardPage() {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+        addError({
+          message: ERROR_MESSAGES.USER.FETCH_FAILED,
+          severity: "error",
+        });
       }
     };
     fetchUserData();
-  }, []);
+  }, [addError]);
+
+  const validateOrder = () => {
+    if (!pdno) {
+      addError({
+        message: ERROR_MESSAGES.ORDER.INVALID_SYMBOL,
+        severity: "warning",
+      });
+      return false;
+    }
+
+    if (!ordQty || parseInt(ordQty) <= 0) {
+      addError({
+        message: ERROR_MESSAGES.ORDER.INVALID_QUANTITY,
+        severity: "warning",
+      });
+      return false;
+    }
+
+    if (ordDvsn.startsWith("00") && (!ordUnpr || parseInt(ordUnpr) <= 0)) {
+      addError({
+        message: ERROR_MESSAGES.ORDER.INVALID_PRICE,
+        severity: "warning",
+      });
+      return false;
+    }
+
+    return true;
+  };
 
   const handleOrder = () => {
+    if (!validateOrder()) return;
+
     const processedOrderDvsn = ordDvsn.substring(0, 2);
     const orderData: StockOrder = {
       acntPrdtCd,
@@ -47,20 +85,29 @@ export default function DashboardPage() {
           setIsLoading(true);
 
           const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-          console.log(orderData);
 
-          const response = await fetch(API.STOCK.ORDER, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(orderData),
+          if (!accessToken) {
+            addError({
+              message: ERROR_MESSAGES.AUTH.LOGIN_REQUIRED,
+              severity: "error",
+            });
+            window.location.href = "/login";
+            return;
+          }
+
+          const response = await apiClient.post(API.STOCK.ORDER, orderData, {
+            requiresAuth: true,
+            handleError: true,
           });
 
-          if (!response.ok) {
-            throw new Error("주문 처리 중 오류 발생");
+          if (response.error) {
+            throw new Error(response.error);
           }
+
+          addError({
+            message: ERROR_MESSAGES.ORDER.ORDER_SUCCESS,
+            severity: "info",
+          });
 
           setTrId("VTTC0802U");
           setPdno("");
@@ -69,6 +116,12 @@ export default function DashboardPage() {
           setOrdUnpr("");
         } catch (error) {
           console.error("Error submitting order: ", error);
+          if (error instanceof Error) {
+            addError({
+              message: error.message || ERROR_MESSAGES.ORDER.ORDER_FAILED,
+              severity: "error",
+            });
+          }
         } finally {
           setIsLoading(false);
         }

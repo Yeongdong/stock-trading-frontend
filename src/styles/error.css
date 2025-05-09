@@ -1,0 +1,87 @@
+/* src/styles/error.css */
+
+.error-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.error-item {
+  padding: 12px 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slide-in 0.3s ease-out;
+}
+
+.error-item.error {
+  background-color: #fdecea;
+  border-left: 4px solid #e53935;
+}
+
+.error-item.warning {
+  background-color: #fff8e1;
+  border-left: 4px solid #ffb300;
+}
+
+.error-item.info {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-icon {
+  font-size: 18px;
+}
+
+.error-message {
+  font-size: 14px;
+  color: #333;
+}
+
+.dismiss-button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+.clear-all-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.clear-all-button:hover {
+  background-color: #e0e0e0;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

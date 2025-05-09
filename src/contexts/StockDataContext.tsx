@@ -9,7 +9,8 @@ import React, {
 import { StockTransaction } from "@/types";
 import { realTimeService } from "@/services/realTimeService";
 import { stockSubscriptionService } from "@/services/stockSubscriptionService";
-import { LIMITS } from "@/constants";
+import { LIMITS, ERROR_MESSAGES } from "@/constants";
+import { useError } from "@/contexts/ErrorContext";
 
 // 차트 데이터 포인트 인터페이스
 interface PriceDataPoint {
@@ -55,10 +56,8 @@ const StockDataContext = createContext<StockDataContextType>({
   getChartData: () => [],
 });
 
-// 컨텍스트 사용을 위한 커스텀 훅
 export const useStockData = () => useContext(StockDataContext);
 
-// 컨텍스트 프로바이더 컴포넌트
 export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -69,6 +68,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isRealtimeConnected, setIsRealtimeConnected] =
     useState<boolean>(false);
   const [chartData, setChartData] = useState<ChartDataState>({});
+  const { addError } = useError();
 
   // 종목 구독 상태 업데이트 함수
   const updateSubscribedSymbols = useCallback(() => {
@@ -120,17 +120,25 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
         const success = await stockSubscriptionService.subscribeSymbol(symbol);
         if (success) {
           updateSubscribedSymbols();
+          addError({
+            message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_SUCCESS(symbol),
+            severity: "info",
+          });
         }
         return success;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         setError(`종목 구독 실패: ${errorMsg}`);
+        addError({
+          message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_FAIL(symbol),
+          severity: "error",
+        });
         return false;
       } finally {
         setIsLoading(false);
       }
     },
-    [updateSubscribedSymbols]
+    [updateSubscribedSymbols, addError]
   );
 
   // 종목 구독 취소 함수
@@ -143,23 +151,37 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
         );
         if (success) {
           updateSubscribedSymbols();
-          // 구독 취소시 데이터에서도 해당 종목 제거
+
           setStockData((prevData) => {
             const newData = { ...prevData };
             delete newData[symbol];
             return newData;
+          });
+          setChartData((prevChartData) => {
+            const newChartData = { ...prevChartData };
+            delete newChartData[symbol];
+            return newChartData;
+          });
+
+          addError({
+            message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_SUCCESS(symbol),
+            severity: "info",
           });
         }
         return success;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         setError(`종목 구독 취소 실패: ${errorMsg}`);
+        addError({
+          message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
+          severity: "error",
+        });
         return false;
       } finally {
         setIsLoading(false);
       }
     },
-    [updateSubscribedSymbols]
+    [updateSubscribedSymbols, addError]
   );
 
   // 종목 구독 확인 함수
@@ -180,6 +202,14 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
     const initializeRealTimeService = async () => {
       try {
         setIsLoading(true);
+
+        // 실시간 서비스 오류 핸들러 설정
+        realTimeService.setErrorCallback((errorMessage) => {
+          addError({
+            message: errorMessage,
+            severity: "error",
+          });
+        });
 
         // SignalR 연결 시작
         const connected = await realTimeService.start();
@@ -202,21 +232,30 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
           };
         } else {
           setError("실시간 데이터 연결 실패");
+          addError({
+            message: ERROR_MESSAGES.REALTIME.CONNECTION_FAILED,
+            severity: "error",
+          });
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         setError(`실시간 서비스 초기화 실패: ${errorMsg}`);
+        addError({
+          message: ERROR_MESSAGES.REALTIME.CONNECTION_FAILED,
+          severity: "error",
+        });
       } finally {
         setIsLoading(false);
       }
     };
+
     initializeRealTimeService();
 
     // 컴포넌트 언마운트시 연결 종료
     return () => {
       realTimeService.stop();
     };
-  }, [handleStockPrice, updateSubscribedSymbols]);
+  }, [handleStockPrice, updateSubscribedSymbols, addError]);
 
   // 컨텍스트 값 생성(불필요한 렌더링 방지를 위해 useMemo 사용)
   const contextValue = useMemo(

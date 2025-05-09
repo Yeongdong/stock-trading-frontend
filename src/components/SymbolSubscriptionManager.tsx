@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { useStockData } from "@/contexts/StockDataContext";
 import { ERROR_MESSAGES } from "@/constants";
+import { useError } from "@/contexts/ErrorContext";
 
 const SymbolSubscriptionManager: React.FC = () => {
   const { subscribeSymbol, isLoading, error } = useStockData();
+  const { addError } = useError();
   const [symbolInput, setSymbolInput] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [internalError, setInternalError] = useState<string>("");
 
   // 종목 코드 입력 처리
   const handleSymbolChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSymbolInput(e.target.value.toUpperCase());
-    setErrorMessage("");
+    setInternalError("");
   };
 
   // 종목 구독 처리
@@ -19,13 +21,17 @@ const SymbolSubscriptionManager: React.FC = () => {
 
     // 입력 유효성 검사
     if (!symbolInput.trim()) {
-      setErrorMessage(ERROR_MESSAGES.REQUIRED_SYMBOL);
+      setInternalError(ERROR_MESSAGES.REQUIRED_SYMBOL);
       return;
     }
 
     // 한국 주식 종목 코드 형식 검사(6자리 숫자)
     if (!/^\d{6}$/.test(symbolInput)) {
-      setErrorMessage(ERROR_MESSAGES.INVALID_SYMBOL);
+      setInternalError(ERROR_MESSAGES.INVALID_SYMBOL);
+      addError({
+        message: ERROR_MESSAGES.INVALID_SYMBOL,
+        severity: "warning",
+      });
       return;
     }
 
@@ -34,10 +40,10 @@ const SymbolSubscriptionManager: React.FC = () => {
       if (success) {
         setSymbolInput(""); // 입력 필드 초기화
       } else {
-        setErrorMessage(ERROR_MESSAGES.SUBSCRIBE_FAIL);
+        setInternalError(ERROR_MESSAGES.SUBSCRIBE_FAIL);
       }
     } catch (err) {
-      setErrorMessage(ERROR_MESSAGES.SUBSCRIBE_ERROR);
+      setInternalError(ERROR_MESSAGES.SUBSCRIBE_ERROR);
       console.error("Subscribe error:", err);
     }
   };
@@ -60,8 +66,7 @@ const SymbolSubscriptionManager: React.FC = () => {
           </button>
         </div>
 
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
-
+        {internalError && <div className="error-message">{internalError}</div>}
         {error && <div className="error-message">{error}</div>}
 
         <div className="help-text">

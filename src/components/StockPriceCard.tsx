@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { StockTransaction } from "@/types";
 import { useStockData } from "@/contexts/StockDataContext";
+import { useError } from "@/contexts/ErrorContext";
 import StockMiniChart from "./StockMiniChart";
-import { TIMINGS, ANIMATIONS } from "@/constants";
+import { TIMINGS, ANIMATIONS, ERROR_MESSAGES } from "@/constants";
 
 interface StockPriceCardProps {
   symbol: string;
@@ -10,8 +11,10 @@ interface StockPriceCardProps {
 
 const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
   const { getStockData, unsubscribeSymbol } = useStockData();
+  const { addError } = useError();
   const [stockData, setStockData] = useState<StockTransaction | null>(null);
   const [blinkClass, setBlinkClass] = useState<string>("");
+  const [isUnsubscribing, setIsUnsubscribing] = useState<boolean>(false);
 
   // 실시간 데이터 업데이트 감지
   useEffect(() => {
@@ -41,7 +44,17 @@ const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
 
   // 구독 취소 처리
   const handleUnsubscribe = async () => {
-    await unsubscribeSymbol(symbol);
+    try {
+      setIsUnsubscribing(true);
+      await unsubscribeSymbol(symbol);
+    } catch (error) {
+      addError({
+        message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
+        severity: "error",
+      });
+    } finally {
+      setIsUnsubscribing(false);
+    }
   };
 
   if (!stockData) {
@@ -70,8 +83,9 @@ const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
           className="unsubscribe-btn"
           onClick={handleUnsubscribe}
           title="구독 취소"
+          disabled={isUnsubscribing}
         >
-          ×
+          {isUnsubscribing ? "..." : "×"}
         </button>
       </div>
 

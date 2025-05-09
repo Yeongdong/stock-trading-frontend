@@ -5,7 +5,7 @@ import {
   EventTypes,
   EventDataMap,
 } from "@/types";
-import { STORAGE_KEYS, LIMITS, TIMINGS } from "@/constants";
+import { STORAGE_KEYS, LIMITS, TIMINGS, ERROR_MESSAGES } from "@/constants";
 
 export class RealTimeService {
   private hubConnection: signalR.HubConnection | null = null;
@@ -19,10 +19,16 @@ export class RealTimeService {
     connected: [],
   };
 
+  private errorCallback: ((error: string) => void) | null = null;
+
   constructor(
     private readonly hubUrl: string = process.env.NEXT_PUBLIC_SIGNALR_HUB_URL ||
       "https://localhost:7072/stockhub"
   ) {}
+
+  public setErrorCallback(callback: (error: string) => void): void {
+    this.errorCallback = callback;
+  }
 
   public async start(): Promise<boolean> {
     if (this.hubConnection) {
@@ -49,6 +55,7 @@ export class RealTimeService {
       return true;
     } catch (error) {
       console.error("SignalR 연결 실패: ", error);
+      this.handleError(ERROR_MESSAGES.REALTIME.CONNECTION_FAILED);
       this.reconnect();
       return false;
     }
@@ -94,14 +101,31 @@ export class RealTimeService {
     this.hubConnection.onclose((error) => {
       console.log("연결 해제됨", error);
       if (error) {
+        this.handleError(ERROR_MESSAGES.REALTIME.CONNECTION_LOST);
         this.reconnect();
       }
     });
+
+    // 오류 이벤트
+    this.hubConnection.on("error", (error: any) => {
+      const errorMessage =
+        error?.message || ERROR_MESSAGES.REALTIME.CONNECTION_FAILED;
+      this.handleError(errorMessage);
+    });
+  }
+
+  // 오류 처리
+  private handleError(errorMessage: string): void {
+    if (this.errorCallback) {
+      this.errorCallback(errorMessage);
+    }
   }
   // 재연결 시도
   private reconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.log("최대 재연결 시도 횟수 초과");
+      this.handleError(ERROR_MESSAGES.REALTIME.MAX_RECONNECT_ATTEMPTS);
+
       return;
     }
 

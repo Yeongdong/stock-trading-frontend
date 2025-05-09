@@ -1,4 +1,6 @@
-import { API, STORAGE_KEYS, ERROR_MESSAGES } from "@/constants";
+import { API, STORAGE_KEYS } from "@/constants";
+import { apiClient } from "./apiClient";
+import { SubscriptionsResponse } from "@/types";
 
 export class StockSubscriptionService {
   // 현재 구독중인 종목 코드 목록
@@ -55,7 +57,17 @@ export class StockSubscriptionService {
     }
 
     try {
-      await this.callSubscribeApi(symbol);
+      const response = await apiClient.post(
+        API.REALTIME.SUBSCRIBE(symbol),
+        {},
+        {
+          requiresAuth: true,
+        }
+      );
+
+      if (response.status !== 200) {
+        return false;
+      }
 
       // 구독 목록에 추가
       this.subscribedSymbols.push(symbol);
@@ -77,7 +89,13 @@ export class StockSubscriptionService {
     }
 
     try {
-      await this.callUnsubscribeApi(symbol);
+      const response = await apiClient.delete(API.REALTIME.SUBSCRIBE(symbol), {
+        requiresAuth: true,
+      });
+
+      if (response.status !== 200) {
+        return false;
+      }
 
       // 구독 목록에서 제거
       this.subscribedSymbols = this.subscribedSymbols.filter(
@@ -90,60 +108,6 @@ export class StockSubscriptionService {
     } catch (error) {
       console.error(`종목 구독 취소 실패: ${symbol}`, error);
       return false;
-    }
-  }
-
-  // 백엔드 API 호출 - 종목 구독
-  private async callSubscribeApi(symbol: string): Promise<void> {
-    try {
-      const response = await fetch(API.REALTIME.SUBSCRIBE(symbol), {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem(
-            STORAGE_KEYS.ACCESS_TOKEN
-          )}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          ERROR_MESSAGES.API_ERROR(response.status, response.statusText)
-        );
-      }
-
-      const data = await response.json();
-      console.log("구독 API 응답:", data);
-    } catch (error) {
-      console.error("구독 API 호출 중 오류:", error);
-      throw error;
-    }
-  }
-
-  // 백엔드 API 호출 - 종목 구독 취소
-  private async callUnsubscribeApi(symbol: string): Promise<void> {
-    try {
-      const response = await fetch(API.REALTIME.SUBSCRIBE(symbol), {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem(
-            STORAGE_KEYS.ACCESS_TOKEN
-          )}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          ERROR_MESSAGES.API_ERROR(response.status, response.statusText)
-        );
-      }
-
-      const data = await response.json();
-      console.log("구독 취소 API 응답:", data);
-    } catch (error) {
-      console.error("구독 취소 API 호출 중 오류:", error);
-      throw error;
     }
   }
 
@@ -163,7 +127,13 @@ export class StockSubscriptionService {
 
       // 서버에 없는 로컬 구독 추가
       for (const symbol of localOnly) {
-        await this.callSubscribeApi(symbol);
+        await apiClient.post(
+          API.REALTIME.SUBSCRIBE(symbol),
+          {},
+          {
+            handleError: false, // 초기화 중 개별 오류는 무시
+          }
+        );
       }
 
       // 로컬에 없는 서버 구독 추가
@@ -181,24 +151,19 @@ export class StockSubscriptionService {
   // 서버의 구독 목록 가져오기
   private async fetchSubscriptionsFromServer(): Promise<string[]> {
     try {
-      const response = await fetch(
-        API.REALTIME.SUBSCRIPTIONS ||
-          "https://localhost:7072/api/realtime/subscriptions",
+      const response = await apiClient.get<SubscriptionsResponse>(
+        API.REALTIME.SUBSCRIPTIONS,
         {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem(
-              STORAGE_KEYS.ACCESS_TOKEN
-            )}`,
-          },
+          requiresAuth: true,
+          handleError: false,
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`API 오류: ${response.status} ${response.statusText}`);
+      if (response.status !== 200) {
+        return [];
       }
 
-      const data = await response.json();
-      return data.symbols || [];
+      return response.data?.symbols || [];
     } catch (error) {
       console.error("서버 구독 목록 조회 중 오류:", error);
       return [];
