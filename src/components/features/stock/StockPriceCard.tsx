@@ -86,6 +86,7 @@ const StockPriceCard: React.FC<StockPriceCardProps> = ({ symbol }) => {
       />
 
       <div className="chart-container">
+        {" "}
         <StockMiniChart symbol={symbol} />
       </div>
 
