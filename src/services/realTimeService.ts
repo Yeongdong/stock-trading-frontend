@@ -4,7 +4,7 @@ import {
   TradeExecutionData,
   EventTypes,
   EventDataMap,
-} from "@/types";
+} from "@/types/types";
 import { STORAGE_KEYS, LIMITS, TIMINGS, ERROR_MESSAGES } from "@/constants";
 
 export class RealTimeService {

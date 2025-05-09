@@ -1,9 +1,7 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { StockBalance } from "@/types";
-import { SummaryCard } from "@/components/ui/SummaryCard";
-import { PositionsTable } from "@/components/ui/PositionsTable";
+import { StockBalance } from "@/types/types";
+import { SummaryCard } from "@/components/features/account/SummaryCard";
+import { PositionsTable } from "@/components/features/account/PositionTable";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/apiClient";
 import { API, ERROR_MESSAGES } from "@/constants";

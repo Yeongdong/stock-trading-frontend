@@ -1,3 +1,5 @@
+// src/contexts/StockDataContext.tsx
+
 import React, {
   createContext,
   useContext,
@@ -6,26 +8,20 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { StockTransaction } from "@/types";
+import { StockTransaction } from "@/types/types";
 import { realTimeService } from "@/services/realTimeService";
-import { stockSubscriptionService } from "@/services/stockSubscriptionService";
-import { LIMITS, ERROR_MESSAGES } from "@/constants";
+import { ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
-
-// 차트 데이터 포인트 인터페이스
-interface PriceDataPoint {
-  time: string;
-  price: number;
-}
+import { useStockSubscription } from "@/hooks/useStockSubscription";
+import {
+  useChartData,
+  PriceDataPoint,
+  ChartDataState,
+} from "@/hooks/useChartData";
 
 // 주가 데이터 저장 인터페이스
 interface StockDataState {
   [symbol: string]: StockTransaction;
-}
-
-// 차트 데이터를 저장할 인터페이스
-interface ChartDataState {
-  [symbol: string]: PriceDataPoint[];
 }
 
 // 컨텍스트에서 제공할 값들의 인터페이스
@@ -62,132 +58,57 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [stockData, setStockData] = useState<StockDataState>({});
-  const [subscribedSymbols, setSubscribedSymbols] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [isRealtimeConnected, setIsRealtimeConnected] =
     useState<boolean>(false);
-  const [chartData, setChartData] = useState<ChartDataState>({});
+  const [error, setError] = useState<string | null>(null);
   const { addError } = useError();
 
-  // 종목 구독 상태 업데이트 함수
-  const updateSubscribedSymbols = useCallback(() => {
-    const symbols = stockSubscriptionService.getSubscribedSymbols();
-    setSubscribedSymbols(symbols);
-  }, []);
+  const {
+    subscribedSymbols,
+    isLoading,
+    subscribeSymbol,
+    unsubscribeSymbol,
+    isSubscribed,
+    updateSubscribedSymbols,
+    initializeSubscriptions,
+  } = useStockSubscription();
+
+  const { chartData, updateChartData, getChartData, removeChartData } =
+    useChartData();
 
   // 실시간 데이터 수신 핸들러
-  const handleStockPrice = useCallback((data: StockTransaction) => {
-    setStockData((prevData) => ({
-      ...prevData,
-      [data.symbol]: data,
-    }));
+  const handleStockPrice = useCallback(
+    (data: StockTransaction) => {
+      setStockData((prevData) => ({
+        ...prevData,
+        [data.symbol]: data,
+      }));
 
-    setChartData((prevChartData) => {
-      const symbol = data.symbol;
-      const newDataPoint = {
-        time: new Date().toLocaleTimeString(),
-        price: data.price,
-      };
-
-      const currentData = prevChartData[symbol] || [];
-
-      // 최대 길이 제한을 위해 필요시 오래된 데이터 제거
-      const updatedData = [...currentData, newDataPoint].slice(
-        -(-LIMITS.MAX_CHART_DATA_POINTS)
-      );
-
-      return {
-        ...prevChartData,
-        [symbol]: updatedData,
-      };
-    });
-  }, []);
-
-  // 차트 데이터 조회 함수
-  const getChartData = useCallback(
-    (symbol: string): PriceDataPoint[] => {
-      return chartData[symbol] || [];
+      // 차트 데이터 업데이트
+      updateChartData(data);
     },
-    [chartData]
+    [updateChartData]
   );
 
-  // 종목 구독 함수
-  const subscribeSymbol = useCallback(
+  // 특정 종목 데이터 삭제 처리
+  const handleUnsubscribe = useCallback(
     async (symbol: string): Promise<boolean> => {
-      try {
-        setIsLoading(true);
-        const success = await stockSubscriptionService.subscribeSymbol(symbol);
-        if (success) {
-          updateSubscribedSymbols();
-          addError({
-            message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_SUCCESS(symbol),
-            severity: "info",
-          });
-        }
-        return success;
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        setError(`종목 구독 실패: ${errorMsg}`);
-        addError({
-          message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_FAIL(symbol),
-          severity: "error",
+      const success = await unsubscribeSymbol(symbol);
+      if (success) {
+        // 주식 데이터 삭제
+        setStockData((prevData) => {
+          const newData = { ...prevData };
+          delete newData[symbol];
+          return newData;
         });
-        return false;
-      } finally {
-        setIsLoading(false);
+
+        // 차트 데이터 삭제
+        removeChartData(symbol);
       }
+      return success;
     },
-    [updateSubscribedSymbols, addError]
+    [unsubscribeSymbol, removeChartData]
   );
-
-  // 종목 구독 취소 함수
-  const unsubscribeSymbol = useCallback(
-    async (symbol: string): Promise<boolean> => {
-      try {
-        setIsLoading(true);
-        const success = await stockSubscriptionService.unsubscribeSymbol(
-          symbol
-        );
-        if (success) {
-          updateSubscribedSymbols();
-
-          setStockData((prevData) => {
-            const newData = { ...prevData };
-            delete newData[symbol];
-            return newData;
-          });
-          setChartData((prevChartData) => {
-            const newChartData = { ...prevChartData };
-            delete newChartData[symbol];
-            return newChartData;
-          });
-
-          addError({
-            message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_SUCCESS(symbol),
-            severity: "info",
-          });
-        }
-        return success;
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        setError(`종목 구독 취소 실패: ${errorMsg}`);
-        addError({
-          message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
-          severity: "error",
-        });
-        return false;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [updateSubscribedSymbols, addError]
-  );
-
-  // 종목 구독 확인 함수
-  const isSubscribed = useCallback((symbol: string): boolean => {
-    return stockSubscriptionService.isSubscribed(symbol);
-  }, []);
 
   // 특정 종목 데이터 가져오기
   const getStockData = useCallback(
@@ -201,8 +122,6 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const initializeRealTimeService = async () => {
       try {
-        setIsLoading(true);
-
         // 실시간 서비스 오류 핸들러 설정
         realTimeService.setErrorCallback((errorMessage) => {
           addError({
@@ -223,8 +142,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
           );
 
           // 기존 구독 초기화
-          await stockSubscriptionService.initializeSubscriptions();
-          updateSubscribedSymbols();
+          await initializeSubscriptions();
 
           setError(null);
           return () => {
@@ -244,8 +162,6 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
           message: ERROR_MESSAGES.REALTIME.CONNECTION_FAILED,
           severity: "error",
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -255,9 +171,9 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       realTimeService.stop();
     };
-  }, [handleStockPrice, updateSubscribedSymbols, addError]);
+  }, [handleStockPrice, initializeSubscriptions, addError]);
 
-  // 컨텍스트 값 생성(불필요한 렌더링 방지를 위해 useMemo 사용)
+  // 컨텍스트 값 생성
   const contextValue = useMemo(
     () => ({
       stockData,
@@ -266,7 +182,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
       error,
       chartData,
       subscribeSymbol,
-      unsubscribeSymbol,
+      unsubscribeSymbol: handleUnsubscribe,
       isSubscribed,
       getStockData,
       getChartData,
@@ -278,12 +194,13 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({
       error,
       chartData,
       subscribeSymbol,
-      unsubscribeSymbol,
+      handleUnsubscribe,
       isSubscribed,
       getStockData,
       getChartData,
     ]
   );
+
   return (
     <StockDataContext.Provider value={contextValue}>
       {children}

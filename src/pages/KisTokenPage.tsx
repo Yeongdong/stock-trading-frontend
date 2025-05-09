@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";

@@ -1,5 +1,5 @@
-import { Summary } from "../../types";
-import { formatKRW } from "../../utils/formatters";
+import { Summary } from "@/types/stock";
+import { formatKRW } from "../../../utils/formatters";
 
 interface SummaryCardsProps {
   summary: Summary;

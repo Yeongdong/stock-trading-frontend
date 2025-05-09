@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Position } from "@/types";
+import { Position } from "@/types/stock";
 import { formatKRW } from "@/utils/formatters";
 
 interface PositionsTableProps {

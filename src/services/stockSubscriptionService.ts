@@ -1,6 +1,6 @@
 import { API, STORAGE_KEYS } from "@/constants";
 import { apiClient } from "./apiClient";
-import { SubscriptionsResponse } from "@/types";
+import { SubscriptionsResponse } from "@/types/types";
 
 export class StockSubscriptionService {
   // 현재 구독중인 종목 코드 목록

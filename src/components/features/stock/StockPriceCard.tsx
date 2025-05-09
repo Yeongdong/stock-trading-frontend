@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StockTransaction } from "@/types";
+import { StockTransaction } from "@/types/types";
 import { useStockData } from "@/contexts/StockDataContext";
 import { useError } from "@/contexts/ErrorContext";
 import StockMiniChart from "./StockMiniChart";
