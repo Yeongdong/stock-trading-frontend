@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useMemo, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  ReactNode,
+  useCallback,
+} from "react";
 import { StockTransaction } from "@/types";
-import { PriceDataPoint } from "@/contexts/ChartDataContext";
+import { PriceDataPoint } from "@/hooks/stock/useChartData";
 import {
   StockSubscriptionProvider,
   useStockSubscription,
@@ -28,36 +34,62 @@ const StockDataContext = createContext<StockDataContextType | undefined>(
   undefined
 );
 
-const StockDataContextInner: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const subscription = useStockSubscription();
-  const realtimePrice = useRealtimePrice();
-  const chartData = useChartData();
+// 내부 컴포넌트
+const StockDataContextInner: React.FC<{ children: ReactNode }> = React.memo(
+  ({ children }) => {
+    const subscription = useStockSubscription();
+    const realtimePrice = useRealtimePrice();
+    const chartData = useChartData();
 
-  const error = subscription.error || realtimePrice.error || null;
+    const error = useMemo(
+      () => subscription.error || realtimePrice.error || null,
+      [subscription.error, realtimePrice.error]
+    );
 
-  const contextValue = useMemo(
-    () => ({
-      stockData: realtimePrice.stockData,
-      subscribedSymbols: subscription.subscribedSymbols,
-      isLoading: subscription.isLoading,
-      error,
-      subscribeSymbol: subscription.subscribeSymbol,
-      unsubscribeSymbol: subscription.unsubscribeSymbol,
-      isSubscribed: subscription.isSubscribed,
-      getStockData: realtimePrice.getStockData,
-      getChartData: chartData.getChartData,
-    }),
-    [subscription, realtimePrice, chartData, error]
-  );
+    const getStockData = useCallback(
+      (symbol: string) => realtimePrice.getStockData(symbol),
+      [realtimePrice]
+    );
 
-  return (
-    <StockDataContext.Provider value={contextValue}>
-      {children}
-    </StockDataContext.Provider>
-  );
-};
+    const getChartData = useCallback(
+      (symbol: string) => chartData.getChartData(symbol),
+      [chartData]
+    );
+
+    const contextValue = useMemo(
+      () => ({
+        stockData: realtimePrice.stockData,
+        subscribedSymbols: subscription.subscribedSymbols,
+        isLoading: subscription.isLoading,
+        error,
+        subscribeSymbol: subscription.subscribeSymbol,
+        unsubscribeSymbol: subscription.unsubscribeSymbol,
+        isSubscribed: subscription.isSubscribed,
+        getStockData,
+        getChartData,
+      }),
+      [
+        realtimePrice.stockData,
+        subscription.subscribedSymbols,
+        subscription.isLoading,
+        error,
+        subscription.subscribeSymbol,
+        subscription.unsubscribeSymbol,
+        subscription.isSubscribed,
+        getStockData,
+        getChartData,
+      ]
+    );
+
+    return (
+      <StockDataContext.Provider value={contextValue}>
+        {children}
+      </StockDataContext.Provider>
+    );
+  }
+);
+
+StockDataContextInner.displayName = "StockDataContextInner";
 
 export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
   children,

@@ -1,16 +1,22 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 
 interface TradingInfoProps {
   volume: number;
   time: string;
 }
 
-const TradingInfo: React.FC<TradingInfoProps> = ({ volume, time }) => {
+const TradingInfo: React.FC<TradingInfoProps> = memo(({ volume, time }) => {
+  // 거래량 포맷팅
+  const formattedVolume = useMemo(
+    () => Number(volume).toLocaleString(),
+    [volume]
+  );
+
   return (
     <div className="trading-info">
       <div className="volume">
         <span className="label">거래량:</span>
-        <span className="value">{Number(volume).toLocaleString()}</span>
+        <span className="value">{formattedVolume}</span>
       </div>
       <div className="time">
         <span className="label">업데이트:</span>
@@ -18,6 +24,8 @@ const TradingInfo: React.FC<TradingInfoProps> = ({ volume, time }) => {
       </div>
     </div>
   );
-};
+});
+
+TradingInfo.displayName = "TradingInfo";
 
 export default TradingInfo;
