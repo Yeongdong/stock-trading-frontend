@@ -1,4 +1,4 @@
-import React, { useMemo, memo } from "react";
+import React, { useMemo, memo, useRef, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -15,11 +15,46 @@ interface StockMiniChartProps {
   height?: number;
 }
 
+const CHART_UPDATE_INTERVAL = 500;
+
 const StockMiniChart: React.FC<StockMiniChartProps> = memo(
   ({ symbol, height = 120 }) => {
     const { getChartData, getStockData } = useStockData();
-    const chartData = getChartData(symbol);
-    const currentStock = getStockData(symbol);
+
+    // 렌더링 최적화를 위해 ref에 데이터 저장
+    const chartDataRef = useRef(getChartData(symbol));
+    const currentStockRef = useRef(getStockData(symbol));
+
+    // 차트 강제 업데이트를 위한 state
+    const [, forceUpdate] = React.useState({});
+
+    // 절차적 업데이트를 위한 타이머 ref
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    // 주기적으로 차트 데이터 업데이트
+    useEffect(() => {
+      const updateChartData = () => {
+        chartDataRef.current = getChartData(symbol);
+        currentStockRef.current = getStockData(symbol);
+        forceUpdate({});
+      };
+
+      // 초기 데이터 설정
+      updateChartData();
+
+      // 주기적 업데이트 설정
+      timerRef.current = setInterval(updateChartData, CHART_UPDATE_INTERVAL);
+
+      return () => {
+        // 정리: 타이머 제거
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      };
+    }, [symbol, getChartData, getStockData]);
+
+    const chartData = chartDataRef.current;
+    const currentStock = currentStockRef.current;
 
     // 차트 데이터가 충분한지 확인
     const hasData = chartData.length > 1;
@@ -105,7 +140,7 @@ const StockMiniChart: React.FC<StockMiniChartProps> = memo(
               stroke="#757575"
             />
 
-            {/* 툴팁 */}
+            {/* 툴팁 - 비용이 큰 컴포넌트이므로 필요한 경우만 사용 */}
             <Tooltip
               formatter={(value) => [
                 `${Number(value).toLocaleString()} 원`,
