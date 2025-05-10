@@ -1,5 +1,6 @@
 export const formatKRW = (value: string) => {
-  const numValue = parseInt(value, 10);
+  const numValue =
+    value === "" || isNaN(parseInt(value, 10)) ? 0 : parseInt(value, 10);
   return new Intl.NumberFormat("ko-KR", {
     style: "currency",
     currency: "KRW",
