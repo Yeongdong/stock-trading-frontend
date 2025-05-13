@@ -2,7 +2,6 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import KisTokenForm from "../KisTokenForm";
 import { apiClient } from "@/services/api/common/apiClient";
-import { ErrorProvider } from "@/contexts/ErrorContext";
 
 // API 호출 모킹
 jest.mock("@/services/api/common/apiClient", () => ({
