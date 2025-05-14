@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  output: "standalone",
+  output: "export",
 
   // 컴파일 중 ESLint 오류를 경고로 처리
   eslint: {
