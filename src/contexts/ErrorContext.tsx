@@ -25,8 +25,16 @@ interface ErrorContextType {
   clearErrors: () => void;
 }
 
+// 초기 컨텍스트 값 설정
+const initialContext: ErrorContextType = {
+  errors: [],
+  addError: () => {},
+  removeError: () => {},
+  clearErrors: () => {},
+};
+
 // 컨텍스트 생성
-const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
+const ErrorContext = createContext<ErrorContextType>(initialContext);
 
 // 고유 ID 생성 함수
 const generateId = (): string => Math.random().toString(36).substring(2, 9);
