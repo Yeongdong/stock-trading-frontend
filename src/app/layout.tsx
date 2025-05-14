@@ -1,11 +1,10 @@
-import { useNetworkStatus } from "@/hooks/common/useNetworkStatus";
-import { ErrorProvider } from "@/contexts/ErrorContext";
-import ErrorDisplay from "@/components/common/ErrorDisplay";
-import { StockDataProvider } from "@/contexts/StockDataContext";
+import "@/styles/globals.css";
 import "@/styles/error.css";
+import Providers from "./providers";
 
 export const metadata = {
-  title: "Stock-Trading",
+  title: "Stock Trading Application",
+  description: "Stock trading application",
 };
 
 export default function RootLayout({
@@ -13,18 +12,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  useNetworkStatus();
-
   return (
-    <html lang="en">
-      <ErrorProvider>
-        <StockDataProvider>
-          <body>
-            {children}
-            <ErrorDisplay />
-          </body>
-        </StockDataProvider>
-      </ErrorProvider>
+    <html lang="ko">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

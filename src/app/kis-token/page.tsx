@@ -5,6 +5,8 @@ import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import KisTokenForm from "@/components/features/account/KisTokenForm";
+import { STORAGE_KEYS } from "@/constants/auth";
+import { redirect } from "next/navigation";
 
 interface User {
   id: number;
@@ -14,9 +16,21 @@ interface User {
   accountNumber: string;
 }
 
-export default function KisToken() {
+export default function KisTokenPage() {
   const [user, setUser] = useState<User | null>(null);
   const { addError } = useError();
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+
+      if (!accessToken) {
+        redirect("/login");
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -28,7 +42,7 @@ export default function KisToken() {
             message: ERROR_MESSAGES.USER.FETCH_FAILED,
             severity: "error",
           });
-          window.location.href = "/login";
+          redirect("/login");
           return;
         }
 
