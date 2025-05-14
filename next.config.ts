@@ -2,11 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // App Router 활성화
-  experimental: {
-    appDir: true,
-  },
-
   // 컴파일 중 ESLint 오류를 경고로 처리
   eslint: {
     ignoreDuringBuilds: true,
