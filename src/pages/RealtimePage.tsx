@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from "react";
 import { STORAGE_KEYS } from "@/constants/auth";
 import RealtimeDashboard from "@/components/features/realtime/RealtimeDashboard";

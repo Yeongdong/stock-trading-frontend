@@ -1,3 +1,5 @@
+"use client";
+
 import { useNetworkStatus } from "@/hooks/common/useNetworkStatus";
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import ErrorDisplay from "@/components/common/ErrorDisplay";

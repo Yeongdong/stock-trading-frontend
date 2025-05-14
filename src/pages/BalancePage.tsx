@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { StockBalance } from "@/types/stock/balance";
 import { useError } from "@/contexts/ErrorContext";
