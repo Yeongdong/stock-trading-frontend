@@ -1,4 +1,5 @@
-// src/contexts/StockSubscriptionContext.tsx
+"use client";
+
 import React, {
   createContext,
   useContext,

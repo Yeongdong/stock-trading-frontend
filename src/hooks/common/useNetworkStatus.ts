@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
