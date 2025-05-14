@@ -42,7 +42,7 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   };
 
   const handleGetKisToken = async () => {
-    if (!validateForm()) return;
+    if (!validateForm() || !userId) return;
 
     try {
       setIsLoading(true);

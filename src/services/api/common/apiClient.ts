@@ -2,14 +2,12 @@ import React from "react";
 import { STORAGE_KEYS } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 
-// API 응답 타입
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
   status: number;
 }
 
-// API 옵션 타입
 export interface ApiOptions {
   headers?: Record<string, string>;
   requiresAuth?: boolean;
@@ -32,18 +30,18 @@ class ApiClient {
   }
 
   // POST
-  async post<T>(
+  async post<T, D = unknown>(
     url: string,
-    data: any,
+    data: D,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.request<T>(url, "POST", data, options);
   }
 
   // PUT
-  async put<T>(
+  async put<T, D = unknown>(
     url: string,
-    data: any,
+    data: D,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.request<T>(url, "PUT", data, options);
@@ -61,7 +59,7 @@ class ApiClient {
   private async request<T>(
     url: string,
     method: string,
-    data?: any,
+    data?: unknown,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     const { headers = {}, requiresAuth = true, handleError = true } = options;

@@ -1,4 +1,3 @@
-// src/components/features/stock/StockOrderForm.tsx
 import { useState } from "react";
 import { StockOrder } from "@/types/stock/order";
 import toast from "@/utils/toast";
@@ -7,7 +6,7 @@ import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 
 const StockOrderForm = () => {
-  const [acntPrdtCd, setAcntPrdtCd] = useState<string>("01");
+  const [acntPrdtCd] = useState<string>("01");
   const [trId, setTrId] = useState<string>("VTTC0802U");
   const [pdno, setPdno] = useState<string>("");
   const [ordDvsn, setOrderDvsn] = useState<string>("00: 지정가");

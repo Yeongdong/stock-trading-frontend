@@ -7,6 +7,11 @@ import {
 } from "@/types";
 import { STORAGE_KEYS, LIMITS, TIMINGS, ERROR_MESSAGES } from "@/constants";
 
+type ErrorInfo = {
+  message: string;
+  code?: string;
+};
+
 export class RealTimeService {
   private hubConnection: signalR.HubConnection | null = null;
   private reconnectAttempts = 0;
@@ -107,7 +112,7 @@ export class RealTimeService {
     });
 
     // 오류 이벤트
-    this.hubConnection.on("error", (error: any) => {
+    this.hubConnection.on("error", (error: ErrorInfo) => {
       const errorMessage =
         error?.message || ERROR_MESSAGES.REALTIME.CONNECTION_FAILED;
       this.handleError(errorMessage);
