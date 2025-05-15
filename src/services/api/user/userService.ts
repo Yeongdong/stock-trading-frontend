@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 
-export const userApi = {
+export const userService = {
   getCurrentUser: async () => {
     return apiClient.get(API.USER.GET_CURRENT, { requiresAuth: true });
   },

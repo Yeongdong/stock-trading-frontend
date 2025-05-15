@@ -1,8 +1,8 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
-import { StockBalance, StockOrder } from "@/types";
+import { StockOrder, StockBalance } from "@/types";
 
-export const stockApi = {
+export const stockService = {
   getBalance: async () => {
     return apiClient.get<StockBalance>(API.STOCK.BALANCE, {
       requiresAuth: true,
