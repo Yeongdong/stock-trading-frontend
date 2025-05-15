@@ -11,17 +11,11 @@ import React, {
   useRef,
 } from "react";
 import { StockTransaction } from "@/types";
-import { realTimeService } from "@/services/realtime/realTimeService";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
-import { realtimeApi } from "@/api/realtimeApi";
-
-interface RealtimePriceContextType {
-  stockData: Record<string, StockTransaction>;
-  isConnected: boolean;
-  error: string | null;
-  getStockData: (symbol: string) => StockTransaction | null;
-}
+import { RealtimePriceContextType } from "@/types/contexts/realTime";
+import { realtimeApiService } from "@/services/api";
+import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
 
 // Context 생성
 const RealtimePriceContext = createContext<
@@ -77,21 +71,21 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
 
     try {
       // 서버측 실시간 서비스 시작
-      const response = await realtimeApi.startRealTimeService();
+      const response = await realtimeApiService.startRealTimeService();
 
       if (response.error) {
         throw new Error(response.error);
       }
 
       // 클라이언트측 WebSocket 연결 시작
-      realTimeService.setErrorCallback((errorMessage) => {
+      realtimeSocketService.setErrorCallback((errorMessage) => {
         addError({
           message: errorMessage,
           severity: "error",
         });
       });
 
-      const connected = await realTimeService.start();
+      const connected = await realtimeSocketService.start();
       setIsConnected(connected);
 
       if (connected) {
@@ -130,7 +124,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
 
       if (connected && isActive) {
         // 구독 이벤트 설정
-        const unsubscribe = realTimeService.subscribe(
+        const unsubscribe = realtimeSocketService.subscribe(
           "stockPrice",
           handleStockPrice
         );
@@ -138,7 +132,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
         return () => {
           unsubscribe();
           if (isActive) {
-            realTimeService.stop();
+            realtimeSocketService.stop();
           }
         };
       }
@@ -149,7 +143,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     // 컴포넌트 언마운트시 연결 종료
     return () => {
       isActive = false;
-      realTimeService.stop();
+      realtimeSocketService.stop();
     };
   }, [startRealTimeService, handleStockPrice]);
 

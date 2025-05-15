@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import { StockBalance } from "@/types/stock/balance";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
-import { ERROR_MESSAGES } from "@/constants/errors";
-import { API } from "@/constants/api";
+import { API, STORAGE_KEYS, ERROR_MESSAGES } from "@/constants";
 import AccountBalanceView from "@/components/features/account/AccountBalanceView";
-import { STORAGE_KEYS } from "@/constants/auth";
 import { redirect } from "next/navigation";
 
 export default function BalancePage() {

@@ -1,9 +1,5 @@
-import { Summary } from "@/types";
+import { SummaryCardsProps } from "@/types";
 import { formatKRW } from "../../../utils/formatters";
-
-interface SummaryCardsProps {
-  summary: Summary;
-}
 
 export const SummaryCard = ({ summary }: SummaryCardsProps) => {
   return (

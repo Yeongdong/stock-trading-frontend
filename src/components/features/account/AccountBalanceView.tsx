@@ -1,14 +1,8 @@
 import React from "react";
-import { StockBalance } from "@/types/stock/balance";
+import { AccountBalanceViewProps } from "@/types/components/account";
 import { SummaryCard } from "@/components/features/account/SummaryCard";
 import { PositionsTable } from "@/components/features/account/PositionTable";
 import { ERROR_MESSAGES } from "@/constants/errors";
-
-interface AccountBalanceViewProps {
-  balanceData: StockBalance | null;
-  isLoading: boolean;
-  onRefresh: () => void;
-}
 
 const AccountBalanceView: React.FC<AccountBalanceViewProps> = ({
   balanceData,

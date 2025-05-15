@@ -11,17 +11,8 @@ import React, {
 } from "react";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
-import { realtimeApi } from "@/api/realtimeApi";
-
-// Context 타입 정의
-interface StockSubscriptionContextType {
-  subscribedSymbols: string[];
-  isLoading: boolean;
-  error: string | null;
-  subscribeSymbol: (symbol: string) => Promise<boolean>;
-  unsubscribeSymbol: (symbol: string) => Promise<boolean>;
-  isSubscribed: (symbol: string) => boolean;
-}
+import { realtimeApiService } from "@/services/api";
+import { StockSubscriptionContextType } from "@/types/contexts/stockData";
 
 // Context 생성
 const StockSubscriptionContext = createContext<
@@ -67,7 +58,7 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
   // 서버의 구독 목록 가져오기
   const fetchSubscriptionsFromServer = useCallback(async () => {
     try {
-      const response = await realtimeApi.getSubscriptions();
+      const response = await realtimeApiService.getSubscriptions();
 
       if (response.error) {
         throw new Error(response.error);
@@ -97,7 +88,7 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
 
       // 서버에 없는 로컬 구독 추가
       for (const symbol of localOnly) {
-        await realtimeApi.subscribeSymbol(symbol);
+        await realtimeApiService.subscribeSymbol(symbol);
       }
 
       // 로컬에 없는 서버 구독 추가
@@ -138,7 +129,7 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
 
       try {
         setIsLoading(true);
-        const response = await realtimeApi.subscribeSymbol(symbol);
+        const response = await realtimeApiService.subscribeSymbol(symbol);
 
         if (response.error) {
           throw new Error(response.error);
@@ -180,7 +171,7 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
 
       try {
         setIsLoading(true);
-        const response = await realtimeApi.unsubscribeSymbol(symbol);
+        const response = await realtimeApiService.unsubscribeSymbol(symbol);
 
         if (response.error) {
           throw new Error(response.error);

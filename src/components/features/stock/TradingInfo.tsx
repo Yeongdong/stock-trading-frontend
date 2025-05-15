@@ -1,9 +1,5 @@
 import React, { memo, useMemo } from "react";
-
-interface TradingInfoProps {
-  volume: number;
-  time: string;
-}
+import { TradingInfoProps } from "@/types";
 
 const TradingInfo: React.FC<TradingInfoProps> = memo(({ volume, time }) => {
   // 거래량 포맷팅

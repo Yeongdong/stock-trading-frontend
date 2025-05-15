@@ -1,15 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { LIMITS } from "@/constants";
 import { StockTransaction } from "@/types";
-
-export interface PriceDataPoint {
-  time: string;
-  price: number;
-}
-
-export interface ChartDataState {
-  [symbol: string]: PriceDataPoint[];
-}
+import { PriceDataPoint, ChartDataState } from "@/types/contexts/stockData";
 
 export const useChartData = () => {
   const [chartData, setChartData] = useState<ChartDataState>({});

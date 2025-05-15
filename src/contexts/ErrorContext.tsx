@@ -7,23 +7,7 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-
-// 오류 타입
-export interface AppError {
-  id: string;
-  message: string;
-  code?: string;
-  severity: "info" | "warning" | "error";
-  timestamp: Date;
-}
-
-// 컨텍스트 타입
-interface ErrorContextType {
-  errors: AppError[];
-  addError: (error: Omit<AppError, "id" | "timestamp">) => void;
-  removeError: (id: string) => void;
-  clearErrors: () => void;
-}
+import { AppError, ErrorContextType } from "@/types/contexts/error";
 
 // 초기 컨텍스트 값 설정
 const initialContext: ErrorContextType = {

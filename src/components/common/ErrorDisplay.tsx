@@ -1,10 +1,6 @@
 import React from "react";
-import { useError, AppError } from "../../contexts/ErrorContext";
-
-interface ErrorItemProps {
-  error: AppError;
-  onDismiss: (id: string) => void;
-}
+import { useError } from "../../contexts/ErrorContext";
+import { ErrorItemProps } from "@/types";
 
 // 개별 오류 항목 컴포넌트
 const ErrorItem: React.FC<ErrorItemProps> = ({ error, onDismiss }) => {

@@ -1,20 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API, ERROR_MESSAGES } from "@/constants";
+import { API, STORAGE_KEYS, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import KisTokenForm from "@/components/features/account/KisTokenForm";
-import { STORAGE_KEYS } from "@/constants/auth";
 import { redirect } from "next/navigation";
-
-interface User {
-  id: number;
-  email: string;
-  name: string;
-  role: string;
-  accountNumber: string;
-}
+import { User } from "@/types";
 
 export default function KisTokenPage() {
   const [user, setUser] = useState<User | null>(null);

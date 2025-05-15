@@ -2,10 +2,7 @@ import { useState } from "react";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
-
-interface KisTokenFormProps {
-  userId?: number;
-}
+import { KisTokenFormProps } from "@/types/components/account";
 
 const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   const [appKey, setAppKey] = useState("");

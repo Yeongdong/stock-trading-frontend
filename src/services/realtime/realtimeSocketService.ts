@@ -4,15 +4,11 @@ import {
   TradeExecutionData,
   EventTypes,
   EventDataMap,
+  ErrorInfo,
 } from "@/types";
 import { STORAGE_KEYS, LIMITS, TIMINGS, ERROR_MESSAGES } from "@/constants";
 
-type ErrorInfo = {
-  message: string;
-  code?: string;
-};
-
-export class RealTimeService {
+export class RealtimeSocketService {
   private hubConnection: signalR.HubConnection | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = LIMITS.MAX_RECONNECT_ATTEMPTS;
@@ -190,4 +186,4 @@ export class RealTimeService {
   }
 }
 
-export const realTimeService = new RealTimeService();
+export const realtimeSocketService = new RealtimeSocketService();

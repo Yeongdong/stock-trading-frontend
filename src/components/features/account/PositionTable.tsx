@@ -1,10 +1,6 @@
 import { useState } from "react";
-import { Position } from "@/types";
+import { Position, PositionsTableProps } from "@/types";
 import { formatKRW } from "@/utils/formatters";
-
-interface PositionsTableProps {
-  positions: Position[];
-}
 
 type SortKey = keyof Position;
 type SortOrder = "asc" | "desc";

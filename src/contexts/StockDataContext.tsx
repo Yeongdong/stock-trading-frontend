@@ -7,8 +7,6 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import { StockTransaction } from "@/types";
-import { PriceDataPoint } from "@/hooks/stock/useChartData";
 import {
   StockSubscriptionProvider,
   useStockSubscription,
@@ -18,18 +16,7 @@ import {
   useRealtimePrice,
 } from "./RealtimePriceContext";
 import { ChartDataProvider, useChartData } from "./ChartDataContext";
-
-interface StockDataContextType {
-  stockData: Record<string, StockTransaction>;
-  subscribedSymbols: string[];
-  isLoading: boolean;
-  error: string | null;
-  subscribeSymbol: (symbol: string) => Promise<boolean>;
-  unsubscribeSymbol: (symbol: string) => Promise<boolean>;
-  isSubscribed: (symbol: string) => boolean;
-  getStockData: (symbol: string) => StockTransaction | null;
-  getChartData: (symbol: string) => PriceDataPoint[];
-}
+import { StockDataContextType } from "@/types/contexts/stockData";
 
 // Context 생성
 const StockDataContext = createContext<StockDataContextType | undefined>(

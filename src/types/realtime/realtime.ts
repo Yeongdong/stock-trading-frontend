@@ -34,3 +34,8 @@ export interface EventDataMap {
 }
 
 export type EventTypes = keyof EventDataMap;
+
+export type ErrorInfo = {
+  message: string;
+  code?: string;
+};

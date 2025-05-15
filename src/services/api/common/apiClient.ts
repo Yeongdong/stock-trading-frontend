@@ -1,18 +1,7 @@
 import React from "react";
 import { STORAGE_KEYS } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
-
-export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  status: number;
-}
-
-export interface ApiOptions {
-  headers?: Record<string, string>;
-  requiresAuth?: boolean;
-  handleError?: boolean;
-}
+import { ApiOptions, ApiResponse } from "@/types/api/common";
 
 class ApiClient {
   // 오류 핸들러 저장

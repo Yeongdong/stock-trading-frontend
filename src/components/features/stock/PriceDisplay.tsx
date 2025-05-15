@@ -1,11 +1,5 @@
 import React, { memo, useMemo } from "react";
-
-interface PriceDisplayProps {
-  price: number;
-  priceChange: number;
-  changeRate: number;
-  className?: string;
-}
+import { PriceDisplayProps } from "@/types";
 
 const PriceDisplay: React.FC<PriceDisplayProps> = memo(
   ({ price, priceChange, changeRate, className = "" }) => {

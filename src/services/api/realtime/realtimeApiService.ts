@@ -2,7 +2,7 @@ import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { SubscriptionsResponse } from "@/types";
 
-export const realtimeService = {
+export const realtimeApiService = {
   // 실시간 데이터 서비스 시작
   startRealTimeService: async () => {
     return apiClient.post(

@@ -1,11 +1,5 @@
 import React, { memo } from "react";
-
-interface StockPriceHeaderProps {
-  symbol: string;
-  name?: string;
-  isUnsubscribing: boolean;
-  onUnsubscribe: () => void;
-}
+import { StockPriceHeaderProps } from "@/types";
 
 const StockPriceHeader: React.FC<StockPriceHeaderProps> = memo(
   ({ symbol, name, isUnsubscribing, onUnsubscribe }) => {

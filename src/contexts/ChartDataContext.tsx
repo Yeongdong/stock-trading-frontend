@@ -12,20 +12,11 @@ import React, {
 } from "react";
 import { LIMITS } from "@/constants";
 import { useRealtimePrice } from "./RealtimePriceContext";
-
-export interface PriceDataPoint {
-  time: string;
-  price: number;
-}
-
-interface ChartDataState {
-  [symbol: string]: PriceDataPoint[];
-}
-
-interface ChartDataContextType {
-  getChartData: (symbol: string) => PriceDataPoint[];
-  removeChartData: (symbol: string) => void;
-}
+import {
+  PriceDataPoint,
+  ChartDataState,
+  ChartDataContextType,
+} from "@/types/contexts/stockData";
 
 const ChartDataContext = createContext<ChartDataContextType | undefined>(
   undefined

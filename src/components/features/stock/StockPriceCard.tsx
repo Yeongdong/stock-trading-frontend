@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { StockTransaction } from "@/types";
+import { StockTransaction, StockPriceCardProps } from "@/types";
 import { useStockData } from "@/contexts/StockDataContext";
 import { useError } from "@/contexts/ErrorContext";
 import StockPriceHeader from "./StockPriceHeader";
@@ -7,10 +7,6 @@ import PriceDisplay from "./PriceDisplay";
 import TradingInfo from "./TradingInfo";
 import StockMiniChart from "./StockMiniChart";
 import { TIMINGS, ANIMATIONS, ERROR_MESSAGES } from "@/constants";
-
-interface StockPriceCardProps {
-  symbol: string;
-}
 
 const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
   const { getStockData, unsubscribeSymbol } = useStockData();

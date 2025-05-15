@@ -9,11 +9,7 @@ import {
   Tooltip,
 } from "recharts";
 import { useStockData } from "@/contexts/StockDataContext";
-
-interface StockMiniChartProps {
-  symbol: string;
-  height?: number;
-}
+import { StockMiniChartProps } from "@/types";
 
 const CHART_UPDATE_INTERVAL = 500;
 
