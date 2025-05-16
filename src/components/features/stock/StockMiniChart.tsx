@@ -1,4 +1,4 @@
-import React, { useMemo, memo, useRef, useEffect } from "react";
+import React, { useMemo, useRef, useEffect, useState, memo } from "react";
 import {
   LineChart,
   Line,
@@ -8,31 +8,30 @@ import {
   ReferenceLine,
   Tooltip,
 } from "recharts";
-import { useStockData } from "@/contexts/StockDataContext";
-import { StockMiniChartProps } from "@/types";
+import { useStockOperations } from "@/hooks/stock/useStockOperations";
+import { StockMiniChartProps, PriceDataPoint, StockTransaction } from "@/types";
 
 const CHART_UPDATE_INTERVAL = 500;
 
 const StockMiniChart: React.FC<StockMiniChartProps> = memo(
   ({ symbol, height = 120 }) => {
-    const { getChartData, getStockData } = useStockData();
+    const { getChartData, getStockData } = useStockOperations();
 
-    // 렌더링 최적화를 위해 ref에 데이터 저장
-    const chartDataRef = useRef(getChartData(symbol));
-    const currentStockRef = useRef(getStockData(symbol));
+    const [chartData, setChartData] = useState<PriceDataPoint[]>([]);
+    const [currentStock, setCurrentStock] = useState<StockTransaction | null>(
+      null
+    );
 
-    // 차트 강제 업데이트를 위한 state
-    const [, forceUpdate] = React.useState({});
-
-    // 절차적 업데이트를 위한 타이머 ref
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     // 주기적으로 차트 데이터 업데이트
     useEffect(() => {
       const updateChartData = () => {
-        chartDataRef.current = getChartData(symbol);
-        currentStockRef.current = getStockData(symbol);
-        forceUpdate({});
+        const latestChartData = getChartData(symbol);
+        const latestStockData = getStockData(symbol);
+
+        setChartData(latestChartData);
+        setCurrentStock(latestStockData);
       };
 
       // 초기 데이터 설정
@@ -48,9 +47,6 @@ const StockMiniChart: React.FC<StockMiniChartProps> = memo(
         }
       };
     }, [symbol, getChartData, getStockData]);
-
-    const chartData = chartDataRef.current;
-    const currentStock = currentStockRef.current;
 
     // 차트 데이터가 충분한지 확인
     const hasData = chartData.length > 1;

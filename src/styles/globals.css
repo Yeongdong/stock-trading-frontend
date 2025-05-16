@@ -237,3 +237,103 @@
   font-weight: 500;
   color: #333;
 }
+
+/* 스켈레톤 로딩 효과 */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 스켈레톤 요소 스타일 */
+.skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.skeleton-name {
+  width: 80px;
+  height: 16px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+}
+
+.skeleton-price {
+  width: 120px;
+  height: 24px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-change {
+  width: 100px;
+  height: 16px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+}
+
+.skeleton-chart {
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 12px 0;
+  margin: 12px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.skeleton-line {
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+}
+
+.skeleton-line:nth-child(1) {
+  width: 80%;
+}
+
+.skeleton-line:nth-child(2) {
+  width: 70%;
+}
+
+.skeleton-line:nth-child(3) {
+  width: 90%;
+}
+
+.skeleton-trading {
+  display: flex;
+  justify-content: space-between;
+}
+
+.skeleton-volume,
+.skeleton-time {
+  width: 80px;
+  height: 14px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+}

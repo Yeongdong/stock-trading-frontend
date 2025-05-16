@@ -1,10 +1,65 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, ReactNode } from "react";
-import { StockDataContextType } from "@/types";
-import { useStockSubscription } from "./StockSubscriptionContext";
-import { useRealtimePrice } from "./RealtimePriceContext";
-import { useChartData } from "./ChartDataContext";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useMemo,
+  ReactNode,
+  useCallback,
+} from "react";
+import {
+  StockTransaction,
+  StockDataAction,
+  StockDataState,
+  StockDataContextType,
+} from "@/types";
+
+const initialState: StockDataState = {
+  stockData: {},
+  isLoading: false,
+  error: null,
+};
+
+function stockDataReducer(
+  state: StockDataState,
+  action: StockDataAction
+): StockDataState {
+  switch (action.type) {
+    case "SET_STOCK_DATA":
+      return {
+        ...state,
+        stockData: action.payload,
+      };
+    case "UPDATE_STOCK_DATA":
+      return {
+        ...state,
+        stockData: {
+          ...state.stockData,
+          [action.payload.symbol]: action.payload.data,
+        },
+      };
+    case "REMOVE_STOCK_DATA":
+      const newStockData = { ...state.stockData };
+      delete newStockData[action.payload];
+      return {
+        ...state,
+        stockData: newStockData,
+      };
+    case "SET_LOADING":
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
+    case "SET_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+      };
+    default:
+      return state;
+  }
+}
 
 const StockDataContext = createContext<StockDataContextType | undefined>(
   undefined
@@ -13,37 +68,45 @@ const StockDataContext = createContext<StockDataContextType | undefined>(
 export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const subscription = useStockSubscription();
-  const realtimePrice = useRealtimePrice();
-  const chartData = useChartData();
+  const [state, dispatch] = useReducer(stockDataReducer, initialState);
 
-  const error = useMemo(
-    () => subscription.error || realtimePrice.error || null,
-    [subscription.error, realtimePrice.error]
+  // 주식 데이터 업데이트 함수
+  const updateStockData = useCallback(
+    (symbol: string, data: StockTransaction) => {
+      dispatch({ type: "UPDATE_STOCK_DATA", payload: { symbol, data } });
+    },
+    []
+  );
+
+  // 주식 데이터 제거 함수
+  const removeStockData = useCallback((symbol: string) => {
+    dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
+  }, []);
+
+  // 특정 종목의 주식 데이터 조회 함수
+  const getStockData = useCallback(
+    (symbol: string): StockTransaction | null => {
+      return state.stockData[symbol] || null;
+    },
+    [state.stockData]
   );
 
   const contextValue = useMemo(
     () => ({
-      stockData: realtimePrice.stockData,
-      subscribedSymbols: subscription.subscribedSymbols,
-      isLoading: subscription.isLoading,
-      error,
-      subscribeSymbol: subscription.subscribeSymbol,
-      unsubscribeSymbol: subscription.unsubscribeSymbol,
-      isSubscribed: subscription.isSubscribed,
-      getStockData: realtimePrice.getStockData,
-      getChartData: chartData.getChartData,
+      stockData: state.stockData,
+      isLoading: state.isLoading,
+      error: state.error,
+      updateStockData,
+      removeStockData,
+      getStockData,
     }),
     [
-      realtimePrice.stockData,
-      subscription.subscribedSymbols,
-      subscription.isLoading,
-      error,
-      subscription.subscribeSymbol,
-      subscription.unsubscribeSymbol,
-      subscription.isSubscribed,
-      realtimePrice.getStockData,
-      chartData.getChartData,
+      state.stockData,
+      state.isLoading,
+      state.error,
+      updateStockData,
+      removeStockData,
+      getStockData,
     ]
   );
 

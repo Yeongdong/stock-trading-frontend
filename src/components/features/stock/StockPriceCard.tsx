@@ -1,96 +1,73 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { StockTransaction, StockPriceCardProps } from "@/types";
-import { useStockData } from "@/contexts/StockDataContext";
-import { useError } from "@/contexts/ErrorContext";
+import { StockTransaction, PriceDataPoint, StockPriceCardProps } from "@/types";
+import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import StockPriceHeader from "./StockPriceHeader";
 import PriceDisplay from "./PriceDisplay";
 import TradingInfo from "./TradingInfo";
 import StockMiniChart from "./StockMiniChart";
-import { TIMINGS, ANIMATIONS, ERROR_MESSAGES } from "@/constants";
+import StockCardSkeleton from "./StockCardSkeleton";
+import { TIMINGS, ANIMATIONS } from "@/constants";
 
-const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
-  const { getStockData, unsubscribeSymbol } = useStockData();
-  const { addError } = useError();
+const StockPriceCard = memo(({ symbol }: StockPriceCardProps) => {
+  const { getStockData, getChartData, unsubscribeSymbol } =
+    useStockOperations();
+
   const [stockData, setStockData] = useState<StockTransaction | null>(null);
+  const [chartData, setChartData] = useState<PriceDataPoint[]>([]);
   const [blinkClass, setBlinkClass] = useState<string>("");
   const [isUnsubscribing, setIsUnsubscribing] = useState<boolean>(false);
 
-  // 구독 취소 처리
-  const handleUnsubscribe = useCallback(async () => {
-    try {
-      setIsUnsubscribing(true);
-      await unsubscribeSymbol(symbol);
-    } catch (error) {
-      console.error(error);
-      addError({
-        message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
-        severity: "error",
-      });
-    } finally {
-      setIsUnsubscribing(false);
-    }
-  }, [symbol, unsubscribeSymbol, addError]);
-
-  // 실시간 데이터 업데이트 감지
+  // 차트 데이터가 변경된 경우에만 실행
   useEffect(() => {
-    let isMounted = true;
+    const latestChartData = getChartData(symbol);
+    if (JSON.stringify(latestChartData) !== JSON.stringify(chartData)) {
+      setChartData(latestChartData);
+    }
+  }, [symbol, getChartData, chartData]);
 
-    const updateStockData = () => {
-      if (!isMounted) return;
-
+  // 주식 데이터를 주기적으로 업데이트
+  useEffect(() => {
+    const intervalId = setInterval(() => {
       const latestData = getStockData(symbol);
-      if (!latestData) return;
-
-      if (
-        !stockData ||
-        JSON.stringify(latestData) !== JSON.stringify(stockData)
-      ) {
-        const priceChanged = stockData && latestData.price !== stockData.price;
-
-        if (priceChanged) {
-          // 가격 상승/하락에 따른 깜빡임 효과 설정
+      if (latestData && (!stockData || stockData.price !== latestData.price)) {
+        if (stockData && latestData.price !== stockData.price) {
           const newClass =
             latestData.price > stockData.price ? "blink-up" : "blink-down";
           setBlinkClass(newClass);
 
           // 효과 초기화를 위한 타이머
           setTimeout(() => {
-            if (isMounted) {
-              setBlinkClass("");
-            }
+            setBlinkClass("");
           }, ANIMATIONS.BLINK_DURATION);
         }
 
         setStockData(latestData);
       }
-    };
+    }, TIMINGS.STOCK_PRICE_CHECK_INTERVAL);
 
-    const intervalId = setInterval(
-      updateStockData,
-      TIMINGS.STOCK_PRICE_CHECK_INTERVAL
-    );
-    updateStockData(); // 초기 데이터 로드
+    setStockData(getStockData(symbol));
 
-    return () => {
-      isMounted = false;
-      clearInterval(intervalId);
-    };
-  }, [symbol, stockData, getStockData]);
+    return () => clearInterval(intervalId);
+  }, [symbol, getStockData, stockData]);
+
+  const handleUnsubscribe = useCallback(async () => {
+    try {
+      setIsUnsubscribing(true);
+      await unsubscribeSymbol(symbol);
+    } finally {
+      setIsUnsubscribing(false);
+    }
+  }, [unsubscribeSymbol, symbol]);
 
   if (!stockData) {
-    return (
-      <div className="stock-card loading">
-        <div className="stock-symbol">{symbol}</div>
-        <div className="loading-indicator">데이터 로딩중...</div>
-      </div>
-    );
+    return <StockCardSkeleton symbol={symbol} />;
   }
 
   return (
     <div className={`stock-card ${blinkClass}`}>
       <StockPriceHeader
         symbol={symbol}
-        name={stockData.symbol}
+        name={stockData.stockName}
         isUnsubscribing={isUnsubscribing}
         onUnsubscribe={handleUnsubscribe}
       />
@@ -102,7 +79,7 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
       />
 
       <div className="chart-container">
-        <StockMiniChart symbol={symbol} />
+        <StockMiniChart symbol={symbol} data={chartData} />
       </div>
 
       <TradingInfo

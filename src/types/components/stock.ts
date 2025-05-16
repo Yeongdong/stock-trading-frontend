@@ -1,3 +1,4 @@
+import { PriceDataPoint } from "../contexts";
 export interface StockPriceCardProps {
   symbol: string;
 }
@@ -11,6 +12,7 @@ export interface PriceDisplayProps {
 
 export interface StockMiniChartProps {
   symbol: string;
+  data: PriceDataPoint[];
   height?: number;
 }
 

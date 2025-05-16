@@ -1,4 +1,4 @@
-import { StockTransaction } from "../realtime";
+import { StockTransaction } from "./stockData";
 
 export interface RealtimePriceContextType {
   stockData: Record<string, StockTransaction>;

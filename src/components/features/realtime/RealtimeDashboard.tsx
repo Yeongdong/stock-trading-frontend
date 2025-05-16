@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, memo } from "react";
-import { useStockData } from "@/contexts/StockDataContext";
+import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import StockPriceCard from "@/components/features/stock/StockPriceCard";
 import SymbolSubscriptionManager from "@/components/features/stock/SymbolSubscriptionManager";
 
@@ -39,10 +39,25 @@ StockGrid.displayName = "StockGrid";
 
 // 메인 대시보드 컴포넌트
 const RealtimeDashboard: React.FC = () => {
-  const { subscribedSymbols, isLoading, error } = useStockData();
+  const { subscribedSymbols } = useStockOperations();
+  // 로딩과 에러 상태를 위한 로컬 상태
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
+  // 초기 데이터 로드 효과
   useEffect(() => {
-    document.title = "실시간 주가 모니터링";
+    const initData = async () => {
+      try {
+        setIsLoading(true);
+        document.title = "실시간 주가 모니터링";
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "알 수 없는 오류 발생");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initData();
   }, []);
 
   const hasSubscriptions = useMemo(

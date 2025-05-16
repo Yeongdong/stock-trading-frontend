@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { useStockData } from "@/contexts/StockDataContext";
+import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { ERROR_MESSAGES, TIMINGS } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import useDebounce from "@/hooks/common/useDebounce";
 
 const SymbolSubscriptionManager: React.FC = memo(() => {
-  const { subscribeSymbol, isLoading, error: contextError } = useStockData();
+  const { subscribeSymbol, isSubscribed } = useStockOperations();
   const { addError } = useError();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [symbolInput, setSymbolInput] = useState<string>("");
   const [internalError, setInternalError] = useState<string>("");
   const debouncedSymbolInput = useDebounce(symbolInput, TIMINGS.DEBOUNCE);
@@ -54,7 +56,13 @@ const SymbolSubscriptionManager: React.FC = memo(() => {
         return;
       }
 
+      if (isSubscribed(symbolInput)) {
+        setInternalError("이미 구독 중인 종목입니다.");
+        return;
+      }
+
       try {
+        setIsLoading(true);
         const success = await subscribeSymbol(symbolInput);
         if (success) {
           setSymbolInput("");
@@ -64,9 +72,11 @@ const SymbolSubscriptionManager: React.FC = memo(() => {
       } catch (err) {
         setInternalError(ERROR_MESSAGES.SUBSCRIBE_ERROR);
         console.error("Subscribe error:", err);
+      } finally {
+        setIsLoading(false);
       }
     },
-    [symbolInput, subscribeSymbol, addError]
+    [symbolInput, subscribeSymbol, addError, isSubscribed]
   );
 
   return (
@@ -90,11 +100,6 @@ const SymbolSubscriptionManager: React.FC = memo(() => {
         {internalError && (
           <div className="error-message" role="alert">
             {internalError}
-          </div>
-        )}
-        {contextError && (
-          <div className="error-message" role="alert">
-            {contextError}
           </div>
         )}
 

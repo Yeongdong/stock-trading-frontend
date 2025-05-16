@@ -1,13 +1,4 @@
-export interface StockTransaction {
-  symbol: string; // 종목코드
-  price: number; // 현재가격
-  priceChange: number; // 전일대비 변동폭
-  changeType: string; // 등락구분 (상승/하락)
-  changeRate: number; // 변동률
-  volume: number; // 거래량
-  totalVolume: number; // 누적거래량
-  transactionTime: string; // 거래시간
-}
+import { StockTransaction } from "../contexts";
 
 export interface TradeExecutionData {
   OrderId: string;
