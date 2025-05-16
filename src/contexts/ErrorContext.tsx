@@ -1,66 +1,80 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  ReactNode,
-} from "react";
-import { AppError, ErrorContextType } from "@/types/contexts/error";
+import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import { AppError, ErrorAction, ErrorState } from "@/types";
 
-// 초기 컨텍스트 값 설정
-const initialContext: ErrorContextType = {
+const initialState: ErrorState = {
   errors: [],
-  addError: () => {},
-  removeError: () => {},
-  clearErrors: () => {},
 };
 
-// 컨텍스트 생성
-const ErrorContext = createContext<ErrorContextType>(initialContext);
+function errorReducer(state: ErrorState, action: ErrorAction): ErrorState {
+  switch (action.type) {
+    case "ADD_ERROR":
+      const newError: AppError = {
+        ...action.payload,
+        id: generateId(),
+        timestamp: new Date(),
+      };
+      return {
+        ...state,
+        errors: [...state.errors, newError],
+      };
+    case "REMOVE_ERROR":
+      return {
+        ...state,
+        errors: state.errors.filter((error) => error.id !== action.payload),
+      };
+    case "CLEAR_ERRORS":
+      return {
+        ...state,
+        errors: [],
+      };
+    default:
+      return state;
+  }
+}
 
-// 고유 ID 생성 함수
 const generateId = (): string => Math.random().toString(36).substring(2, 9);
 
-// 컨텍스트 Provider 컴포넌트
+interface ErrorContextType {
+  errors: AppError[];
+  addError: (error: Omit<AppError, "id" | "timestamp">) => void;
+  removeError: (id: string) => void;
+  clearErrors: () => void;
+}
+
+const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
+
 export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [errors, setErrors] = useState<AppError[]>([]);
+  const [state, dispatch] = useReducer(errorReducer, initialState);
 
-  // 오류 추가 함수
-  const addError = useCallback((error: Omit<AppError, "id" | "timestamp">) => {
-    const newError: AppError = {
-      ...error,
-      id: generateId(),
-      timestamp: new Date(),
-    };
-    setErrors((prevErrors) => [...prevErrors, newError]);
+  const addError = (error: Omit<AppError, "id" | "timestamp">) => {
+    dispatch({ type: "ADD_ERROR", payload: error });
+    console.error("Error occurred:", error);
+  };
 
-    console.error("Error occurred:", newError);
-  }, []);
+  const removeError = (id: string) => {
+    dispatch({ type: "REMOVE_ERROR", payload: id });
+  };
 
-  // 특정 오류 제거 함수
-  const removeError = useCallback((id: string) => {
-    setErrors((prevErrors) => prevErrors.filter((error) => error.id !== id));
-  }, []);
+  const clearErrors = () => {
+    dispatch({ type: "CLEAR_ERRORS" });
+  };
 
-  // 모든 오류 제거 함수
-  const clearErrors = useCallback(() => {
-    setErrors([]);
-  }, []);
+  const value = {
+    errors: state.errors,
+    addError,
+    removeError,
+    clearErrors,
+  };
 
   return (
-    <ErrorContext.Provider
-      value={{ errors, addError, removeError, clearErrors }}
-    >
-      {children}
-    </ErrorContext.Provider>
+    <ErrorContext.Provider value={value}>{children}</ErrorContext.Provider>
   );
 };
 
-// 커스텀 훅 생성
 export const useError = (): ErrorContextType => {
   const context = useContext(ErrorContext);
   if (context === undefined) {

@@ -3,67 +3,114 @@
 import React, {
   createContext,
   useContext,
-  useState,
   useCallback,
   useEffect,
+  useReducer,
   useMemo,
   ReactNode,
 } from "react";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
 import { realtimeApiService } from "@/services/api";
-import { StockSubscriptionContextType } from "@/types/contexts/stockData";
+import {
+  SubscriptionAction,
+  SubscriptionState,
+  SubscriptionActions,
+} from "@/types/contexts/stockData";
 
-// Context 생성
-const StockSubscriptionContext = createContext<
-  StockSubscriptionContextType | undefined
+const initialState: SubscriptionState = {
+  subscribedSymbols: [],
+  isLoading: false,
+  error: null,
+};
+
+function subscriptionReducer(
+  state: SubscriptionState,
+  action: SubscriptionAction
+): SubscriptionState {
+  switch (action.type) {
+    case "SET_SUBSCRIPTIONS":
+      return {
+        ...state,
+        subscribedSymbols: action.payload,
+      };
+    case "ADD_SUBSCRIPTION":
+      if (state.subscribedSymbols.includes(action.payload)) {
+        return state;
+      }
+      return {
+        ...state,
+        subscribedSymbols: [...state.subscribedSymbols, action.payload],
+      };
+    case "REMOVE_SUBSCRIPTION":
+      return {
+        ...state,
+        subscribedSymbols: state.subscribedSymbols.filter(
+          (s) => s !== action.payload
+        ),
+      };
+    case "SET_LOADING":
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
+    case "SET_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+      };
+    case "INITIALIZE_SUBSCRIPTIONS":
+      return {
+        ...state,
+        subscribedSymbols: action.payload,
+      };
+    default:
+      return state;
+  }
+}
+
+const SubscriptionStateContext = createContext<SubscriptionState | undefined>(
+  undefined
+);
+const SubscriptionActionsContext = createContext<
+  SubscriptionActions | undefined
 >(undefined);
 
-// 컨텍스트 제공자 컴포넌트
+const saveSubscriptions = (symbols: string[]) => {
+  try {
+    localStorage.setItem("subscribed_symbols", JSON.stringify(symbols));
+  } catch (error) {
+    console.error("구독 목록 저장 중 오류:", error);
+  }
+};
+
+const loadSubscriptions = (): string[] => {
+  try {
+    const savedSymbols = localStorage.getItem("subscribed_symbols");
+    return savedSymbols ? JSON.parse(savedSymbols) : [];
+  } catch (error) {
+    console.error("구독 목록 로드 중 오류", error);
+    return [];
+  }
+};
+
 export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [subscribedSymbols, setSubscribedSymbols] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(subscriptionReducer, initialState);
   const { addError } = useError();
 
-  // 로컬 스토리지에서 구독 정보 로드
   useEffect(() => {
-    const loadSubscriptions = () => {
-      try {
-        const savedSymbols = localStorage.getItem("subscribed_symbols");
-        if (savedSymbols) {
-          setSubscribedSymbols(JSON.parse(savedSymbols));
-          console.log("저장된 구독 목록 로드:", JSON.parse(savedSymbols));
-        }
-      } catch (error) {
-        console.error("구독 목록 로드 중 오류", error);
-        setSubscribedSymbols([]);
-      }
-    };
-
-    loadSubscriptions();
+    const savedSymbols = loadSubscriptions();
+    dispatch({ type: "SET_SUBSCRIPTIONS", payload: savedSymbols });
   }, []);
 
-  // 구독 목록 저장
-  const saveSubscriptions = useCallback((symbols: string[]) => {
-    try {
-      localStorage.setItem("subscribed_symbols", JSON.stringify(symbols));
-    } catch (error) {
-      console.error("구독 목록 저장 중 오류:", error);
-    }
-  }, []);
-
-  // 서버의 구독 목록 가져오기
   const fetchSubscriptionsFromServer = useCallback(async () => {
     try {
       const response = await realtimeApiService.getSubscriptions();
-
       if (response.error) {
         throw new Error(response.error);
       }
-
       return response.data?.symbols || [];
     } catch (error) {
       console.error("서버 구독 목록 조회 중 오류:", error);
@@ -71,19 +118,18 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  // 구독 초기화 (앱 시작 시)
   const initializeSubscriptions = useCallback(async () => {
     try {
-      setIsLoading(true);
-      // 서버의 구독 목록 가져오기
+      dispatch({ type: "SET_LOADING", payload: true });
+
       const serverSubscriptions = await fetchSubscriptionsFromServer();
 
       // 로컬 구독 목록과 서버 구독 목록 비교 및 동기화
-      const localOnly = subscribedSymbols.filter(
+      const localOnly = state.subscribedSymbols.filter(
         (s) => !serverSubscriptions.includes(s)
       );
       const serverOnly = serverSubscriptions.filter(
-        (s) => !subscribedSymbols.includes(s)
+        (s) => !state.subscribedSymbols.includes(s)
       );
 
       // 서버에 없는 로컬 구독 추가
@@ -91,54 +137,47 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
         await realtimeApiService.subscribeSymbol(symbol);
       }
 
-      // 로컬에 없는 서버 구독 추가
-      const updatedSymbols = [...subscribedSymbols, ...serverOnly];
-      setSubscribedSymbols(updatedSymbols);
-      saveSubscriptions(updatedSymbols);
+      const allSubscriptions = [...state.subscribedSymbols, ...serverOnly];
 
-      setError(null);
+      // 상태 및 로컬 스토리지 업데이트
+      dispatch({ type: "INITIALIZE_SUBSCRIPTIONS", payload: allSubscriptions });
+      saveSubscriptions(allSubscriptions);
+
+      dispatch({ type: "SET_ERROR", payload: null });
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      setError(`구독 초기화 실패: ${msg}`);
+      dispatch({ type: "SET_ERROR", payload: `구독 초기화 실패: ${msg}` });
       addError({
         message: ERROR_MESSAGES.REALTIME.CONNECTION_FAILED,
         severity: "error",
       });
     } finally {
-      setIsLoading(false);
+      dispatch({ type: "SET_LOADING", payload: false });
     }
-  }, [
-    subscribedSymbols,
-    fetchSubscriptionsFromServer,
-    saveSubscriptions,
-    addError,
-  ]);
+  }, [state.subscribedSymbols, fetchSubscriptionsFromServer, addError]);
 
-  // 컴포넌트 마운트 시 초기화
   useEffect(() => {
     initializeSubscriptions();
   }, [initializeSubscriptions]);
 
-  // 구독 메서드
+  // 종목 구독
   const subscribeSymbol = useCallback(
     async (symbol: string): Promise<boolean> => {
-      if (subscribedSymbols.includes(symbol)) {
+      if (state.subscribedSymbols.includes(symbol)) {
         console.log(`이미 구독중인 종목: ${symbol}`);
         return true;
       }
 
       try {
-        setIsLoading(true);
+        dispatch({ type: "SET_LOADING", payload: true });
         const response = await realtimeApiService.subscribeSymbol(symbol);
 
         if (response.error) {
           throw new Error(response.error);
         }
 
-        // 구독 목록에 추가
-        const updatedSymbols = [...subscribedSymbols, symbol];
-        setSubscribedSymbols(updatedSymbols);
-        saveSubscriptions(updatedSymbols);
+        dispatch({ type: "ADD_SUBSCRIPTION", payload: symbol });
+        saveSubscriptions([...state.subscribedSymbols, symbol]);
 
         addError({
           message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_SUCCESS(symbol),
@@ -148,38 +187,39 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
         return true;
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        setError(`종목 구독 실패: ${msg}`);
+        dispatch({ type: "SET_ERROR", payload: `종목 구독 실패: ${msg}` });
         addError({
           message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_FAIL(symbol),
           severity: "error",
         });
         return false;
       } finally {
-        setIsLoading(false);
+        dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [subscribedSymbols, saveSubscriptions, addError]
+    [state.subscribedSymbols, addError]
   );
 
-  // 구독 취소 메서드
+  // 종목 구독 취소
   const unsubscribeSymbol = useCallback(
     async (symbol: string): Promise<boolean> => {
-      if (!subscribedSymbols.includes(symbol)) {
+      if (!state.subscribedSymbols.includes(symbol)) {
         console.log(`구독 중이 아닌 종목: ${symbol}`);
         return true;
       }
 
       try {
-        setIsLoading(true);
+        dispatch({ type: "SET_LOADING", payload: true });
         const response = await realtimeApiService.unsubscribeSymbol(symbol);
 
         if (response.error) {
           throw new Error(response.error);
         }
 
-        // 구독 목록에서 제거
-        const updatedSymbols = subscribedSymbols.filter((s) => s !== symbol);
-        setSubscribedSymbols(updatedSymbols);
+        const updatedSymbols = state.subscribedSymbols.filter(
+          (s) => s !== symbol
+        );
+        dispatch({ type: "REMOVE_SUBSCRIPTION", payload: symbol });
         saveSubscriptions(updatedSymbols);
 
         addError({
@@ -190,60 +230,70 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
         return true;
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        setError(`종목 구독 취소 실패: ${msg}`);
+        dispatch({ type: "SET_ERROR", payload: `종목 구독 취소 실패: ${msg}` });
         addError({
           message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
           severity: "error",
         });
         return false;
       } finally {
-        setIsLoading(false);
+        dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [subscribedSymbols, saveSubscriptions, addError]
+    [state.subscribedSymbols, addError]
   );
 
   // 구독 여부 확인
   const isSubscribed = useCallback(
     (symbol: string): boolean => {
-      return subscribedSymbols.includes(symbol);
+      return state.subscribedSymbols.includes(symbol);
     },
-    [subscribedSymbols]
+    [state.subscribedSymbols]
   );
 
-  // Context 값 메모이제이션
-  const contextValue = useMemo(
+  const actions = useMemo(
     () => ({
-      subscribedSymbols,
-      isLoading,
-      error,
       subscribeSymbol,
       unsubscribeSymbol,
       isSubscribed,
+      initializeSubscriptions,
     }),
-    [
-      subscribedSymbols,
-      isLoading,
-      error,
-      subscribeSymbol,
-      unsubscribeSymbol,
-      isSubscribed,
-    ]
+    [subscribeSymbol, unsubscribeSymbol, isSubscribed, initializeSubscriptions]
   );
 
   return (
-    <StockSubscriptionContext.Provider value={contextValue}>
-      {children}
-    </StockSubscriptionContext.Provider>
+    <SubscriptionStateContext.Provider value={state}>
+      <SubscriptionActionsContext.Provider value={actions}>
+        {children}
+      </SubscriptionActionsContext.Provider>
+    </SubscriptionStateContext.Provider>
   );
 };
 
-export const useStockSubscription = () => {
-  const context = useContext(StockSubscriptionContext);
+export const useStockSubscriptionState = () => {
+  const context = useContext(SubscriptionStateContext);
   if (context === undefined) {
     throw new Error(
-      "useStockSubscription must be used within a StockSubscriptionProvider"
+      "useStockSubscriptionState must be used within a StockSubscriptionProvider"
     );
   }
   return context;
+};
+
+export const useStockSubscriptionActions = () => {
+  const context = useContext(SubscriptionActionsContext);
+  if (context === undefined) {
+    throw new Error(
+      "useStockSubscriptionActions must be used within a StockSubscriptionProvider"
+    );
+  }
+  return context;
+};
+
+// 통합 훅
+export const useStockSubscription = () => {
+  return {
+    ...useStockSubscriptionState(),
+    ...useStockSubscriptionActions(),
+  };
 };

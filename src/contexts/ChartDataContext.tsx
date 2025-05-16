@@ -3,30 +3,79 @@
 import React, {
   createContext,
   useContext,
-  useState,
   useCallback,
   useEffect,
   useMemo,
+  useReducer,
   ReactNode,
   useRef,
 } from "react";
 import { LIMITS } from "@/constants";
-import { useRealtimePrice } from "./RealtimePriceContext";
 import {
   PriceDataPoint,
   ChartDataState,
-  ChartDataContextType,
+  ChartDataAction,
+  ChartDataActions,
 } from "@/types/contexts/stockData";
+import { useRealtimePriceState } from "./RealtimePriceContext";
 
-const ChartDataContext = createContext<ChartDataContextType | undefined>(
+const initialState: ChartDataState = {
+  chartData: {},
+};
+
+function chartDataReducer(
+  state: ChartDataState,
+  action: ChartDataAction
+): ChartDataState {
+  switch (action.type) {
+    case "UPDATE_CHART_DATA": {
+      const { symbol, dataPoint } = action.payload;
+      const currentData = state.chartData[symbol] || [];
+
+      // 마지막 데이터 포인트와 동일하면 상태 변경 없음
+      const lastPoint = currentData[currentData.length - 1];
+      if (lastPoint && lastPoint.price === dataPoint.price) {
+        return state;
+      }
+
+      // 최대 길이 제한을 유지하면서 새 데이터 추가
+      const updatedData = [...currentData, dataPoint].slice(
+        -LIMITS.MAX_CHART_DATA_POINTS
+      );
+
+      return {
+        ...state,
+        chartData: {
+          ...state.chartData,
+          [symbol]: updatedData,
+        },
+      };
+    }
+    case "REMOVE_CHART_DATA": {
+      const newChartData = { ...state.chartData };
+      delete newChartData[action.payload];
+      return {
+        ...state,
+        chartData: newChartData,
+      };
+    }
+    default:
+      return state;
+  }
+}
+
+const ChartDataStateContext = createContext<ChartDataState | undefined>(
+  undefined
+);
+const ChartDataActionsContext = createContext<ChartDataActions | undefined>(
   undefined
 );
 
 export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [chartData, setChartData] = useState<ChartDataState>({});
-  const { stockData } = useRealtimePrice();
+  const [state, dispatch] = useReducer(chartDataReducer, initialState);
+  const { stockData } = useRealtimePriceState();
 
   // 마지막 업데이트 시간과 값을 추적하는 참조
   const lastUpdatesRef = useRef<
@@ -36,18 +85,14 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
   // 특정 종목의 차트 데이터 가져오기
   const getChartData = useCallback(
     (symbol: string): PriceDataPoint[] => {
-      return chartData[symbol] || [];
+      return state.chartData[symbol] || [];
     },
-    [chartData]
+    [state.chartData]
   );
 
   // 특정 종목의 차트 데이터 삭제
   const removeChartData = useCallback((symbol: string) => {
-    setChartData((prevChartData) => {
-      const newChartData = { ...prevChartData };
-      delete newChartData[symbol];
-      return newChartData;
-    });
+    dispatch({ type: "REMOVE_CHART_DATA", payload: symbol });
 
     // 마지막 업데이트 참조 정리
     const newLastUpdates = { ...lastUpdatesRef.current };
@@ -60,12 +105,9 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
     // 너무 빈번한 업데이트를 방지하기 위한 최소 간격(ms)
     const MIN_UPDATE_INTERVAL = 100;
     const currentTime = Date.now();
-    let hasChanges = false;
-    const updates: Record<string, PriceDataPoint[]> = {};
 
     // 각 종목에 대해 처리
     Object.entries(stockData).forEach(([symbol, data]) => {
-      // 마지막 업데이트 정보 가져오기
       const lastUpdate = lastUpdatesRef.current[symbol] || {
         time: 0,
         price: 0,
@@ -76,40 +118,27 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
         currentTime - lastUpdate.time >= MIN_UPDATE_INTERVAL &&
         data.price !== lastUpdate.price
       ) {
-        // 마지막 업데이트 정보 갱신
         lastUpdatesRef.current[symbol] = {
           time: currentTime,
           price: data.price,
         };
 
         // 새 데이터 포인트 생성
-        const newDataPoint = {
+        const newDataPoint: PriceDataPoint = {
           time: new Date().toLocaleTimeString(),
           price: data.price,
         };
 
-        // 현재 차트 데이터 가져오기
-        const currentData = chartData[symbol] || [];
-
-        // 최대 길이 제한을 유지하면서 새 데이터 추가
-        updates[symbol] = [...currentData, newDataPoint].slice(
-          -LIMITS.MAX_CHART_DATA_POINTS
-        );
-
-        hasChanges = true;
+        // 차트 데이터 업데이트
+        dispatch({
+          type: "UPDATE_CHART_DATA",
+          payload: { symbol, dataPoint: newDataPoint },
+        });
       }
     });
+  }, [stockData]);
 
-    // 변경 사항이 있는 경우에만 상태 업데이트
-    if (hasChanges) {
-      setChartData((prevData) => ({
-        ...prevData,
-        ...updates,
-      }));
-    }
-  }, [stockData, chartData]);
-
-  const contextValue = useMemo(
+  const actions = useMemo(
     () => ({
       getChartData,
       removeChartData,
@@ -118,16 +147,37 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   return (
-    <ChartDataContext.Provider value={contextValue}>
-      {children}
-    </ChartDataContext.Provider>
+    <ChartDataStateContext.Provider value={state}>
+      <ChartDataActionsContext.Provider value={actions}>
+        {children}
+      </ChartDataActionsContext.Provider>
+    </ChartDataStateContext.Provider>
   );
 };
 
-export const useChartData = () => {
-  const context = useContext(ChartDataContext);
+export const useChartDataState = () => {
+  const context = useContext(ChartDataStateContext);
   if (context === undefined) {
-    throw new Error("useChartData must be used within a ChartDataProvider");
+    throw new Error(
+      "useChartDataState must be used within a ChartDataProvider"
+    );
   }
   return context;
+};
+
+export const useChartDataActions = () => {
+  const context = useContext(ChartDataActionsContext);
+  if (context === undefined) {
+    throw new Error(
+      "useChartDataActions must be used within a ChartDataProvider"
+    );
+  }
+  return context;
+};
+
+export const useChartData = () => {
+  return {
+    ...useChartDataState(),
+    ...useChartDataActions(),
+  };
 };

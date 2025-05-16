@@ -3,68 +3,92 @@
 import React, {
   createContext,
   useContext,
-  useState,
+  useReducer,
   useCallback,
   useEffect,
   useMemo,
   ReactNode,
   useRef,
 } from "react";
-import { StockTransaction } from "@/types";
+import {
+  StockTransaction,
+  RealtimePriceAction,
+  RealtimePriceState,
+  RealtimePriceActions,
+} from "@/types";
+import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
+import { realtimeApiService } from "@/services/api";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
-import { RealtimePriceContextType } from "@/types/contexts/realTime";
-import { realtimeApiService } from "@/services/api";
-import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
 
-// Context 생성
-const RealtimePriceContext = createContext<
-  RealtimePriceContextType | undefined
+const initialState: RealtimePriceState = {
+  stockData: {},
+  isConnected: false,
+  error: null,
+};
+
+function realtimePriceReducer(
+  state: RealtimePriceState,
+  action: RealtimePriceAction
+): RealtimePriceState {
+  switch (action.type) {
+    case "UPDATE_STOCK_DATA":
+      return {
+        ...state,
+        stockData: {
+          ...state.stockData,
+          [action.payload.symbol]: action.payload.data,
+        },
+      };
+    case "SET_CONNECTED":
+      return {
+        ...state,
+        isConnected: action.payload,
+      };
+    case "SET_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+      };
+    case "REMOVE_STOCK_DATA":
+      const newStockData = { ...state.stockData };
+      delete newStockData[action.payload];
+      return {
+        ...state,
+        stockData: newStockData,
+      };
+    default:
+      return state;
+  }
+}
+
+const RealtimePriceStateContext = createContext<RealtimePriceState | undefined>(
+  undefined
+);
+const RealtimePriceActionsContext = createContext<
+  RealtimePriceActions | undefined
 >(undefined);
 
-// Provider 컴포넌트
 export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [stockData, setStockData] = useState<Record<string, StockTransaction>>(
-    {}
-  );
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(realtimePriceReducer, initialState);
   const { addError } = useError();
 
-  // 첫 연결 여부를 추적하기 위한 ref
-  const isInitializedRef = useRef<boolean>(false);
-  // 서비스 시작 중인지 추적하기 위한 ref
   const isStartingRef = useRef<boolean>(false);
+  const isInitializedRef = useRef<boolean>(false);
 
-  // 실시간 데이터 수신 핸들러
   const handleStockPrice = useCallback((data: StockTransaction) => {
-    setStockData((prevData) => {
-      const prevStock = prevData[data.symbol];
-      if (prevStock && JSON.stringify(prevStock) === JSON.stringify(data)) {
-        return prevData;
-      }
-
-      return {
-        ...prevData,
-        [data.symbol]: data,
-      };
+    dispatch({
+      type: "UPDATE_STOCK_DATA",
+      payload: { symbol: data.symbol, data },
     });
   }, []);
 
-  // 특정 종목 데이터 가져오기
-  const getStockData = useCallback(
-    (symbol: string): StockTransaction | null => {
-      return stockData[symbol] || null;
-    },
-    [stockData]
-  );
-
   // 실시간 서비스 시작
   const startRealTimeService = useCallback(async () => {
-    if (isStartingRef.current || isConnected) {
-      return isConnected;
+    if (isStartingRef.current || state.isConnected) {
+      return state.isConnected;
     }
 
     isStartingRef.current = true;
@@ -86,7 +110,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
       });
 
       const connected = await realtimeSocketService.start();
-      setIsConnected(connected);
+      dispatch({ type: "SET_CONNECTED", payload: connected });
 
       if (connected) {
         if (!isInitializedRef.current) {
@@ -96,7 +120,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
           });
           isInitializedRef.current = true;
         }
-        setError(null);
+        dispatch({ type: "SET_ERROR", payload: null });
       } else {
         throw new Error("실시간 데이터 연결 실패");
       }
@@ -104,7 +128,10 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
       return connected;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      setError(`실시간 서비스 시작 실패: ${errorMsg}`);
+      dispatch({
+        type: "SET_ERROR",
+        payload: `실시간 서비스 시작 실패: ${errorMsg}`,
+      });
       addError({
         message: ERROR_MESSAGES.REALTIME.CONNECTION_FAILED,
         severity: "error",
@@ -113,7 +140,20 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       isStartingRef.current = false;
     }
-  }, [isConnected, addError]);
+  }, [state.isConnected, addError]);
+
+  // 특정 종목 데이터 가져오기
+  const getStockData = useCallback(
+    (symbol: string): StockTransaction | null => {
+      return state.stockData[symbol] || null;
+    },
+    [state.stockData]
+  );
+
+  // 특정 종목 데이터 삭제
+  const removeStockData = useCallback((symbol: string) => {
+    dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
+  }, []);
 
   // 실시간 서비스 초기화
   useEffect(() => {
@@ -147,29 +187,46 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, [startRealTimeService, handleStockPrice]);
 
-  const contextValue = useMemo(
+  const actions = useMemo(
     () => ({
-      stockData,
-      isConnected,
-      error,
       getStockData,
+      removeStockData,
     }),
-    [stockData, isConnected, error, getStockData]
+    [getStockData, removeStockData]
   );
 
   return (
-    <RealtimePriceContext.Provider value={contextValue}>
-      {children}
-    </RealtimePriceContext.Provider>
+    <RealtimePriceStateContext.Provider value={state}>
+      <RealtimePriceActionsContext.Provider value={actions}>
+        {children}
+      </RealtimePriceActionsContext.Provider>
+    </RealtimePriceStateContext.Provider>
   );
 };
 
-export const useRealtimePrice = () => {
-  const context = useContext(RealtimePriceContext);
+export const useRealtimePriceState = () => {
+  const context = useContext(RealtimePriceStateContext);
   if (context === undefined) {
     throw new Error(
-      "useRealtimePrice must be used within a RealtimePriceProvider"
+      "useRealtimePriceState must be used within a RealtimePriceProvider"
     );
   }
   return context;
+};
+
+export const useRealtimePriceActions = () => {
+  const context = useContext(RealtimePriceActionsContext);
+  if (context === undefined) {
+    throw new Error(
+      "useRealtimePriceActions must be used within a RealtimePriceProvider"
+    );
+  }
+  return context;
+};
+
+export const useRealtimePrice = () => {
+  return {
+    ...useRealtimePriceState(),
+    ...useRealtimePriceActions(),
+  };
 };

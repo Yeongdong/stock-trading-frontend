@@ -9,11 +9,6 @@ export interface StockTransaction {
   transactionTime: string; // 거래시간
 }
 
-// 실시간 데이터
-export interface StockPriceSubscriber {
-  (data: StockTransaction): void;
-}
-
 export interface TradeExecutionData {
   OrderId: string;
   StockCode: string;
@@ -39,3 +34,23 @@ export type ErrorInfo = {
   message: string;
   code?: string;
 };
+
+export type RealtimePriceAction =
+  | {
+      type: "UPDATE_STOCK_DATA";
+      payload: { symbol: string; data: StockTransaction };
+    }
+  | { type: "SET_CONNECTED"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null }
+  | { type: "REMOVE_STOCK_DATA"; payload: string };
+
+export interface RealtimePriceState {
+  stockData: Record<string, StockTransaction>;
+  isConnected: boolean;
+  error: string | null;
+}
+
+export interface RealtimePriceActions {
+  getStockData: (symbol: string) => StockTransaction | null;
+  removeStockData: (symbol: string) => void;
+}
