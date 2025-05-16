@@ -22,7 +22,7 @@ const ErrorItem: React.FC<ErrorItemProps> = ({ error, onDismiss }) => {
 };
 
 // 오류 표시 컨테이너 컴포넌트
-const ErrorDissplay: React.FC = () => {
+const ErrorDisplay: React.FC = () => {
   const { errors, removeError, clearErrors } = useError();
 
   if (errors.length === 0) return null;
@@ -41,4 +41,4 @@ const ErrorDissplay: React.FC = () => {
   );
 };
 
-export default ErrorDissplay;
+export default ErrorDisplay;
