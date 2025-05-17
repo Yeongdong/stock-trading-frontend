@@ -1,4 +1,5 @@
 import { PriceDataPoint } from "../contexts";
+
 export interface StockPriceCardProps {
   symbol: string;
 }
@@ -53,4 +54,8 @@ export interface SymbolInputFormProps {
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   error: string;
+}
+
+export interface StockGridProps {
+  symbols: string[];
 }

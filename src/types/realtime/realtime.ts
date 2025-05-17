@@ -45,3 +45,12 @@ export interface RealtimePriceActions {
   getStockData: (symbol: string) => StockTransaction | null;
   removeStockData: (symbol: string) => void;
 }
+
+export interface DashboardStateResult {
+  isLoading: boolean;
+  error: string | null;
+  hasSubscriptions: boolean;
+  showLoading: boolean;
+  showEmptyState: boolean;
+  subscribedSymbols: string[];
+}
