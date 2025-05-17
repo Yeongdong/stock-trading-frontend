@@ -27,3 +27,7 @@ export interface TradingInfoProps {
   volume: number;
   time: string;
 }
+
+export interface StockCardSkeletonProps {
+  symbol: string;
+}

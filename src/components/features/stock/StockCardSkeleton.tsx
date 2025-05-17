@@ -1,8 +1,5 @@
 import React from "react";
-
-interface StockCardSkeletonProps {
-  symbol: string;
-}
+import { StockCardSkeletonProps } from "@/types";
 
 /**
  * 주식 데이터 로딩 중 표시되는 스켈레톤 컴포넌트

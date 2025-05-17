@@ -79,3 +79,12 @@ export interface StockDataContextType {
   removeStockData: (symbol: string) => void;
   getStockData: (symbol: string) => StockTransaction | null;
 }
+
+export interface StockCardDataResult {
+  stockData: StockTransaction | null;
+  chartData: PriceDataPoint[];
+  blinkClass: string;
+  isUnsubscribing: boolean;
+  isLoading: boolean;
+  handleUnsubscribe: () => Promise<void>;
+}
