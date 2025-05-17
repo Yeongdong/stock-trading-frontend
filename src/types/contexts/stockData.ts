@@ -98,3 +98,13 @@ export interface ChartCalculationResult {
   priceChangePercentage: number;
   priceChangeClass: string;
 }
+
+export interface SymbolSubscriptionResult {
+  symbolInput: string;
+  setSymbolInput: React.Dispatch<React.SetStateAction<string>>;
+  isLoading: boolean;
+  error: string;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSubscribe: (e: React.FormEvent) => Promise<void>;
+  validateSymbol: (symbol: string) => boolean;
+}

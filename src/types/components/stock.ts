@@ -46,3 +46,11 @@ export interface ChartRendererProps {
   lineColor: string;
   height: number;
 }
+
+export interface SymbolInputFormProps {
+  symbolInput: string;
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean;
+  error: string;
+}
