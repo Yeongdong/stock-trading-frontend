@@ -31,3 +31,18 @@ export interface TradingInfoProps {
 export interface StockCardSkeletonProps {
   symbol: string;
 }
+
+export interface ChartInfoProps {
+  startPrice: number;
+  currentPrice: number;
+  priceChangePercentage: number;
+  priceChangeClass: string;
+}
+
+export interface ChartRendererProps {
+  data: PriceDataPoint[];
+  yDomain: [number, number];
+  startPrice: number;
+  lineColor: string;
+  height: number;
+}

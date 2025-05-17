@@ -88,3 +88,13 @@ export interface StockCardDataResult {
   isLoading: boolean;
   handleUnsubscribe: () => Promise<void>;
 }
+
+export interface ChartCalculationResult {
+  hasData: boolean;
+  yDomain: [number, number];
+  startPrice: number;
+  currentPrice: number;
+  lineColor: string;
+  priceChangePercentage: number;
+  priceChangeClass: string;
+}
