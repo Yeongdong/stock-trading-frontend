@@ -1,6 +1,8 @@
 export const API = {
   AUTH: {
     GOOGLE_LOGIN: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/google`,
+    LOGOUT: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/logout`,
+    CHECK_AUTH: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/check`,
   },
   USER: {
     GET_CURRENT: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user`,

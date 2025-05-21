@@ -1,28 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API, STORAGE_KEYS, ERROR_MESSAGES } from "@/constants";
+import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import KisTokenForm from "@/components/features/account/KisTokenForm";
 import { redirect } from "next/navigation";
 import { User } from "@/types";
+import AuthGuard from "@/components/common/AuthGuard";
 
 export default function KisTokenPage() {
   const [user, setUser] = useState<User | null>(null);
   const { addError } = useError();
-
-  useEffect(() => {
-    const checkAuth = () => {
-      const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-
-      if (!accessToken) {
-        redirect("/login");
-      }
-    };
-
-    checkAuth();
-  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -51,5 +40,9 @@ export default function KisTokenPage() {
     fetchUserData();
   }, [addError]);
 
-  return <KisTokenForm userId={user?.id} />;
+  return (
+    <AuthGuard>
+      <KisTokenForm userId={user?.id} />
+    </AuthGuard>
+  );
 }

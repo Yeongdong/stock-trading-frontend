@@ -3,19 +3,21 @@ import {
   GoogleLogin,
   CredentialResponse,
 } from "@react-oauth/google";
-import { API, STORAGE_KEYS, AUTH, ERROR_MESSAGES } from "@/constants";
+import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
-import { LoginResponse } from "@/types/auth/auth";
+import { useRouter } from "next/router";
+import { GoogleLoginResponse } from "@/types/auth/auth";
 
 const LoginForm = () => {
   const { addError } = useError();
+  const router = useRouter();
 
   const handleGoogleSuccess = async (
     credentialResponse: CredentialResponse
   ) => {
     try {
-      const response = await apiClient.post<LoginResponse>(
+      const response = await apiClient.post<GoogleLoginResponse>(
         API.AUTH.GOOGLE_LOGIN,
         {
           Credential: credentialResponse.credential,
@@ -29,21 +31,15 @@ const LoginForm = () => {
 
       const data = response.data!;
 
-      sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.token);
-      sessionStorage.setItem(STORAGE_KEYS.LOGIN_SUCCESS, "true");
-
-      // 약간의 지연을 주어 세션 스토리지 저장을 보장
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
       addError({
         message: ERROR_MESSAGES.AUTH.LOGIN_SUCCESS,
         severity: "info",
       });
 
-      if (!data.user.kisToken) {
-        window.location.replace("/kis-token");
+      if (!data.User.kisToken) {
+        router.push("/kis-token");
       } else {
-        window.location.replace("/dashboard");
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -62,7 +58,9 @@ const LoginForm = () => {
   };
 
   return (
-    <GoogleOAuthProvider clientId={AUTH.GOOGLE.CLIENT_ID}>
+    <GoogleOAuthProvider
+      clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
+    >
       <div>
         <h1>로그인</h1>
         <GoogleLogin

@@ -1,5 +1,4 @@
 import React from "react";
-import { STORAGE_KEYS } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { ApiOptions, ApiResponse } from "@/types/api/common";
 
@@ -51,29 +50,20 @@ class ApiClient {
     data?: unknown,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
-    const { headers = {}, requiresAuth = true, handleError = true } = options;
+    const { headers = {}, handleError = true } = options;
 
     try {
       const requestHeaders: Record<string, string> = {
         "Content-Type": "application-json",
         ...headers,
       };
-      if (requiresAuth) {
-        const token = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-        if (!token) {
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
-          }
-          throw new Error("인증이 필요합니다.");
-        }
-        requestHeaders["Authorization"] = `Bearer ${token}`;
-      }
 
       // 요청 옵션 구성
       const requestOptions: RequestInit = {
         method,
         headers: requestHeaders,
         body: data ? JSON.stringify(data) : undefined,
+        credentials: "include",
       };
 
       // 요청 실행
