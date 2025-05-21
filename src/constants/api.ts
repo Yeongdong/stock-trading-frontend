@@ -4,6 +4,9 @@ export const API = {
     LOGOUT: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/logout`,
     CHECK_AUTH: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/check`,
   },
+  SECURITY: {
+    CSRF_TOKEN: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/csrf/token`,
+  },
   USER: {
     GET_CURRENT: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user`,
     USER_INFO: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/userInfo`,

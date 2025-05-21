@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
 import { AuthContextType, AuthUser } from "@/types";
+import { csrfService } from "@/services/security/csrfService";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -64,6 +65,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const publicRoutes = ["/login", "/"];
 
     const initAuth = async () => {
+      try {
+        await csrfService.getCsrfToken();
+      } catch (error) {
+        console.warn("초기 CSRF 토큰 로드 실패:", error);
+      }
+
       const isAuth = await checkAuth();
 
       if (!isAuth && !publicRoutes.includes(router.pathname)) {

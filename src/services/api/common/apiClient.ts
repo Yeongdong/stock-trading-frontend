@@ -1,6 +1,7 @@
 import React from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { ApiOptions, ApiResponse } from "@/types/api/common";
+import { csrfService } from "@/services/security/csrfService";
 
 class ApiClient {
   // 오류 핸들러 저장
@@ -57,6 +58,15 @@ class ApiClient {
         "Content-Type": "application-json",
         ...headers,
       };
+
+      if (method !== "GET" && method !== "HEAD") {
+        try {
+          const csrfToken = await csrfService.getCsrfToken();
+          requestHeaders["X-XSRF-TOKEN"] = csrfToken;
+        } catch (error) {
+          console.warn("CSRF 토큰 설정 실패:", error);
+        }
+      }
 
       // 요청 옵션 구성
       const requestOptions: RequestInit = {
