@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
@@ -9,7 +9,30 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   const [appSecret, setAppSecret] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showAppSecret, SetShowAppSecret] = useState<boolean>(false);
+  const appSecretRef = useRef<HTMLInputElement>(null);
   const { addError } = useError();
+
+  const toggleAppSecretVisibility = () => {
+    SetShowAppSecret((prev) => !prev);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        addError({
+          message: "클립보드에 복사되었습니다.",
+          severity: "info",
+        });
+      })
+      .catch(() => {
+        addError({
+          message: "클립보드 복사에 실패했습니다.",
+          severity: "error",
+        });
+      });
+  };
 
   const validateForm = () => {
     if (!appKey.trim()) {
@@ -79,35 +102,66 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
 
       <div className="form-group">
         <label htmlFor="appKey">API Key:</label>
-        <input
-          type="text"
-          id="appKey"
-          value={appKey}
-          onChange={(e) => setAppKey(e.target.value)}
-          disabled={isLoading}
-        />
+        <div className="input-wrapper">
+          <input
+            type="text"
+            id="appKey"
+            value={appKey}
+            onChange={(e) => setAppKey(e.target.value)}
+            disabled={isLoading}
+            autoComplete="off"
+            spellCheck="false"
+          />
+          {appKey && (
+            <button
+              type="button"
+              className="copy-button"
+              onClick={() => copyToClipboard(appKey)}
+              aria-label="Copy API Key"
+            >
+              복사
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="form-group">
         <label htmlFor="appSecret">API Secret:</label>
-        <input
-          type="text"
-          id="appSecret"
-          value={appSecret}
-          onChange={(e) => setAppSecret(e.target.value)}
-          disabled={isLoading}
-        />
+        <div className="input-wrapper">
+          <input
+            type={showAppSecret ? "text" : "password"}
+            id="appSecret"
+            value={appSecret}
+            onChange={(e) => setAppSecret(e.target.value)}
+            disabled={isLoading}
+            autoComplete="off"
+            spellCheck="false"
+            ref={appSecretRef}
+          />
+          <button
+            type="button"
+            className="toggle-visibility"
+            onClick={toggleAppSecretVisibility}
+            aria-label={showAppSecret ? "Hide secret" : "Show secret"}
+          >
+            {showAppSecret ? "숨기기" : "보기"}
+          </button>
+        </div>
       </div>
 
       <div className="form-group">
         <label htmlFor="accountNumber">계좌번호:</label>
-        <input
-          type="text"
-          id="accountNumber"
-          value={accountNumber}
-          onChange={(e) => setAccountNumber(e.target.value)}
-          disabled={isLoading}
-        />
+        <div className="input-wrapper">
+          <input
+            type="text"
+            id="accountNumber"
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
+            disabled={isLoading}
+            autoComplete="off"
+            spellCheck="false"
+          />
+        </div>
       </div>
 
       <button
@@ -124,6 +178,15 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
           있습니다.
         </p>
         <p>* 계좌번호는 숫자만 입력해주세요 (예: 5012345678).</p>
+      </div>
+
+      <div className="security-info">
+        <h3>보안 정보</h3>
+        <ul>
+          <li>입력하신 정보는 서버에 안전하게 암호화되어 저장됩니다.</li>
+          <li>API 시크릿은 암호화되어 전송되며, 서버에서만 접근 가능합니다.</li>
+          <li>브라우저 기록에 민감 정보가 남지 않도록 주의하세요.</li>
+        </ul>
       </div>
     </div>
   );
