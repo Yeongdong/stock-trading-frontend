@@ -1,7 +1,12 @@
 "use client";
 
 import RealtimeDashboard from "@/components/features/realtime/RealtimeDashboard";
+import { StockSubscriptionProvider } from "@/contexts/StockSubscriptionContext";
 
 export default function RealtimePage() {
-  return <RealtimeDashboard />;
+  return (
+    <StockSubscriptionProvider>
+      <RealtimeDashboard />
+    </StockSubscriptionProvider>
+  );
 }

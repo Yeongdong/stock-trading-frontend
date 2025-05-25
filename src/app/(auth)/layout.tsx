@@ -1,5 +1,4 @@
 import { AuthProvider } from "@/contexts/AuthContext";
-import { StockSubscriptionProvider } from "@/contexts/StockSubscriptionContext";
 import AuthGuard from "@/components/common/AuthGuard";
 
 export default function AuthLayout({
@@ -9,9 +8,7 @@ export default function AuthLayout({
 }) {
   return (
     <AuthProvider>
-      <AuthGuard>
-        <StockSubscriptionProvider>{children}</StockSubscriptionProvider>
-      </AuthGuard>
+      <AuthGuard>{children}</AuthGuard>
     </AuthProvider>
   );
 }

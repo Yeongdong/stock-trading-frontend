@@ -31,12 +31,7 @@ const LoginForm = () => {
 
       const data = response.data!;
 
-      addError({
-        message: ERROR_MESSAGES.AUTH.LOGIN_SUCCESS,
-        severity: "info",
-      });
-
-      if (!data.User.kisToken) {
+      if (!data.User?.kisToken) {
         router.push("/kis-token");
       } else {
         router.push("/dashboard");

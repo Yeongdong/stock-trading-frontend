@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
-import { KisTokenFormProps } from "@/types/components/account";
+import { KisTokenFormProps, UserInfoRequest } from "@/types";
 
 const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   const [appKey, setAppKey] = useState("");
@@ -67,11 +67,13 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
     try {
       setIsLoading(true);
 
-      const response = await apiClient.post(API.USER.USER_INFO, {
+      const requestData: UserInfoRequest = {
         appKey,
         appSecret,
         accountNumber,
-      });
+      };
+
+      const response = await apiClient.post(API.USER.USER_INFO, requestData);
 
       if (response.error) {
         throw new Error(response.error);
