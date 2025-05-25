@@ -6,7 +6,6 @@ import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import { API, ERROR_MESSAGES } from "@/constants";
 import AccountBalanceView from "@/components/features/account/AccountBalanceView";
-import AuthGuard from "@/components/common/AuthGuard";
 
 export default function BalancePage() {
   const [balanceData, setBalanceData] = useState<StockBalance | null>(null);
@@ -41,25 +40,23 @@ export default function BalancePage() {
   });
 
   return (
-    <AuthGuard>
-      <div className="balance-page">
-        <div className="page-header">
-          <h1>주식 잔고 현황</h1>
-          <button
-            onClick={fetchBalanceData}
-            className="refresh-button"
-            disabled={isLoading}
-          >
-            {isLoading ? "불러오는 중..." : "새로고침"}
-          </button>
-        </div>
-
-        <AccountBalanceView
-          balanceData={balanceData}
-          isLoading={isLoading}
-          onRefresh={fetchBalanceData}
-        />
+    <div className="balance-page">
+      <div className="page-header">
+        <h1>주식 잔고 현황</h1>
+        <button
+          onClick={fetchBalanceData}
+          className="refresh-button"
+          disabled={isLoading}
+        >
+          {isLoading ? "불러오는 중..." : "새로고침"}
+        </button>
       </div>
-    </AuthGuard>
+
+      <AccountBalanceView
+        balanceData={balanceData}
+        isLoading={isLoading}
+        onRefresh={fetchBalanceData}
+      />
+    </div>
   );
 }

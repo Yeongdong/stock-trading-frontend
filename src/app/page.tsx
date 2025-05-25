@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
-  useEffect(() => {
-    // 클라이언트 사이드에서만 실행
-    redirect("/login");
-  }, []);
+  const router = useRouter();
 
-  // 서버 사이드에서는 빈 페이지 렌더링
+  useEffect(() => {
+    // 추후 홈페이지 메인 화면 추가시 조건부 로직 추가
+    router.replace("/login");
+  }, [router]);
+
   return null;
 }

@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { authService } from "@/services/api";
-import { useRouter } from "next/router";
+import { usePathname, useRouter } from "next/navigation";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
 import { AuthContextType, AuthUser } from "@/types";
@@ -21,6 +21,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<AuthUser | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const { addError } = useError();
 
   const checkAuth = async (): Promise<boolean> => {
@@ -38,7 +39,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setUser(response.data?.User || null);
       return true;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Auth check error:", error);
       setIsAuthenticated(false);
       setUser(null);
       return false;
@@ -46,11 +47,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(false);
     }
   };
+
   const logout = async (): Promise<void> => {
     try {
       await authService.logout();
       setIsAuthenticated(false);
       setUser(null);
+      csrfService.clearToken();
       addError({
         message: ERROR_MESSAGES.AUTH.LOGOUT_SUCCESS,
         severity: "info",
@@ -65,21 +68,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const publicRoutes = ["/login", "/"];
 
     const initAuth = async () => {
-      try {
-        await csrfService.getCsrfToken();
-      } catch (error) {
-        console.warn("초기 CSRF 토큰 로드 실패:", error);
+      // 공개 페이지인 경우 인증 체크를 하지 않음
+      if (publicRoutes.includes(pathname)) {
+        setIsLoading(false);
+        return;
       }
 
-      const isAuth = await checkAuth();
+      // 보호된 페이지인 경우에만 인증 체크
+      try {
+        const isAuth = await checkAuth();
 
-      if (!isAuth && !publicRoutes.includes(router.pathname)) {
-        router.push("/login?sessionExpired=true");
+        if (!isAuth) {
+          router.push("/login?sessionExpired=true");
+        }
+      } catch (error) {
+        console.warn("초기 인증 확인 실패:", error);
+        setIsLoading(false);
+        router.push("/login");
       }
     };
 
     initAuth();
-  }, [router, router.pathname]);
+  }, [pathname, router]);
 
   return (
     <AuthContext.Provider
@@ -97,5 +107,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
-// AuthContext.tsx

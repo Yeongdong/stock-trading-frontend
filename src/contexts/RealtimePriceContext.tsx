@@ -19,6 +19,7 @@ import {
 import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
 import { realtimeApiService } from "@/services/api";
 import { useError } from "./ErrorContext";
+import { useAuth } from "./AuthContext";
 import { ERROR_MESSAGES } from "@/constants";
 
 const initialState: RealtimePriceState = {
@@ -74,6 +75,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(realtimePriceReducer, initialState);
   const { addError } = useError();
+  const { isAuthenticated, isLoading } = useAuth(); // 인증 상태 확인
 
   const isStartingRef = useRef<boolean>(false);
   const isInitializedRef = useRef<boolean>(false);
@@ -87,7 +89,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
 
   // 실시간 서비스 시작
   const startRealTimeService = useCallback(async () => {
-    if (isStartingRef.current || state.isConnected) {
+    if (isStartingRef.current || state.isConnected || !isAuthenticated) {
       return state.isConnected;
     }
 
@@ -140,7 +142,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       isStartingRef.current = false;
     }
-  }, [state.isConnected, addError]);
+  }, [state.isConnected, isAuthenticated, addError]);
 
   // 특정 종목 데이터 가져오기
   const getStockData = useCallback(
@@ -158,6 +160,10 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
   // 실시간 서비스 초기화
   useEffect(() => {
     let isActive = true;
+
+    if (!isAuthenticated || isLoading) {
+      return;
+    }
 
     const initializeRealTimeService = async () => {
       const connected = await startRealTimeService();
@@ -185,7 +191,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
       isActive = false;
       realtimeSocketService.stop();
     };
-  }, [startRealTimeService, handleStockPrice]);
+  }, [isAuthenticated, isLoading, startRealTimeService, handleStockPrice]);
 
   const actions = useMemo(
     () => ({

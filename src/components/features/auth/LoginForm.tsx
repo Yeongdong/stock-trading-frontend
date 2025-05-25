@@ -6,7 +6,7 @@ import {
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { GoogleLoginResponse } from "@/types/auth/auth";
 
 const LoginForm = () => {

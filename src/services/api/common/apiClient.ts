@@ -55,16 +55,35 @@ class ApiClient {
 
     try {
       const requestHeaders: Record<string, string> = {
-        "Content-Type": "application-json",
+        "Content-Type": "application/json", // 오타 수정
         ...headers,
       };
 
+      // CSRF 토큰 설정 (GET, HEAD가 아닌 경우에만)
       if (method !== "GET" && method !== "HEAD") {
         try {
           const csrfToken = await csrfService.getCsrfToken();
           requestHeaders["X-XSRF-TOKEN"] = csrfToken;
         } catch (error) {
           console.warn("CSRF 토큰 설정 실패:", error);
+
+          // 백엔드 서버 연결 실패인 경우 즉시 에러 반환
+          if (
+            error instanceof Error &&
+            error.message.includes("서버에 연결할 수 없습니다")
+          ) {
+            const result: ApiResponse<T> = {
+              error:
+                "백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.",
+              status: 0,
+            };
+
+            if (handleError && this.errorHandler) {
+              this.errorHandler(result.error!, "SERVER_UNAVAILABLE");
+            }
+
+            return result;
+          }
         }
       }
 
@@ -74,6 +93,8 @@ class ApiClient {
         headers: requestHeaders,
         body: data ? JSON.stringify(data) : undefined,
         credentials: "include",
+        // 타임아웃 설정
+        signal: AbortSignal.timeout(10000), // 10초 타임아웃
       };
 
       // 요청 실행
@@ -86,7 +107,8 @@ class ApiClient {
       const result: ApiResponse<T> = {
         data: response.ok ? responseData : undefined,
         error: !response.ok
-          ? responseData.message || "요청 처리 중 오류 발생"
+          ? responseData.message ||
+            `HTTP ${response.status}: 요청 처리 중 오류 발생`
           : undefined,
         status: response.status,
       };
@@ -100,12 +122,28 @@ class ApiClient {
       return result;
     } catch (error) {
       // 네트워크 오류 등 예외 처리
-      const errorMessage =
-        error instanceof Error ? error.message : "알 수 없는 오류 발생";
+      let errorMessage = "알 수 없는 오류 발생";
+      let errorCode = "UNKNOWN_ERROR";
+
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        errorMessage =
+          "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+        errorCode = "NETWORK_ERROR";
+      } else if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          errorMessage = "요청 시간이 초과되었습니다.";
+          errorCode = "TIMEOUT_ERROR";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      console.error(`API 요청 실패 [${method} ${url}]:`, error);
 
       if (handleError && this.errorHandler) {
-        this.errorHandler(errorMessage);
+        this.errorHandler(errorMessage, errorCode);
       }
+
       return {
         error: errorMessage,
         status: 0, // 네트워크 오류는 상태 코드 0으로 표시
@@ -129,5 +167,6 @@ export const useApiClient = () => {
       });
     });
   }, [addError]);
+
   return apiClient;
 };

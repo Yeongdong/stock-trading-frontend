@@ -7,7 +7,6 @@ import { apiClient } from "@/services/api/common/apiClient";
 import KisTokenForm from "@/components/features/account/KisTokenForm";
 import { redirect } from "next/navigation";
 import { User } from "@/types";
-import AuthGuard from "@/components/common/AuthGuard";
 
 export default function KisTokenPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -40,9 +39,5 @@ export default function KisTokenPage() {
     fetchUserData();
   }, [addError]);
 
-  return (
-    <AuthGuard>
-      <KisTokenForm userId={user?.id} />
-    </AuthGuard>
-  );
+  return <KisTokenForm userId={user?.id} />;
 }
