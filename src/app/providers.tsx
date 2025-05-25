@@ -10,11 +10,15 @@ import { useNetworkStatus } from "@/hooks/common/useNetworkStatus";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ErrorDisplayContainer from "@/components/common/ErrorDisplayContainer";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+function NetworkStatusMonitor() {
   useNetworkStatus();
+  return null;
+}
 
+export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ErrorProvider>
+      <NetworkStatusMonitor />
       <AuthProvider>
         <StockSubscriptionProvider>
           <RealtimePriceProvider>
