@@ -7,9 +7,6 @@ export const API = {
     LOGOUT: `${API_BASE_URL}/api/auth/logout`,
     CHECK_AUTH: `${API_BASE_URL}/api/auth/check`,
   },
-  SECURITY: {
-    CSRF_TOKEN: `${API_BASE_URL}/api/csrf/token`,
-  },
   USER: {
     GET_CURRENT: `${API_BASE_URL}/api/user`,
     USER_INFO: `${API_BASE_URL}/api/account/userInfo`,

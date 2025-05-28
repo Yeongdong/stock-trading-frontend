@@ -62,17 +62,6 @@ const StockOrderForm = () => {
         try {
           setIsLoading(true);
 
-          const accessToken = sessionStorage.getItem("access_token");
-
-          if (!accessToken) {
-            addError({
-              message: ERROR_MESSAGES.AUTH.LOGIN_REQUIRED,
-              severity: "error",
-            });
-            window.location.href = "/login";
-            return;
-          }
-
           const response = await apiClient.post(API.STOCK.ORDER, orderData, {
             requiresAuth: true,
             handleError: true,

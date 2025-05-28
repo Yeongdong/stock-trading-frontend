@@ -43,6 +43,7 @@ export const ERROR_MESSAGES = {
     REQUIRED_ACCOUNT: "계좌번호를 입력해주세요.",
     TOKEN_SUCCESS: "토큰이 성공적으로 발급되었습니다.",
     TOKEN_FAIL: "토큰 발급에 실패했습니다.",
+    TOKEN_EXPIRED: "만료된 토큰입니다.",
   },
   BALANCE: {
     FETCH_FAILED: "잔고 정보를 불러오는데 실패했습니다.",

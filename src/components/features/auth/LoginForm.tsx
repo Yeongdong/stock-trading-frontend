@@ -8,6 +8,7 @@ import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import { useRouter } from "next/navigation";
 import { GoogleLoginResponse } from "@/types/auth/auth";
+import { AuthUser } from "@/types";
 
 const LoginForm = () => {
   const { addError } = useError();
@@ -31,10 +32,10 @@ const LoginForm = () => {
 
       const data = response.data!;
 
-      if (!data.User?.kisToken) {
-        router.push("/kis-token");
-      } else {
+      if (hasValidKisToken(data.user)) {
         router.push("/dashboard");
+      } else {
+        router.push("/kis-token");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -43,6 +44,35 @@ const LoginForm = () => {
         severity: "error",
       });
     }
+  };
+
+  const hasValidKisToken = (user: AuthUser): boolean => {
+    if (!user?.kisToken) {
+      return false;
+    }
+
+    if (!user.kisToken.accessToken || user.kisToken.accessToken.trim() === "") {
+      return false;
+    }
+
+    if (user.kisToken.expiresIn) {
+      try {
+        const expiresAt = new Date(user.kisToken.expiresIn);
+        const now = new Date();
+
+        if (expiresAt <= now) {
+          addError({
+            message: ERROR_MESSAGES.KIS_TOKEN.TOKEN_EXPIRED,
+            severity: "warning",
+          });
+          return false;
+        }
+      } catch (error) {
+        console.warn("토큰 만료 시간 파싱 실패:", error);
+      }
+    }
+
+    return true;
   };
 
   const handleGoogleError = () => {

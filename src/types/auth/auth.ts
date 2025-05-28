@@ -6,5 +6,5 @@ export interface AuthCheckResponse {
 }
 
 export interface GoogleLoginResponse {
-  User: AuthUser;
+  user: AuthUser;
 }

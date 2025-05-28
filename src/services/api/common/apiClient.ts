@@ -1,7 +1,6 @@
 import React from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { ApiOptions, ApiResponse } from "@/types/api/common";
-import { csrfService } from "@/services/security/csrfService";
 
 class ApiClient {
   // 오류 핸들러 저장
@@ -55,37 +54,9 @@ class ApiClient {
 
     try {
       const requestHeaders: Record<string, string> = {
-        "Content-Type": "application/json", // 오타 수정
+        "Content-Type": "application/json",
         ...headers,
       };
-
-      // CSRF 토큰 설정 (GET, HEAD가 아닌 경우에만)
-      if (method !== "GET" && method !== "HEAD") {
-        try {
-          const csrfToken = await csrfService.getCsrfToken();
-          requestHeaders["X-XSRF-TOKEN"] = csrfToken;
-        } catch (error) {
-          console.warn("CSRF 토큰 설정 실패:", error);
-
-          // 백엔드 서버 연결 실패인 경우 즉시 에러 반환
-          if (
-            error instanceof Error &&
-            error.message.includes("서버에 연결할 수 없습니다")
-          ) {
-            const result: ApiResponse<T> = {
-              error:
-                "백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.",
-              status: 0,
-            };
-
-            if (handleError && this.errorHandler) {
-              this.errorHandler(result.error!, "SERVER_UNAVAILABLE");
-            }
-
-            return result;
-          }
-        }
-      }
 
       // 요청 옵션 구성
       const requestOptions: RequestInit = {
@@ -93,7 +64,6 @@ class ApiClient {
         headers: requestHeaders,
         body: data ? JSON.stringify(data) : undefined,
         credentials: "include",
-        // 타임아웃 설정
         signal: AbortSignal.timeout(10000), // 10초 타임아웃
       };
 
