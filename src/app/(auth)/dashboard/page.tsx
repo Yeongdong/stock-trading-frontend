@@ -1,6 +1,6 @@
 "use client";
 
-import Navigation from "@/components/common/Navigation";
+import Navigation from "@/components/layout/Navigation";
 
 export default function DashboardPage() {
   return (
