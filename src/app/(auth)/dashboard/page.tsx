@@ -1,12 +1,12 @@
 "use client";
 
-import StockOrderForm from "@/components/features/stock/StockOrderForm";
+import Navigation from "@/components/common/Navigation";
 
 export default function DashboardPage() {
   return (
     <div className="container">
       <h1>대시보드</h1>
-      <StockOrderForm />
+      <Navigation />
     </div>
   );
 }

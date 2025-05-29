@@ -7,3 +7,12 @@ export interface ErrorDisplayProps {
   title?: string;
   onRetry?: () => void;
 }
+
+export interface NavigationProps {
+  className?: string;
+}
+
+export interface NavItem {
+  href: string;
+  label: string;
+}
