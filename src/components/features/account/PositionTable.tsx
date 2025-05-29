@@ -6,8 +6,15 @@ type SortKey = keyof Position;
 type SortOrder = "asc" | "desc";
 
 export const PositionsTable = ({ positions }: PositionsTableProps) => {
-  const [sortKey, setSortKey] = useState<SortKey>("stockName");
+  const [sortKey, setSortKey] = useState<SortKey>("prdt_name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+
+  // 디버깅용 로그
+  console.log("positions:", positions);
+  console.log(
+    "prdt_name:",
+    positions.map((p) => p.prdt_name)
+  );
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -19,7 +26,7 @@ export const PositionsTable = ({ positions }: PositionsTableProps) => {
   };
 
   const sortedPositions = [...positions].sort((a, b) => {
-    if (sortKey === "profitLossRate" || sortKey === "quantity") {
+    if (sortKey === "evlu_pfls_amt" || sortKey === "hldg_qty") {
       const aValue = parseFloat(a[sortKey]);
       const bValue = parseFloat(b[sortKey]);
       return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
@@ -36,31 +43,43 @@ export const PositionsTable = ({ positions }: PositionsTableProps) => {
     <table>
       <thead>
         <tr>
-          <th onClick={() => handleSort("stockName")}>종목명</th>
-          <th onClick={() => handleSort("quantity")}>보유수량</th>
-          <th onClick={() => handleSort("averagePrice")}>평균단가</th>
-          <th onClick={() => handleSort("currentPrice")}>현재가</th>
-          <th onClick={() => handleSort("profitLoss")}>평가손익</th>
-          <th onClick={() => handleSort("profitLossRate")}>수익률</th>
+          <th key="prdt_name" onClick={() => handleSort("prdt_name")}>
+            종목명
+          </th>
+          <th key="hldg_qty" onClick={() => handleSort("hldg_qty")}>
+            보유수량
+          </th>
+          <th key="pchs_avg_pric" onClick={() => handleSort("pchs_avg_pric")}>
+            매입평균가격
+          </th>
+          <th key="prpr" onClick={() => handleSort("prpr")}>
+            현재가
+          </th>
+          <th key="evlu_pfls_amt" onClick={() => handleSort("evlu_pfls_amt")}>
+            평가손익
+          </th>
+          <th key="evlu_pfls_rt" onClick={() => handleSort("evlu_pfls_rt")}>
+            평가손익률
+          </th>
         </tr>
       </thead>
       <tbody>
-        {sortedPositions.length > 0 ? (
-          sortedPositions.map((position) => (
-            <tr key={position.stockCode}>
-              <td>{position.stockName}</td>
-              <td>{parseInt(position.quantity).toLocaleString()}</td>
-              <td>{formatKRW(position.averagePrice)}</td>
-              <td>{formatKRW(position.currentPrice)}</td>
-              <td>{formatKRW(position.profitLoss)}</td>
-              <td>{formatKRW(position.profitLossRate)}</td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td>No data</td>
-          </tr>
-        )}
+        {sortedPositions.length > 0
+          ? sortedPositions.map((position) => (
+              <tr key={position.pdno}>
+                <td>{position.prdt_name}</td>
+                <td>{parseInt(position.hldg_qty).toLocaleString()}</td>
+                <td>{formatKRW(position.pchs_avg_pric)}</td>
+                <td>{formatKRW(position.prpr)}</td>
+                <td>{formatKRW(position.evlu_pfls_amt)}</td>
+                <td>{position.evlu_pfls_rt}%</td>
+              </tr>
+            ))
+          : [
+              <tr key="empty">
+                <td colSpan={6}>보유 종목이 없습니다</td>
+              </tr>,
+            ]}
       </tbody>
     </table>
   );

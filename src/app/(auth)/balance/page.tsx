@@ -1,50 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { StockBalance } from "@/types/stock/balance";
-import { useError } from "@/contexts/ErrorContext";
-import { apiClient } from "@/services/api/common/apiClient";
-import { API, ERROR_MESSAGES } from "@/constants";
+import { useBalance } from "@/hooks/balance/useBalance";
 import AccountBalanceView from "@/components/features/account/AccountBalanceView";
 
 export default function BalancePage() {
-  const [balanceData, setBalanceData] = useState<StockBalance | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { addError } = useError();
-
-  const fetchBalanceData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiClient.get<StockBalance>(API.STOCK.BALANCE);
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      setBalanceData(response.data!);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : ERROR_MESSAGES.BALANCE.FETCH_FAILED;
-      addError({
-        message: errorMessage,
-        severity: "error",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchBalanceData();
-  });
+  const { balanceData, isLoading, refetch } = useBalance();
 
   return (
     <div className="balance-page">
       <div className="page-header">
         <h1>주식 잔고 현황</h1>
         <button
-          onClick={fetchBalanceData}
+          onClick={refetch}
           className="refresh-button"
           disabled={isLoading}
         >
@@ -55,7 +22,7 @@ export default function BalancePage() {
       <AccountBalanceView
         balanceData={balanceData}
         isLoading={isLoading}
-        onRefresh={fetchBalanceData}
+        onRefresh={refetch}
       />
     </div>
   );
