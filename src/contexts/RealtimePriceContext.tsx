@@ -191,7 +191,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
       isActive = false;
       realtimeSocketService.stop();
     };
-  }, [isAuthenticated, isLoading, startRealTimeService, handleStockPrice]);
+  }, [isAuthenticated, isLoading]);
 
   const actions = useMemo(
     () => ({

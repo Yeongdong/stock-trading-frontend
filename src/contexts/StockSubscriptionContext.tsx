@@ -157,8 +157,10 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
   }, [state.subscribedSymbols, fetchSubscriptionsFromServer, addError]);
 
   useEffect(() => {
-    initializeSubscriptions();
-  }, [initializeSubscriptions]);
+    if (state.subscribedSymbols.length === 0) {
+      return;
+    }
+  }, [state.subscribedSymbols.length]);
 
   // 종목 구독
   const subscribeSymbol = useCallback(

@@ -9,13 +9,6 @@ export const PositionsTable = ({ positions }: PositionsTableProps) => {
   const [sortKey, setSortKey] = useState<SortKey>("prdt_name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
 
-  // 디버깅용 로그
-  console.log("positions:", positions);
-  console.log(
-    "prdt_name:",
-    positions.map((p) => p.prdt_name)
-  );
-
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
