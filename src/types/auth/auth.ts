@@ -2,7 +2,7 @@ import { AuthUser } from "../user";
 
 export interface AuthCheckResponse {
   isAuthenticated: boolean;
-  User: AuthUser;
+  user: AuthUser;
 }
 
 export interface GoogleLoginResponse {

@@ -9,7 +9,6 @@ export default function LoginPage() {
   const { addError } = useError();
 
   useEffect(() => {
-    // 세션이 만료된 후 리디렉션으로 돌아온 경우 메시지 표시
     const urlParams = new URLSearchParams(window.location.search);
     const sessionExpired = urlParams.get("sessionExpired");
 

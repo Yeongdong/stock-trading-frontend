@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       setIsAuthenticated(true);
-      setUser(response.data?.User || null);
+      setUser(response.data?.user || null);
       return true;
     } catch (error) {
       console.error("Auth check error:", error);
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     initAuth();
-  });
+  }, [pathname, router]);
 
   return (
     <AuthContext.Provider

@@ -1,7 +1,8 @@
+"use client";
+
 import { AuthProvider } from "@/contexts/AuthContext";
 import AuthGuard from "@/components/common/AuthGuard";
 import Header from "@/components/layout/Header";
-import Navigation from "@/components/layout/Navigation";
 
 export default function AuthLayout({
   children,
@@ -11,12 +12,9 @@ export default function AuthLayout({
   return (
     <AuthProvider>
       <AuthGuard>
-        <div className="app-layout">
+        <div className="auth-layout">
           <Header />
-          <div className="layout-body">
-            <Navigation />
-            <main className="main-content">{children}</main>
-          </div>
+          <main className="main-content">{children}</main>
         </div>
       </AuthGuard>
     </AuthProvider>

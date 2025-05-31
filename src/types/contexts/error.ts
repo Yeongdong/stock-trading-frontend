@@ -19,3 +19,10 @@ export type ErrorAction =
   | { type: "ADD_ERROR"; payload: Omit<AppError, "id" | "timestamp"> }
   | { type: "REMOVE_ERROR"; payload: string }
   | { type: "CLEAR_ERRORS" };
+
+export interface ErrorContextType {
+  errors: AppError[];
+  addError: (error: Omit<AppError, "id" | "timestamp">) => void;
+  removeError: (id: string) => void;
+  clearErrors: () => void;
+}
