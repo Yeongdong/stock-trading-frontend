@@ -12,6 +12,9 @@ export * from "./stock/order";
 // 주문체결조회 타입
 export * from "./order/execution";
 
+// 매수가능조회 타입
+export * from "./trading/buyable";
+
 // 실시간 데이터 관련 타입
 export * from "./realtime/realtime";
 
@@ -22,6 +25,7 @@ export * from "./user/user";
 export * from "./components/stock";
 export * from "./components/account";
 export * from "./components/common";
+export * from "./components/buyableInquiry";
 
 // 컨텍스트 관련 타입
 export * from "./contexts/error";
