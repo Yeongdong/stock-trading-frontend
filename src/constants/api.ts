@@ -15,6 +15,9 @@ export const API = {
     BALANCE: `${API_BASE_URL}/api/stock/balance`,
     ORDER: `${API_BASE_URL}/api/stock/order`,
   },
+  ORDER_EXECUTION: {
+    INQUIRY: `${API_BASE_URL}/api/orderexecution`,
+  },
   REALTIME: {
     START: `${API_BASE_URL}/api/realtime/start`,
     STOP: `${API_BASE_URL}/api/realtime/stop`,

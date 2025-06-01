@@ -9,6 +9,9 @@ export * from "./auth/auth";
 export * from "./stock/balance";
 export * from "./stock/order";
 
+// 주문체결조회 타입
+export * from "./order/execution";
+
 // 실시간 데이터 관련 타입
 export * from "./realtime/realtime";
 
