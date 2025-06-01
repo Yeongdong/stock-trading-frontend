@@ -18,6 +18,9 @@ export const API = {
   ORDER_EXECUTION: {
     INQUIRY: `${API_BASE_URL}/api/orderexecution`,
   },
+  BUYABLE_INQUIRY: {
+    GET: `${API_BASE_URL}/api/buyableinquiry`,
+  },
   REALTIME: {
     START: `${API_BASE_URL}/api/realtime/start`,
     STOP: `${API_BASE_URL}/api/realtime/stop`,
