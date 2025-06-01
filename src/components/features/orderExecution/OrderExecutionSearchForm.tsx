@@ -1,0 +1,128 @@
+import { OrderExecutionInquiryRequest } from "@/types";
+import { OrderExecutionSearchFormProps } from "@/types/components/orderExecution";
+import React, { useState } from "react";
+
+const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
+  onSearch,
+  isLoading,
+}) => {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [stockCode, setStockCode] = useState("");
+  const [orderType, setOrderType] = useState("00");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!startDate || !endDate) {
+      alert("조회 기간을 입력해주세요.");
+      return;
+    }
+
+    const formatDate = (date: string) => date.replace(/-/g, "");
+    const request: OrderExecutionInquiryRequest = {
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
+      stockCode: stockCode.trim() || undefined,
+      orderType,
+    };
+
+    onSearch(request);
+  };
+
+  const getTodayString = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  const getLastMonthString = () => {
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    return lastMonth.toISOString().split("T")[0];
+  };
+
+  return (
+    <div className="order-execution-search-form">
+      <h3>주문체결내역 조회</h3>
+      <form onSubmit={handleSubmit}>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="startDate">조회시작일</label>
+            <input
+              type="date"
+              id="startDate"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              max={getTodayString()}
+              disabled={isLoading}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="endDate">조회종료일</label>
+            <input
+              type="date"
+              id="endDate"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              max={getTodayString()}
+              disabled={isLoading}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="stockCode">종목코드 (선택)</label>
+            <input
+              type="text"
+              id="stockCode"
+              value={stockCode}
+              onChange={(e) => setStockCode(e.target.value)}
+              placeholder="예: 005930 (삼성전자)"
+              maxLength={6}
+              pattern="[0-9]*"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="orderType">매매구분</label>
+            <select
+              id="orderType"
+              value={orderType}
+              onChange={(e) => setOrderType(e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="00">전체</option>
+              <option value="02">매수</option>
+              <option value="01">매도</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-actions">
+          <button
+            type="button"
+            onClick={() => {
+              setStartDate(getLastMonthString());
+              setEndDate(getTodayString());
+            }}
+            disabled={isLoading}
+            className="preset-button"
+          >
+            최근 1개월
+          </button>
+
+          <button type="submit" disabled={isLoading} className="search-button">
+            {isLoading ? "조회중..." : "조회"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default OrderExecutionSearchForm;

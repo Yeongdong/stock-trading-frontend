@@ -11,6 +11,7 @@ const Navigation: React.FC<NavigationProps> = ({ className = "" }) => {
   const navItems: NavItem[] = [
     { href: "/order", label: "주식 주문" },
     { href: "/balance", label: "잔고 확인" },
+    { href: "/order-execution", label: "체결내역" },
     { href: "/realtime", label: "실시간" },
   ];
 
