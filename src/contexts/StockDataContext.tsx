@@ -86,7 +86,18 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
   // 특정 종목의 주식 데이터 조회 함수
   const getStockData = useCallback(
     (symbol: string): StockTransaction | null => {
-      return state.stockData[symbol] || null;
+      const data = state.stockData[symbol] || null;
+
+      if (data) {
+        console.log(
+          `📋 [StockDataContext] ${symbol} 데이터 조회 성공:`,
+          data.price
+        );
+      } else {
+        console.log(`📋 [StockDataContext] ${symbol} 데이터 없음`);
+      }
+
+      return data;
     },
     [state.stockData]
   );

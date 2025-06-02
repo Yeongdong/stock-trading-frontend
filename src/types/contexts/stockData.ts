@@ -22,25 +22,26 @@ export interface ChartDataContextType extends ChartDataState {
   getChartData: (symbol: string) => PriceDataPoint[];
 }
 
-export type SubscriptionAction =
-  | { type: "SET_SUBSCRIPTIONS"; payload: string[] }
-  | { type: "ADD_SUBSCRIPTION"; payload: string }
-  | { type: "REMOVE_SUBSCRIPTION"; payload: string }
-  | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_ERROR"; payload: string | null }
-  | { type: "INITIALIZE_SUBSCRIPTIONS"; payload: string[] };
-
 export interface SubscriptionState {
   subscribedSymbols: string[];
   isLoading: boolean;
   error: string | null;
 }
 
-export interface SubscriptionActions {
+export type SubscriptionAction =
+  | { type: "SET_SUBSCRIPTIONS"; payload: string[] }
+  | { type: "ADD_SUBSCRIPTION"; payload: string }
+  | { type: "REMOVE_SUBSCRIPTION"; payload: string }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null };
+
+export interface SubscriptionContextType {
+  subscribedSymbols: string[];
+  isLoading: boolean;
+  error: string | null;
   subscribeSymbol: (symbol: string) => Promise<boolean>;
   unsubscribeSymbol: (symbol: string) => Promise<boolean>;
   isSubscribed: (symbol: string) => boolean;
-  initializeSubscriptions: () => Promise<void>;
 }
 
 export interface StockTransaction {

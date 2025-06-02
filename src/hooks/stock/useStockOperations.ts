@@ -35,8 +35,8 @@ export const useStockOperations = () => {
           });
         }
         return success;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
+        console.error(error);
         addError({
           message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_FAIL(symbol),
           severity: "error",
@@ -58,8 +58,8 @@ export const useStockOperations = () => {
           });
         }
         return success;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
+        console.error(error);
         addError({
           message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
           severity: "error",
@@ -70,19 +70,16 @@ export const useStockOperations = () => {
     [unsubscribeSymbol, addError]
   );
 
-  // 컴포넌트에서 사용할 통합 상태와 기능
   return useMemo(
     () => ({
       subscribedSymbols,
       isLoading: subscriptionLoading || stockDataLoading,
       error: stockDataError,
 
-      // 구독 관련 기능
       subscribeSymbol: handleSubscribeSymbol,
       unsubscribeSymbol: handleUnsubscribeSymbol,
       isSubscribed,
 
-      // 데이터 조회 기능
       getStockData,
       getChartData,
     }),

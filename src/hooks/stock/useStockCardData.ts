@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { StockTransaction, PriceDataPoint, StockCardDataResult } from "@/types";
+import { StockTransaction, StockCardDataResult } from "@/types";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { TIMINGS, ANIMATIONS } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
@@ -11,56 +11,89 @@ export const useStockCardData = (symbol: string): StockCardDataResult => {
   const { addError } = useError();
 
   const [stockData, setStockData] = useState<StockTransaction | null>(null);
-  const [chartData, setChartData] = useState<PriceDataPoint[]>([]);
   const [blinkClass, setBlinkClass] = useState<string>("");
   const [isUnsubscribing, setIsUnsubscribing] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // 차트 데이터가 변경된 경우에만 실행
+  // 주식 데이터를 주기적으로 체크하면서 실시간 업데이트 반영
   useEffect(() => {
-    const latestChartData = getChartData(symbol);
-    if (JSON.stringify(latestChartData) !== JSON.stringify(chartData)) {
-      setChartData(latestChartData);
-    }
-  }, [symbol, getChartData, chartData]);
-
-  // 주식 데이터를 주기적으로 업데이트
-  useEffect(() => {
-    const intervalId = setInterval(() => {
+    const checkForUpdates = () => {
       const latestData = getStockData(symbol);
-      if (latestData && (!stockData || stockData.price !== latestData.price)) {
-        if (stockData && latestData.price !== stockData.price) {
-          const newClass =
-            latestData.price > stockData.price ? "blink-up" : "blink-down";
-          setBlinkClass(newClass);
 
-          // 효과 초기화를 위한 타이머
-          setTimeout(() => {
-            setBlinkClass("");
-          }, ANIMATIONS.BLINK_DURATION);
+      if (latestData) {
+        console.log(`📊 [useStockCardData] ${symbol} 최신 데이터 확인:`, {
+          price: latestData.price,
+          change: latestData.priceChange,
+          time: latestData.transactionTime,
+          previousPrice: stockData?.price,
+        });
+
+        // 데이터가 변경되었는지 확인
+        const hasChanged =
+          !stockData ||
+          stockData.price !== latestData.price ||
+          stockData.transactionTime !== latestData.transactionTime;
+
+        if (hasChanged) {
+          console.log(`🔄 [useStockCardData] ${symbol} 데이터 업데이트됨`);
+
+          // 가격 변화 애니메이션
+          if (stockData && latestData.price !== stockData.price) {
+            const newClass =
+              latestData.price > stockData.price ? "blink-up" : "blink-down";
+            setBlinkClass(newClass);
+
+            console.log(
+              `💫 [useStockCardData] ${symbol} 애니메이션:`,
+              newClass
+            );
+
+            setTimeout(() => setBlinkClass(""), ANIMATIONS.BLINK_DURATION);
+          }
+
+          setStockData(latestData);
+          setIsLoading(false);
         }
-
-        setStockData(latestData);
-        setIsLoading(false);
+      } else if (!stockData) {
+        console.log(`⏳ [useStockCardData] ${symbol} 데이터 대기 중...`);
       }
-    }, TIMINGS.STOCK_PRICE_CHECK_INTERVAL);
+    };
 
-    // 초기 데이터 로드
-    setStockData(getStockData(symbol));
-    if (getStockData(symbol)) {
-      setIsLoading(false);
-    }
+    // 즉시 체크
+    checkForUpdates();
+
+    // 주기적으로 체크
+    const intervalId = setInterval(
+      checkForUpdates,
+      TIMINGS.STOCK_PRICE_CHECK_INTERVAL
+    );
 
     return () => clearInterval(intervalId);
   }, [symbol, getStockData, stockData]);
 
-  // 구독 해제 핸들러
+  // 초기 로딩 상태 관리
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!stockData) {
+        console.log(`⚠️ [useStockCardData] ${symbol} 데이터 로딩 타임아웃`);
+        setIsLoading(false);
+      }
+    }, 5000); // 5초 후 로딩 상태 해제
+
+    return () => clearTimeout(timeoutId);
+  }, [stockData, symbol]);
+
+  // 구독 해제
   const handleUnsubscribe = useCallback(async () => {
     try {
       setIsUnsubscribing(true);
+      console.log(`🚫 [useStockCardData] ${symbol} 구독 해제 시작`);
+
       await unsubscribeSymbol(symbol);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+      console.log(`✅ [useStockCardData] ${symbol} 구독 해제 완료`);
     } catch (error) {
+      console.error(`❌ [useStockCardData] ${symbol} 구독 해제 실패:`, error);
       addError({
         message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
         severity: "error",
@@ -72,10 +105,10 @@ export const useStockCardData = (symbol: string): StockCardDataResult => {
 
   return {
     stockData,
-    chartData,
+    chartData: getChartData(symbol),
     blinkClass,
     isUnsubscribing,
-    isLoading,
+    isLoading: isLoading && !stockData,
     handleUnsubscribe,
   };
 };

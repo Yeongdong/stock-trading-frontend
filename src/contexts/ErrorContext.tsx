@@ -1,7 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
-import { AppError, ErrorAction, ErrorState } from "@/types";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  ReactNode,
+} from "react";
+import { AppError, ErrorAction, ErrorContextType, ErrorState } from "@/types";
 
 const initialState: ErrorState = {
   errors: [],
@@ -36,13 +42,6 @@ function errorReducer(state: ErrorState, action: ErrorAction): ErrorState {
 
 const generateId = (): string => Math.random().toString(36).substring(2, 9);
 
-interface ErrorContextType {
-  errors: AppError[];
-  addError: (error: Omit<AppError, "id" | "timestamp">) => void;
-  removeError: (id: string) => void;
-  clearErrors: () => void;
-}
-
 const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
 
 export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
@@ -50,18 +49,18 @@ export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(errorReducer, initialState);
 
-  const addError = (error: Omit<AppError, "id" | "timestamp">) => {
+  const addError = useCallback((error: Omit<AppError, "id" | "timestamp">) => {
     dispatch({ type: "ADD_ERROR", payload: error });
     console.error("Error occurred:", error);
-  };
+  }, []);
 
-  const removeError = (id: string) => {
+  const removeError = useCallback((id: string) => {
     dispatch({ type: "REMOVE_ERROR", payload: id });
-  };
+  }, []);
 
-  const clearErrors = () => {
+  const clearErrors = useCallback(() => {
     dispatch({ type: "CLEAR_ERRORS" });
-  };
+  }, []);
 
   const value = {
     errors: state.errors,
