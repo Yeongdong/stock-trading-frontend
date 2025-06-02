@@ -8,6 +8,7 @@ export * from "./auth/auth";
 // 주식 관련 타입
 export * from "./stock/balance";
 export * from "./stock/order";
+export * from "./stock/price";
 
 // 주문체결조회 타입
 export * from "./order/execution";

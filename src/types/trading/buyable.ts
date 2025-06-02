@@ -1,3 +1,5 @@
+import { CurrentPriceResponse } from "../stock/price";
+
 export interface BuyableInquiryRequest {
   stockCode: string;
   orderPrice: number;
@@ -14,4 +16,5 @@ export interface BuyableInquiryResponse {
   orderPrice: number;
   currentPrice: number;
   unitQuantity: number;
+  latestPrice?: CurrentPriceResponse;
 }

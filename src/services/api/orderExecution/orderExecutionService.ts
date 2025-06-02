@@ -6,9 +6,7 @@ import { apiClient } from "../common/apiClient";
 import { API } from "@/constants";
 
 export const orderExecutionService = {
-  getOrderExecutions: async (
-    request: OrderExecutionInquiryRequest
-  ): Promise<OrderExecutionInquiryResponse> => {
+  getOrderExecutions: async (request: OrderExecutionInquiryRequest) => {
     const queryParams = new URLSearchParams({
       startDate: request.startDate,
       endDate: request.endDate,
@@ -17,14 +15,11 @@ export const orderExecutionService = {
 
     if (request.stockCode) queryParams.append("stockCode", request.stockCode);
 
-    const response = await apiClient.get<OrderExecutionInquiryResponse>(
+    return await apiClient.get<OrderExecutionInquiryResponse>(
       `${API.ORDER_EXECUTION.INQUIRY}?${queryParams.toString()}`,
       {
         requiresAuth: true,
       }
     );
-    if (response.error) throw new Error(response.error);
-
-    return response.data!;
   },
 };

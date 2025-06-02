@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useBuyableInquiry } from "@/hooks/trading/useBuyableInquiry";
+import { useCurrentPrice } from "@/hooks/stock/useCurrentPrice";
 import { BuyableInquiryRequest, BuyableInquiryFormProps } from "@/types";
+import useDebounce from "@/hooks/common/useDebounce";
 
 const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
   onResult,
@@ -10,8 +12,41 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
   const [stockCode, setStockCode] = useState(initialStockCode);
   const [orderPrice, setOrderPrice] = useState(initialOrderPrice.toString());
   const [orderType, setOrderType] = useState("00");
+  const [autoFetchPrice, setAutoFetchPrice] = useState(true);
 
   const { isLoading, error, getBuyableInquiry } = useBuyableInquiry();
+  const { getCurrentPrice, isLoading: isPriceLoading } = useCurrentPrice();
+  const debouncedStockCode = useDebounce(stockCode, 500);
+
+  const fetchCurrentPrice = useCallback(
+    async (code: string) => {
+      try {
+        const response = await getCurrentPrice({ stockCode: code });
+        if (response?.data) {
+          setOrderPrice(response.data.currentPrice.toString());
+        }
+      } catch (error) {
+        console.error("현재가 조회 실패:", error);
+      }
+    },
+    [getCurrentPrice]
+  );
+
+  useEffect(() => {
+    if (
+      debouncedStockCode &&
+      debouncedStockCode.length === 6 &&
+      /^\d{6}$/.test(debouncedStockCode) &&
+      autoFetchPrice
+    ) {
+      fetchCurrentPrice(debouncedStockCode);
+    }
+  }, [debouncedStockCode, autoFetchPrice, fetchCurrentPrice]);
+
+  const handleStockCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+    setStockCode(value);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,46 +67,84 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
       orderType,
     };
 
-    const result = await getBuyableInquiry(request);
-    if (result && onResult) {
-      onResult(result);
+    const [buyableResult, currentPriceResult] = await Promise.all([
+      getBuyableInquiry(request),
+      getCurrentPrice({ stockCode: stockCode.trim() }),
+    ]);
+
+    if (buyableResult && onResult) {
+      const enhancedResult = {
+        ...buyableResult,
+        latestPrice: currentPriceResult?.data || undefined,
+      };
+      onResult(enhancedResult);
     }
   };
 
   return (
     <div className="buyable-inquiry-form">
-      <h3>매수가능조회</h3>
+      <div className="form-header">
+        <h3>매수가능조회</h3>
+        <div className="auto-price-toggle">
+          <label htmlFor="autoFetchPrice">
+            <input
+              type="checkbox"
+              id="autoFetchPrice"
+              checked={autoFetchPrice}
+              onChange={(e) => setAutoFetchPrice(e.target.checked)}
+            />
+            자동 현재가 조회
+          </label>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="stockCode">종목코드</label>
-            <input
-              type="text"
-              id="stockCode"
-              value={stockCode}
-              onChange={(e) => setStockCode(e.target.value)}
-              placeholder="예: 005930"
-              maxLength={6}
-              pattern="[0-9]*"
-              disabled={isLoading}
-              required
-            />
+            <div className="input-with-indicator">
+              <input
+                type="text"
+                id="stockCode"
+                value={stockCode}
+                onChange={handleStockCodeChange}
+                placeholder="예: 005930"
+                maxLength={6}
+                disabled={isLoading}
+                required
+              />
+              {isPriceLoading && (
+                <div className="price-loading-indicator">
+                  <span className="loading-spinner">⟳</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="form-group">
             <label htmlFor="orderPrice">주문가격</label>
-            <input
-              type="number"
-              id="orderPrice"
-              value={orderPrice}
-              onChange={(e) => setOrderPrice(e.target.value)}
-              placeholder="주문가격 입력"
-              min="1"
-              step="1"
-              disabled={isLoading}
-              required
-            />
+            <div className="input-with-action">
+              <input
+                type="number"
+                id="orderPrice"
+                value={orderPrice}
+                onChange={(e) => setOrderPrice(e.target.value)}
+                placeholder="주문가격 입력"
+                min="1"
+                step="1"
+                disabled={isLoading}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => stockCode && fetchCurrentPrice(stockCode)}
+                disabled={!stockCode || isPriceLoading}
+                className="fetch-price-btn"
+                title="현재가 가져오기"
+              >
+                🔄
+              </button>
+            </div>
           </div>
         </div>
 
@@ -92,7 +165,7 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
           <div className="form-group">
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isPriceLoading}
               className="inquiry-button"
             >
               {isLoading ? "조회중..." : "매수가능조회"}

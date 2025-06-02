@@ -14,6 +14,7 @@ export const API = {
   STOCK: {
     BALANCE: `${API_BASE_URL}/api/stock/balance`,
     ORDER: `${API_BASE_URL}/api/stock/order`,
+    CURRENT_PRICE: `${API_BASE_URL}/api/stock/currentPrice`,
   },
   ORDER_EXECUTION: {
     INQUIRY: `${API_BASE_URL}/api/orderexecution`,
