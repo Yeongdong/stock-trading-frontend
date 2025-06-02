@@ -140,16 +140,34 @@ export class RealtimeSocketService {
     });
 
     // 실시간 주가 데이터 수신 이벤트
+
     this.hubConnection.on("ReceiveStockPrice", (data: StockTransaction) => {
-      console.log("📈 [SignalR] ReceiveStockPrice 이벤트 수신:", {
+      console.log(
+        "🎯 [SignalR] ReceiveStockPrice 이벤트 수신 - RAW DATA:",
+        data
+      );
+
+      // 데이터 유효성 검사
+      if (!data || !data.symbol) {
+        console.error("❌ [SignalR] 유효하지 않은 주가 데이터:", data);
+        return;
+      }
+
+      console.log("📊 [SignalR] 유효한 주가 데이터 처리:", {
         symbol: data.symbol,
         price: data.price,
         change: data.priceChange,
         changeRate: data.changeRate,
         volume: data.volume,
         time: data.transactionTime,
-        fullData: data,
+        dataType: typeof data,
+        allKeys: Object.keys(data),
       });
+
+      // 브라우저 알림으로도 확인 (임시)
+      if (typeof window !== "undefined") {
+        console.log("🔔 [SignalR] 브라우저 알림 생성");
+      }
 
       this.notifySubscribers("stockPrice", data);
     });

@@ -87,13 +87,38 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     isInitialized: isInitializedRef.current,
   });
 
-  const handleStockPrice = useCallback((data: StockTransaction) => {
-    console.log("📈 [RealtimePriceContext] 주가 데이터 수신:", data);
-    dispatch({
-      type: "UPDATE_STOCK_DATA",
-      payload: { symbol: data.symbol, data },
-    });
-  }, []);
+  const handleStockPrice = useCallback(
+    (data: StockTransaction) => {
+      console.log("🎯 [RealtimePriceContext] handleStockPrice 호출됨:", {
+        symbol: data.symbol,
+        price: data.price,
+        change: data.priceChange,
+        time: data.transactionTime,
+        currentTime: new Date().toISOString(),
+      });
+
+      // 상태 업데이트 전 현재 상태 로깅
+      console.log(
+        "📊 [RealtimePriceContext] 상태 업데이트 전 stockData keys:",
+        Object.keys(state.stockData)
+      );
+
+      dispatch({
+        type: "UPDATE_STOCK_DATA",
+        payload: { symbol: data.symbol, data },
+      });
+
+      console.log(
+        "✅ [RealtimePriceContext] dispatch 완료 - UPDATE_STOCK_DATA"
+      );
+
+      // 업데이트 후 상태 확인을 위한 setTimeout
+      setTimeout(() => {
+        console.log("🔍 [RealtimePriceContext] 업데이트 후 상태 확인");
+      }, 100);
+    },
+    [state.stockData]
+  ); // 의존성에 state.stockData 추가하여 변화 추적
 
   // 실시간 서비스 시작
   const startRealTimeService = useCallback(async () => {
