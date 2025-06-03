@@ -9,6 +9,7 @@ export * from "./auth/auth";
 export * from "./stock/balance";
 export * from "./stock/order";
 export * from "./stock/price";
+export * from "./stock/search";
 
 // 주문체결조회 타입
 export * from "./order/execution";

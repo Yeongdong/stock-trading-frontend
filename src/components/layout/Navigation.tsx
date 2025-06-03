@@ -9,6 +9,7 @@ const Navigation: React.FC<NavigationProps> = ({ className = "" }) => {
   const pathname = usePathname();
 
   const navItems: NavItem[] = [
+    { href: "/stock-search", label: "종목 검색" },
     { href: "/order", label: "주식 주문" },
     { href: "/buyable-inquiry", label: "매수가능조회" },
     { href: "/balance", label: "잔고 확인" },
