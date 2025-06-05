@@ -32,6 +32,8 @@ function realtimePriceReducer(
   state: RealtimePriceState,
   action: RealtimePriceAction
 ): RealtimePriceState {
+  console.log("🔄 [RealtimePriceReducer] action 수신:", action.type, action);
+
   switch (action.type) {
     case "UPDATE_STOCK_DATA":
       return {
@@ -80,101 +82,43 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
   const isInitializedRef = useRef<boolean>(false);
   const cleanupFunctionRef = useRef<(() => void) | null>(null);
 
-  console.log("🚀 [RealtimePriceContext] 컴포넌트 렌더링:", {
-    isAuthenticated,
-    isLoading,
-    isConnected: state.isConnected,
-    isInitialized: isInitializedRef.current,
-  });
-
-  const handleStockPrice = useCallback(
-    (data: StockTransaction) => {
-      console.log("🎯 [RealtimePriceContext] handleStockPrice 호출됨:", {
-        symbol: data.symbol,
-        price: data.price,
-        change: data.priceChange,
-        time: data.transactionTime,
-        currentTime: new Date().toISOString(),
-      });
-
-      // 상태 업데이트 전 현재 상태 로깅
-      console.log(
-        "📊 [RealtimePriceContext] 상태 업데이트 전 stockData keys:",
-        Object.keys(state.stockData)
-      );
-
-      dispatch({
-        type: "UPDATE_STOCK_DATA",
-        payload: { symbol: data.symbol, data },
-      });
-
-      console.log(
-        "✅ [RealtimePriceContext] dispatch 완료 - UPDATE_STOCK_DATA"
-      );
-
-      // 업데이트 후 상태 확인을 위한 setTimeout
-      setTimeout(() => {
-        console.log("🔍 [RealtimePriceContext] 업데이트 후 상태 확인");
-      }, 100);
-    },
-    [state.stockData]
-  ); // 의존성에 state.stockData 추가하여 변화 추적
+  const handleStockPrice = useCallback((data: StockTransaction) => {
+    dispatch({
+      type: "UPDATE_STOCK_DATA",
+      payload: { symbol: data.symbol, data },
+    });
+  }, []);
 
   // 실시간 서비스 시작
   const startRealTimeService = useCallback(async () => {
-    console.log("🎯 [RealtimePriceContext] startRealTimeService 호출됨:", {
-      isAuthenticated,
-      isConnected: state.isConnected,
-      isInitialized: isInitializedRef.current,
-      socketState: realtimeSocketService.getConnectionState(),
-    });
+    if (!isAuthenticated) return false;
 
-    if (!isAuthenticated) {
-      console.log("🚫 [RealtimePriceContext] 인증되지 않음");
-      return false;
-    }
-
-    if (state.isConnected && isInitializedRef.current) {
-      console.log("✅ [RealtimePriceContext] 이미 연결됨");
-      return true;
-    }
+    if (state.isConnected && isInitializedRef.current) return true;
 
     try {
-      console.log("🔧 [RealtimePriceContext] 실시간 서비스 시작 중...");
-
       // 1. 서버측 실시간 서비스 시작
       const response = await realtimeApiService.startRealTimeService();
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      console.log("✅ [RealtimePriceContext] 서버 실시간 서비스 시작 완료");
+      if (response.error) throw new Error(response.error);
 
       // 2. 클라이언트측 WebSocket 연결 시작
       realtimeSocketService.setErrorCallback((errorMessage) => {
-        console.error("💥 [RealtimePriceContext] SignalR 오류:", errorMessage);
+        console.error("SignalR 오류:", errorMessage);
         addError({
           message: errorMessage,
           severity: "error",
         });
       });
 
-      console.log("🔌 [RealtimePriceContext] SignalR 연결 시작...");
       const connected = await realtimeSocketService.start();
 
       if (connected) {
-        console.log("✅ [RealtimePriceContext] SignalR 연결 성공");
-
         // 3. 이벤트 핸들러 등록
         const unsubscribe = realtimeSocketService.subscribe(
           "stockPrice",
           handleStockPrice
         );
 
-        // 정리 함수 저장
         cleanupFunctionRef.current = () => {
-          console.log("🧹 [RealtimePriceContext] 정리 함수 실행");
           unsubscribe();
           realtimeSocketService.stop();
         };
@@ -183,14 +127,10 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
         dispatch({ type: "SET_ERROR", payload: null });
         isInitializedRef.current = true;
 
-        console.log("🎉 [RealtimePriceContext] 실시간 서비스 초기화 완료");
-
-        if (!isInitializedRef.current) {
-          addError({
-            message: ERROR_MESSAGES.REALTIME.SERVICE_START,
-            severity: "info",
-          });
-        }
+        addError({
+          message: ERROR_MESSAGES.REALTIME.SERVICE_START,
+          severity: "info",
+        });
 
         return true;
       } else {
@@ -198,15 +138,8 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      console.error(
-        "❌ [RealtimePriceContext] 실시간 서비스 시작 실패:",
-        errorMsg
-      );
+      console.error("실시간 서비스 시작 실패:", errorMsg);
 
-      dispatch({
-        type: "SET_ERROR",
-        payload: `실시간 서비스 시작 실패: ${errorMsg}`,
-      });
       addError({
         message: ERROR_MESSAGES.REALTIME.CONNECTION_FAILED,
         severity: "error",
@@ -228,25 +161,9 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
   }, []);
 
-  // 실시간 서비스 초기화 useEffect
+  // 실시간 서비스 초기화
   useEffect(() => {
-    console.log("🚀 [RealtimePriceContext] useEffect 실행:", {
-      isAuthenticated,
-      isLoading,
-      isInitialized: isInitializedRef.current,
-    });
-
-    if (!isAuthenticated || isLoading) {
-      console.log("⏳ [RealtimePriceContext] 인증 대기 중...");
-      return;
-    }
-
-    if (isInitializedRef.current) {
-      console.log("✅ [RealtimePriceContext] 이미 초기화됨");
-      return;
-    }
-
-    console.log("🔄 [RealtimePriceContext] 실시간 서비스 초기화 시작");
+    if (!isAuthenticated || isLoading || isInitializedRef.current) return;
 
     const initializeService = async () => {
       await startRealTimeService();
@@ -267,15 +184,6 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
       dispatch({ type: "SET_CONNECTED", payload: false });
     };
   }, [isAuthenticated, isLoading, startRealTimeService]);
-
-  // 상태 변경 로깅
-  useEffect(() => {
-    console.log("📊 [RealtimePriceContext] 상태 업데이트:", {
-      isConnected: state.isConnected,
-      stockDataKeys: Object.keys(state.stockData),
-      error: state.error,
-    });
-  }, [state.isConnected, state.stockData, state.error]);
 
   const actions = useMemo(
     () => ({

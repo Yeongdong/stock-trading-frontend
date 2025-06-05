@@ -32,9 +32,7 @@ function chartDataReducer(
 
       // 마지막 데이터와 같으면 상태 변경 없음
       const lastPoint = currentData[currentData.length - 1];
-      if (lastPoint && lastPoint.price === dataPoint.price) {
-        return state;
-      }
+      if (lastPoint && lastPoint.price === dataPoint.price) return state;
 
       // 최대 데이터 포인트 수 제한
       const updatedData = [...currentData, dataPoint].slice(
