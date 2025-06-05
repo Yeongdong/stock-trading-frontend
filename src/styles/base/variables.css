@@ -1,0 +1,71 @@
+:root {
+  /* 색상 변수 */
+  --color-primary: #0070f3;
+  --color-primary-hover: #0056b3;
+  --color-secondary: #6c757d;
+  --color-success: #28a745;
+  --color-success-hover: #218838;
+  --color-warning: #ffc107;
+  --color-warning-bg: #fff3cd;
+  --color-error: #e53935;
+  --color-error-bg: #fdecea;
+  --color-info: #2196f3;
+  --color-info-bg: #e3f2fd;
+
+  /* 한국 주식 시장 색상 */
+  --color-stock-up: #e53935; /* 상승: 빨간색 */
+  --color-stock-down: #2196f3; /* 하락: 파란색 */
+  --color-stock-unchanged: #333;
+
+  /* 텍스트 색상 */
+  --color-text-primary: #333;
+  --color-text-secondary: #666;
+  --color-text-muted: #999;
+  --color-text-white: #fff;
+
+  /* 배경 색상 */
+  --color-bg-white: #fff;
+  --color-bg-light: #f8f9fa;
+  --color-bg-lighter: #f5f5f5;
+  --color-bg-border: #e0e0e0;
+  --color-bg-input: #fff;
+
+  /* 테두리 */
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: #ddd;
+  --border-radius: 4px;
+  --border-radius-large: 8px;
+
+  /* 간격 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-xxl: 24px;
+
+  /* 폰트 크기 */
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+
+  /* 폰트 두께 */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* 레이아웃 */
+  --container-max-width: 1200px;
+  --header-height: 60px;
+
+  /* 그림자 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,203 @@
+/* 폼 컨테이너 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* 폼 그룹 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: end;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* 라벨 */
+label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* 입력 필드 */
+.input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-width) var(--border-style) var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  background-color: var(--color-bg-input);
+  transition: border-color 0.2s ease;
+}
+
+.input:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.input:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* 입력 래퍼 */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-action {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.input-with-indicator {
+  position: relative;
+}
+
+.input-group {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.input-group input {
+  flex: 1;
+}
+
+/* 라디오 버튼 그룹 */
+.radio-group {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: center;
+  margin-top: var(--spacing-xs);
+}
+
+.radio-group input[type="radio"] {
+  width: auto;
+  margin-right: var(--spacing-xs);
+}
+
+.radio-group label {
+  font-weight: var(--font-weight-normal);
+  cursor: pointer;
+}
+
+/* 체크박스 */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+}
+
+.checkbox-group label {
+  font-weight: var(--font-weight-normal);
+  cursor: pointer;
+}
+
+/* 에러 메시지 */
+.error-message {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+}
+
+/* 헬프 텍스트 */
+.help-text,
+.helper-text {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+}
+
+/* 폼 액션 */
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+}
+
+/* 특수 입력 요소들 */
+.toggle-visibility,
+.copy-button {
+  position: absolute;
+  right: var(--spacing-sm);
+  background: none;
+  border: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+}
+
+.toggle-visibility:hover,
+.copy-button:hover {
+  color: var(--color-text-primary);
+}
+
+.refresh-price-btn,
+.fetch-price-btn {
+  background: none;
+  border: var(--border-width) var(--border-style) var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: all 0.2s ease;
+}
+
+.refresh-price-btn:hover:not(:disabled),
+.fetch-price-btn:hover:not(:disabled) {
+  background-color: var(--color-bg-light);
+  border-color: var(--color-text-muted);
+}
+
+.refresh-price-btn:disabled,
+.fetch-price-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 검색 폼 */
+.search-input-group {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.search-input {
+  flex: 1;
+}
+
+.search-button {
+  white-space: nowrap;
+}

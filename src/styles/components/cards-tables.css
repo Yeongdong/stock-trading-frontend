@@ -1,0 +1,222 @@
+/* 기본 카드 */
+.card {
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 주식 카드 */
+.stock-card {
+  background-color: var(--color-bg-white);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  position: relative;
+  border-left: 4px solid var(--color-bg-border);
+  transition: all 0.3s ease;
+}
+
+.stock-card.blink-up {
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+.stock-card.blink-down {
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.stock-symbol {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+}
+
+.stock-name {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
+/* 가격 표시 */
+.price-container {
+  margin-bottom: var(--spacing-md);
+}
+
+.current-price {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-xs);
+}
+
+.price-change {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 주식 가격 색상 */
+.price-up {
+  color: var(--color-stock-up);
+  border-color: var(--color-stock-up);
+}
+
+.price-down {
+  color: var(--color-stock-down);
+  border-color: var(--color-stock-down);
+}
+
+.price-unchanged {
+  color: var(--color-stock-unchanged);
+  border-color: var(--color-bg-border);
+}
+
+/* 거래 정보 */
+.trading-info {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.trading-info .label {
+  font-weight: var(--font-weight-medium);
+  margin-right: var(--spacing-xs);
+}
+
+/* 요약 카드 */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xxl);
+}
+
+.summary-cards .card {
+  text-align: center;
+}
+
+.summary-cards .card h3 {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-sm);
+}
+
+.summary-cards .card div {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+/* 테이블 스타일 */
+.table-wrapper {
+  overflow-x: auto;
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg-white);
+}
+
+th {
+  background-color: var(--color-bg-light);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  cursor: pointer;
+}
+
+th:hover {
+  background-color: var(--color-bg-border);
+}
+
+td {
+  padding: var(--spacing-md);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+td.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 빈 상태 */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius-large);
+  margin-top: var(--spacing-xl);
+}
+
+.empty-state p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* 로딩 상태 */
+.loading-indicator,
+.loading-container {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-text-secondary);
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-bg-border);
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--spacing-sm);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 스켈레톤 로딩 */
+.skeleton {
+  background-color: var(--color-bg-border);
+  border-radius: var(--border-radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
