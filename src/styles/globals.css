@@ -818,6 +818,7 @@ td.number {
 .search-header {
   margin-bottom: var(--spacing-xl);
   text-align: center;
+  width: 100%;
 }
 
 .search-summary {
@@ -827,12 +828,47 @@ td.number {
   margin-top: var(--spacing-md);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  width: 100%;
+}
+
+.stock-search-form {
+  margin-bottom: var(--spacing-xxl);
+  width: 100%;
+}
+
+.search-input-group {
+  display: flex;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-button {
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: var(--spacing-sm) var(--spacing-lg);
+}
+
+.results-header {
+  margin-bottom: var(--spacing-lg);
+  width: 100%;
+}
+
+.results-header h3 {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  margin: 0;
 }
 
 .results-list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  width: 100%;
 }
 
 .result-item {
@@ -841,6 +877,8 @@ td.number {
   border-radius: var(--border-radius);
   background-color: var(--color-bg-white);
   transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .result-item:hover {
@@ -858,6 +896,14 @@ td.number {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   margin-left: var(--spacing-xs);
+}
+
+.search-results.loading,
+.search-results.empty {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+  width: 100%;
 }
 
 /* ===========================================

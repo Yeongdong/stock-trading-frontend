@@ -7,7 +7,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = memo(
       <h3>{title}</h3>
       <p>{error}</p>
       {onRetry && (
-        <button onClick={onRetry} className="retry-button">
+        <button onClick={onRetry} className="btn btn-primary">
           다시 시도
         </button>
       )}

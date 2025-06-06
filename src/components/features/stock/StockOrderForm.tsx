@@ -175,7 +175,7 @@ const StockOrderForm = () => {
         <button
           onClick={handleOrder}
           disabled={isLoading}
-          className="order-button"
+          className="btn btn-success"
         >
           {isLoading ? "주문 중..." : "주문"}
         </button>

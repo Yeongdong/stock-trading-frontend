@@ -139,7 +139,7 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
                 type="button"
                 onClick={() => stockCode && fetchCurrentPrice(stockCode)}
                 disabled={!stockCode || isPriceLoading}
-                className="fetch-price-btn"
+                className="btn btn-primary"
                 title="현재가 가져오기"
               >
                 🔄
@@ -166,7 +166,7 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
             <button
               type="submit"
               disabled={isLoading || isPriceLoading}
-              className="inquiry-button"
+              className="btn btn-primary"
             >
               {isLoading ? "조회중..." : "매수가능조회"}
             </button>

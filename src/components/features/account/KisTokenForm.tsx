@@ -169,7 +169,7 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
       <button
         onClick={handleGetKisToken}
         disabled={isLoading}
-        className="submit-button"
+        className="btn btn-primary"
       >
         {isLoading ? "처리 중..." : "토큰 발급받기"}
       </button>

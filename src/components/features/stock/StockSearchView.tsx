@@ -39,13 +39,15 @@ const StockSearchView: React.FC = () => {
         )}
       </div>
 
-      <StockSearchForm onSearchResults={handleSearchResults} />
+      <div className="search-content">
+        <StockSearchForm onSearchResults={handleSearchResults} />
 
-      <StockSearchResults
-        results={searchResults}
-        isLoading={isSearching}
-        onStockSelect={handleStockSelect}
-      />
+        <StockSearchResults
+          results={searchResults}
+          isLoading={isSearching}
+          onStockSelect={handleStockSelect}
+        />
+      </div>
     </div>
   );
 };

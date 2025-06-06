@@ -45,7 +45,7 @@ const StockSearchForm: React.FC<StockSearchFormProps> = ({
         <button
           type="submit"
           disabled={isLoading || !searchTerm.trim()}
-          className="search-button"
+          className="btn btn-primary"
         >
           {isLoading ? "검색중..." : "검색"}
         </button>

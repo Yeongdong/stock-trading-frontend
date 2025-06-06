@@ -18,7 +18,7 @@ const Navigation: React.FC<NavigationProps> = ({ className = "" }) => {
   ];
 
   return (
-    <nav className={`dashboard-navigation ${className}`}>
+    <nav className={`navigation ${className}`}>
       <ul className="nav-list">
         {navItems.map((item) => (
           <li key={item.href} className="nav-item">
