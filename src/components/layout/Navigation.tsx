@@ -14,6 +14,7 @@ const Navigation: React.FC<NavigationProps> = ({ className = "" }) => {
     { href: "/buyable-inquiry", label: "매수가능조회" },
     { href: "/balance", label: "잔고 확인" },
     { href: "/order-execution", label: "체결내역" },
+    { href: "/period-price", label: "기간별 시세" },
     { href: "/realtime", label: "실시간" },
   ];
 

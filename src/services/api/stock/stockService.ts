@@ -8,6 +8,8 @@ import {
   StockSearchRequest,
   StockSearchResult,
   StockSearchSummary,
+  PeriodPriceRequest,
+  PeriodPriceResponse,
 } from "@/types";
 
 export const stockService = {
@@ -69,5 +71,21 @@ export const stockService = {
     );
 
     return response.data!;
+  },
+
+  getPeriodPrice: async (request: PeriodPriceRequest) => {
+    const queryParams = new URLSearchParams({
+      stockCode: request.stockCode,
+      periodDivCode: request.periodDivCode,
+      startDate: request.startDate,
+      endDate: request.endDate,
+      orgAdjPrc: request.orgAdjPrc || "0",
+      marketDivCode: request.marketDivCode || "J",
+    });
+
+    return apiClient.get<PeriodPriceResponse>(
+      `${API.STOCK.PERIOD_PRICE}?${queryParams.toString()}`,
+      { requiresAuth: true }
+    );
   },
 };
