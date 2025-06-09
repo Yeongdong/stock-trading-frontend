@@ -14,6 +14,7 @@ import { timeFormat } from "d3-time-format";
 import { PeriodPriceRequest } from "../../../types/stock/price";
 import { usePeriodPrice } from "../../../hooks/stock/usePeriodPrice";
 import styles from "./PeriodPriceChart.module.css";
+
 import {
   ChartConfig,
   ChartData,
@@ -44,14 +45,37 @@ export default function PeriodPriceChart({
     orgAdjPrc: "0",
     marketDivCode: "J",
   });
-
+  useEffect(() => {
+    console.log("Hook State:", { data, loading, error });
+  }, [data, loading, error]);
+  useEffect(() => {
+    if (data) {
+      console.log("Period Price Data:", data);
+      console.log("Price Data Array:", data.priceData);
+      console.log("Price Data Length:", data.priceData?.length);
+    }
+  }, [data]);
   useEffect(() => {
     setFormData((prev) => ({ ...prev, stockCode }));
   }, [stockCode]);
 
   useEffect(() => {
-    return () => clearData();
-  }, [clearData]);
+    setFormData((prev) => ({ ...prev, stockCode }));
+
+    if (stockCode) {
+      clearData();
+
+      fetchPeriodPrice({
+        stockCode,
+        periodDivCode: "D",
+        startDate: DateFormatter.getDefaultStartDate(),
+        endDate: DateFormatter.getDefaultEndDate(),
+        orgAdjPrc: "0",
+        marketDivCode: "J",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stockCode]);
 
   const chartData = useMemo(() => {
     if (!data?.priceData) return [];
@@ -86,6 +110,7 @@ export default function PeriodPriceChart({
   }, [data]);
 
   const handleFormSubmit = async (formData: PeriodPriceRequest) => {
+    console.log("Form Submit with data:", formData);
     setFormData(formData);
     await fetchPeriodPrice(formData);
   };

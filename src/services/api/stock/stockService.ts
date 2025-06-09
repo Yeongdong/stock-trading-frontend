@@ -82,10 +82,12 @@ export const stockService = {
       orgAdjPrc: request.orgAdjPrc || "0",
       marketDivCode: request.marketDivCode || "J",
     });
-
-    return apiClient.get<PeriodPriceResponse>(
+    const response = await apiClient.get<PeriodPriceResponse>(
       `${API.STOCK.PERIOD_PRICE}?${queryParams.toString()}`,
       { requiresAuth: true }
     );
+    console.log("stockService response:", response); // 이걸 추가
+
+    return response;
   },
 };

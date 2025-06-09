@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import PeriodPriceChart from "@/components/features/stock/PeriodPriceChart";
-
 import { StockSearchResult } from "@/types/stock/search";
 import styles from "./page.module.css";
 import { stockService } from "@/services/api";
