@@ -45,16 +45,7 @@ export default function PeriodPriceChart({
     orgAdjPrc: "0",
     marketDivCode: "J",
   });
-  useEffect(() => {
-    console.log("Hook State:", { data, loading, error });
-  }, [data, loading, error]);
-  useEffect(() => {
-    if (data) {
-      console.log("Period Price Data:", data);
-      console.log("Price Data Array:", data.priceData);
-      console.log("Price Data Length:", data.priceData?.length);
-    }
-  }, [data]);
+
   useEffect(() => {
     setFormData((prev) => ({ ...prev, stockCode }));
   }, [stockCode]);
