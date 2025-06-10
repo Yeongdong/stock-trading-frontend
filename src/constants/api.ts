@@ -12,10 +12,10 @@ export const API = {
     USER_INFO: `${API_BASE_URL}/api/account/userInfo`,
   },
   STOCK: {
-    BALANCE: `${API_BASE_URL}/api/stock/balance`,
-    ORDER: `${API_BASE_URL}/api/stock/order`,
+    BALANCE: `${API_BASE_URL}/api/trading/order/balance`,
+    ORDER: `${API_BASE_URL}/api/trading/order`,
     CURRENT_PRICE: `${API_BASE_URL}/api/stock/currentPrice`,
-    SEARCH: `${API_BASE_URL}/api/stock/search`,
+    SEARCH: `${API_BASE_URL}/api/market/stock/search`,
     GET_BY_CODE: (code: string) => `${API_BASE_URL}/api/stock/${code}`,
     SEARCH_SUMMARY: `${API_BASE_URL}/api/stock/search/summary`,
     UPDATE_FROM_KRX: `${API_BASE_URL}/api/stock/update-from-krx`,
