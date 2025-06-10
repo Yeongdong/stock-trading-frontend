@@ -8,22 +8,25 @@ import {
   StockSearchRequest,
   StockSearchResult,
   StockSearchSummary,
-  PeriodPriceRequest,
   PeriodPriceResponse,
+  ApiResponse,
+  PeriodPriceRequest,
 } from "@/types";
 
 export const stockService = {
-  getBalance: async () => {
+  getBalance: async (): Promise<ApiResponse<StockBalance>> => {
     return apiClient.get<StockBalance>(API.STOCK.BALANCE, {
       requiresAuth: true,
     });
   },
 
-  placeOrder: async (orderData: StockOrder) => {
+  placeOrder: async (orderData: StockOrder): Promise<ApiResponse> => {
     return apiClient.post(API.STOCK.ORDER, orderData, { requiresAuth: true });
   },
 
-  getCurrentPrice: async (request: CurrentPriceRequest) => {
+  getCurrentPrice: async (
+    request: CurrentPriceRequest
+  ): Promise<ApiResponse<CurrentPriceResponse>> => {
     const queryParams = new URLSearchParams({ stockCode: request.stockCode });
 
     return apiClient.get<CurrentPriceResponse>(
@@ -73,7 +76,10 @@ export const stockService = {
     return response.data!;
   },
 
-  getPeriodPrice: async (request: PeriodPriceRequest) => {
+  // 기간별 주가 조회
+  getPeriodPrice: async (
+    request: PeriodPriceRequest
+  ): Promise<ApiResponse<PeriodPriceResponse>> => {
     const queryParams = new URLSearchParams({
       stockCode: request.stockCode,
       periodDivCode: request.periodDivCode,
@@ -82,7 +88,8 @@ export const stockService = {
       orgAdjPrc: request.orgAdjPrc || "0",
       marketDivCode: request.marketDivCode || "J",
     });
-    return await apiClient.get<PeriodPriceResponse>(
+
+    return apiClient.get<PeriodPriceResponse>(
       `${API.STOCK.PERIOD_PRICE}?${queryParams.toString()}`,
       { requiresAuth: true }
     );

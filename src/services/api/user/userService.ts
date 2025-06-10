@@ -17,4 +17,29 @@ export const userService = {
       { requiresAuth: true }
     );
   },
+
+  refreshKisToken: async (
+    appKey: string,
+    appSecret: string,
+    accountNumber: string
+  ) => {
+    try {
+      const response = await apiClient.post(
+        API.USER.USER_INFO,
+        {
+          appKey,
+          appSecret,
+          accountNumber,
+        },
+        { requiresAuth: true }
+      );
+
+      if (response.error) throw new Error(response.error);
+
+      return response.data;
+    } catch (error) {
+      console.error("KIS 토큰 갱신 실패:", error);
+      throw error;
+    }
+  },
 };

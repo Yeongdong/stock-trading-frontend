@@ -19,7 +19,7 @@ export const API = {
     GET_BY_CODE: (code: string) => `${API_BASE_URL}/api/stock/${code}`,
     SEARCH_SUMMARY: `${API_BASE_URL}/api/stock/search/summary`,
     UPDATE_FROM_KRX: `${API_BASE_URL}/api/stock/update-from-krx`,
-    PERIOD_PRICE: `${API_BASE_URL}/api/stock/periodPrice`,
+    PERIOD_PRICE: `${API_BASE_URL}/api/market/stock/periodPrice`,
   },
   ORDER_EXECUTION: {
     INQUIRY: `${API_BASE_URL}/api/orderexecution`,

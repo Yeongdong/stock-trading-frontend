@@ -3,22 +3,23 @@ import { useError } from "@/contexts/ErrorContext";
 import { ApiOptions, ApiResponse } from "@/types/api/common";
 
 class ApiClient {
-  // 오류 핸들러 저장
   private errorHandler: ((message: string, code?: string) => void) | null =
     null;
 
-  // 오류 핸들러 설정 메서드
   setErrorHandler(handler: (message: string, code?: string) => void): void {
     this.errorHandler = handler;
   }
 
   // GET
-  async get<T>(url: string, options: ApiOptions = {}): Promise<ApiResponse<T>> {
+  async get<T = void>(
+    url: string,
+    options: ApiOptions = {}
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(url, "GET", undefined, options);
   }
 
   // POST
-  async post<T, D = unknown>(
+  async post<T = void, D = unknown>(
     url: string,
     data: D,
     options: ApiOptions = {}
@@ -27,7 +28,7 @@ class ApiClient {
   }
 
   // PUT
-  async put<T, D = unknown>(
+  async put<T = void, D = unknown>(
     url: string,
     data: D,
     options: ApiOptions = {}
@@ -36,14 +37,13 @@ class ApiClient {
   }
 
   // DELETE
-  async delete<T>(
+  async delete<T = void>(
     url: string,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.request<T>(url, "DELETE", undefined, options);
   }
 
-  // 공통 요청 처리
   private async request<T>(
     url: string,
     method: string,
@@ -58,7 +58,6 @@ class ApiClient {
         ...headers,
       };
 
-      // 요청 옵션 구성
       const requestOptions: RequestInit = {
         method,
         headers: requestHeaders,
@@ -67,13 +66,10 @@ class ApiClient {
         signal: AbortSignal.timeout(10000), // 10초 타임아웃
       };
 
-      // 요청 실행
       const response = await fetch(url, requestOptions);
 
-      // JSON 응답 파싱
       const responseData = await response.json().catch(() => ({}));
 
-      // 응답 결과 구성
       const result: ApiResponse<T> = {
         data: response.ok ? responseData : undefined,
         error: !response.ok
@@ -83,7 +79,6 @@ class ApiClient {
         status: response.status,
       };
 
-      // 오류 처리
       if (!response.ok && handleError && this.errorHandler) {
         const errorCode = responseData.code || response.status.toString();
         this.errorHandler(result.error!, errorCode);
@@ -91,7 +86,6 @@ class ApiClient {
 
       return result;
     } catch (error) {
-      // 네트워크 오류 등 예외 처리
       let errorMessage = "알 수 없는 오류 발생";
       let errorCode = "UNKNOWN_ERROR";
 

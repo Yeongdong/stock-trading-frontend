@@ -1,3 +1,4 @@
+import { ApiResponse } from "@/types/api/common";
 import {
   OrderExecutionInquiryRequest,
   OrderExecutionInquiryResponse,
@@ -6,7 +7,9 @@ import { apiClient } from "../common/apiClient";
 import { API } from "@/constants";
 
 export const orderExecutionService = {
-  getOrderExecutions: async (request: OrderExecutionInquiryRequest) => {
+  getOrderExecutions: async (
+    request: OrderExecutionInquiryRequest
+  ): Promise<ApiResponse<OrderExecutionInquiryResponse>> => {
     const queryParams = new URLSearchParams({
       startDate: request.startDate,
       endDate: request.endDate,
