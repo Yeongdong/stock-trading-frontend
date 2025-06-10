@@ -1,3 +1,5 @@
+import { KisTransactionInfo } from "../realtime";
+
 export interface PriceDataPoint {
   time: string;
   price: number;
@@ -57,28 +59,28 @@ export interface StockTransaction {
 }
 
 export interface StockDataState {
-  stockData: Record<string, StockTransaction>;
+  stockData: Record<string, KisTransactionInfo>;
   isLoading: boolean;
   error: string | null;
 }
 
 export type StockDataAction =
-  | { type: "SET_STOCK_DATA"; payload: Record<string, StockTransaction> }
+  | { type: "SET_STOCK_DATA"; payload: Record<string, KisTransactionInfo> }
   | {
       type: "UPDATE_STOCK_DATA";
-      payload: { symbol: string; data: StockTransaction };
+      payload: { symbol: string; data: KisTransactionInfo };
     }
   | { type: "REMOVE_STOCK_DATA"; payload: string }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null };
 
 export interface StockDataContextType {
-  stockData: Record<string, StockTransaction>;
+  stockData: Record<string, KisTransactionInfo>;
   isLoading: boolean;
   error: string | null;
-  updateStockData: (symbol: string, data: StockTransaction) => void;
+  updateStockData: (symbol: string, data: KisTransactionInfo) => void;
   removeStockData: (symbol: string) => void;
-  getStockData: (symbol: string) => StockTransaction | null;
+  getStockData: (symbol: string) => KisTransactionInfo | null;
 }
 
 export interface StockCardDataResult {

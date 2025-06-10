@@ -14,24 +14,24 @@ export const API = {
   STOCK: {
     BALANCE: `${API_BASE_URL}/api/trading/order/balance`,
     ORDER: `${API_BASE_URL}/api/trading/order`,
-    CURRENT_PRICE: `${API_BASE_URL}/api/stock/currentPrice`,
+    CURRENT_PRICE: `${API_BASE_URL}/api/market/stock/current-price`,
     SEARCH: `${API_BASE_URL}/api/market/stock/search`,
-    GET_BY_CODE: (code: string) => `${API_BASE_URL}/api/stock/${code}`,
-    SEARCH_SUMMARY: `${API_BASE_URL}/api/stock/search/summary`,
-    UPDATE_FROM_KRX: `${API_BASE_URL}/api/stock/update-from-krx`,
+    GET_BY_CODE: (code: string) => `${API_BASE_URL}/api/market/stock/${code}`,
+    SEARCH_SUMMARY: `${API_BASE_URL}/api/market/stock/search/summary`,
+    UPDATE_FROM_KRX: `${API_BASE_URL}/api/market/stock/update-from-krx`,
     PERIOD_PRICE: `${API_BASE_URL}/api/market/stock/periodPrice`,
   },
   ORDER_EXECUTION: {
-    INQUIRY: `${API_BASE_URL}/api/orderexecution`,
+    INQUIRY: `${API_BASE_URL}/api/trading/orderexecution`,
   },
   BUYABLE_INQUIRY: {
-    GET: `${API_BASE_URL}/api/buyableinquiry`,
+    GET: `${API_BASE_URL}/api/trading/buyableinquiry`,
   },
   REALTIME: {
-    START: `${API_BASE_URL}/api/realtime/start`,
-    STOP: `${API_BASE_URL}/api/realtime/stop`,
+    START: `${API_BASE_URL}/api/market/realtime/start`,
+    STOP: `${API_BASE_URL}/api/market/realtime/stop`,
     SUBSCRIBE: (symbol: string) =>
-      `${API_BASE_URL}/api/realtime/subscribe/${symbol}`,
-    SUBSCRIPTIONS: `${API_BASE_URL}/api/realtime/subscriptions`,
+      `${API_BASE_URL}/api/market/realtime/subscribe/${symbol}`,
+    SUBSCRIPTIONS: `${API_BASE_URL}/api/market/realtime/subscriptions`,
   },
 };

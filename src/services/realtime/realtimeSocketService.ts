@@ -1,10 +1,10 @@
 import * as signalR from "@microsoft/signalr";
 import {
-  StockTransaction,
   TradeExecutionData,
   EventTypes,
   EventDataMap,
   ErrorInfo,
+  KisTransactionInfo,
 } from "@/types";
 import { LIMITS, TIMINGS, ERROR_MESSAGES } from "@/constants";
 
@@ -101,7 +101,7 @@ export class RealtimeSocketService {
     });
 
     // 실시간 주가 데이터 수신 이벤트
-    this.hubConnection.on("ReceiveStockPrice", (data: StockTransaction) => {
+    this.hubConnection.on("ReceiveStockPrice", (data: KisTransactionInfo) => {
       // 데이터 유효성 검사
       if (!data || !data.symbol) {
         console.error("유효하지 않은 주가 데이터:", data);

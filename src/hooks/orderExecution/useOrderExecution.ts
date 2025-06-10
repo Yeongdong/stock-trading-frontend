@@ -21,10 +21,16 @@ export const useOrderExecution = () => {
         const response = await orderExecutionService.getOrderExecutions(
           request
         );
-        setData(response);
+
+        if (response.error) throw new Error(response.error);
+
+        if (!response.data)
+          throw new Error("주문체결내역 데이터를 받지 못했습니다.");
+
+        setData(response.data);
 
         addError({
-          message: `주문체결내역 조회 완료: 총 ${response.totalCount}건`,
+          message: `주문체결내역 조회 완료: 총 ${response.data.totalCount}건`,
           severity: "info",
         });
       } catch (err) {
