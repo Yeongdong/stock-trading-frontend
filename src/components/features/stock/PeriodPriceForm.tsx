@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { PeriodPriceRequest, PERIOD_OPTIONS } from "../../../types/stock/price";
-import styles from "./PeriodPriceChart.module.css";
+import styles from "./PeriodPriceForm.module.css";
 import { DateFormatter } from "./PeriodPriceChartModel";
 
 interface PeriodPriceFormProps {
@@ -37,6 +37,7 @@ export const PeriodPriceForm: React.FC<PeriodPriceFormProps> = ({
             value={formData.periodDivCode}
             onChange={(e) => handleInputChange("periodDivCode", e.target.value)}
             className={styles.select}
+            disabled={loading}
           >
             {PERIOD_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -58,6 +59,7 @@ export const PeriodPriceForm: React.FC<PeriodPriceFormProps> = ({
               )
             }
             className={styles.dateInput}
+            disabled={loading}
             required
           />
         </div>
@@ -74,6 +76,7 @@ export const PeriodPriceForm: React.FC<PeriodPriceFormProps> = ({
               )
             }
             className={styles.dateInput}
+            disabled={loading}
             required
           />
         </div>
@@ -84,6 +87,7 @@ export const PeriodPriceForm: React.FC<PeriodPriceFormProps> = ({
             value={formData.orgAdjPrc}
             onChange={(e) => handleInputChange("orgAdjPrc", e.target.value)}
             className={styles.select}
+            disabled={loading}
           >
             <option value="0">수정주가</option>
             <option value="1">원주가</option>

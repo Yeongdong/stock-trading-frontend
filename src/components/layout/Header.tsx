@@ -1,34 +1,42 @@
-"use client";
-
-import React from "react";
+import React, { memo } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/layout/Navigation";
+import styles from "./Header.module.css";
 
-const Header: React.FC = () => {
+const Header: React.FC = memo(() => {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      await logout();
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
   };
 
   return (
-    <header className="app-header">
-      <div className="header-content">
-        <div className="header-left">
-          <Link href="/dashboard" className="logo">
-            주식거래시스템
+    <header className={styles.appHeader} role="banner">
+      <div className={styles.headerContent}>
+        <div className={styles.headerLeft}>
+          <Link
+            href="/dashboard"
+            className={styles.logo}
+            aria-label="홈으로 이동"
+          >
+            📈 주식거래시스템
           </Link>
         </div>
 
-        <div className="header-right">
+        <div className={styles.headerRight}>
           {user && (
-            <div className="user-info">
-              <span className="user-name">{user.name}</span>
+            <div className={styles.userInfo}>
+              <span className={styles.userName}>{user.name}님</span>
               <button
                 onClick={handleLogout}
-                className="logout-button"
+                className={styles.logoutButton}
                 type="button"
+                aria-label="로그아웃"
               >
                 로그아웃
               </button>
@@ -36,11 +44,14 @@ const Header: React.FC = () => {
           )}
         </div>
       </div>
-      <div className="navigation">
+
+      <div className={styles.navigationWrapper}>
         <Navigation />
       </div>
     </header>
   );
-};
+});
+
+Header.displayName = "Header";
 
 export default Header;

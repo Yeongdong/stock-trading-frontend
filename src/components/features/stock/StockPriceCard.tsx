@@ -6,6 +6,7 @@ import PriceDisplay from "./PriceDisplay";
 import TradingInfo from "./TradingInfo";
 import StockMiniChart from "./StockMiniChart";
 import StockCardSkeleton from "./StockCardSkeleton";
+import styles from "./StockPriceCard.module.css";
 
 const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
   const {
@@ -32,8 +33,19 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
     return <StockCardSkeleton symbol={symbol} />;
   }
 
+  const getBlinkClassName = () => {
+    switch (blinkClass) {
+      case "blink-up":
+        return styles.blinkUp;
+      case "blink-down":
+        return styles.blinkDown;
+      default:
+        return "";
+    }
+  };
+
   return (
-    <div className={`stock-card ${blinkClass}`}>
+    <div className={`${styles.stockCard} ${getBlinkClassName()}`}>
       <StockPriceHeader
         symbol={symbol}
         name={stockData.stockName}
@@ -47,7 +59,7 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
         changeRate={stockData.changeRate}
       />
 
-      <div className="chart-container">
+      <div className={styles.chartContainer}>
         <StockMiniChart symbol={symbol} data={chartData} />
       </div>
 

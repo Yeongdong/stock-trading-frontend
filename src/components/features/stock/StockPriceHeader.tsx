@@ -1,14 +1,19 @@
 import React, { memo } from "react";
 import { StockPriceHeaderProps } from "@/types";
+import styles from "./StockPriceCard.module.css";
 
 const StockPriceHeader: React.FC<StockPriceHeaderProps> = memo(
   ({ symbol, name, isUnsubscribing, onUnsubscribe }) => {
     return (
-      <div className="card-header">
-        <div className="stock-symbol">{symbol}</div>
-        {name && name !== symbol && <div className="stock-name">{name}</div>}
+      <div className={styles.cardHeader}>
+        <div>
+          <div className={styles.stockSymbol}>{symbol}</div>
+          {name && name !== symbol && (
+            <div className={styles.stockName}>{name}</div>
+          )}
+        </div>
         <button
-          className="unsubscribe-btn"
+          className={styles.unsubscribeBtn}
           onClick={onUnsubscribe}
           title="구독 취소"
           disabled={isUnsubscribing}

@@ -3,6 +3,7 @@ import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import { KisTokenFormProps, UserInfoRequest } from "@/types";
+import styles from "./KisTokenForm.module.css";
 
 const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   const [appKey, setAppKey] = useState("");
@@ -98,13 +99,13 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   };
 
   return (
-    <div className="kis-token-form">
+    <div className={styles.kisTokenForm}>
       <h1>한국투자증권 API 정보 설정</h1>
       <p>실시간 주식 거래를 위해 한국투자증권 API 정보를 입력해주세요.</p>
 
-      <div className="form-group">
+      <div className={styles.formGroup}>
         <label htmlFor="appKey">API Key:</label>
-        <div className="input-wrapper">
+        <div className={styles.inputWrapper}>
           <input
             type="text"
             id="appKey"
@@ -117,7 +118,7 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
           {appKey && (
             <button
               type="button"
-              className="copy-button"
+              className={styles.copyButton}
               onClick={() => copyToClipboard(appKey)}
               aria-label="Copy API Key"
             >
@@ -127,9 +128,9 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
         </div>
       </div>
 
-      <div className="form-group">
+      <div className={styles.formGroup}>
         <label htmlFor="appSecret">API Secret:</label>
-        <div className="input-wrapper">
+        <div className={styles.inputWrapper}>
           <input
             type={showAppSecret ? "text" : "password"}
             id="appSecret"
@@ -142,7 +143,7 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
           />
           <button
             type="button"
-            className="toggle-visibility"
+            className={styles.toggleVisibility}
             onClick={toggleAppSecretVisibility}
             aria-label={showAppSecret ? "Hide secret" : "Show secret"}
           >
@@ -151,9 +152,9 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
         </div>
       </div>
 
-      <div className="form-group">
+      <div className={styles.formGroup}>
         <label htmlFor="accountNumber">계좌번호:</label>
-        <div className="input-wrapper">
+        <div className={styles.inputWrapper}>
           <input
             type="text"
             id="accountNumber"
@@ -169,12 +170,12 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
       <button
         onClick={handleGetKisToken}
         disabled={isLoading}
-        className="btn btn-primary"
+        className={styles.btn}
       >
         {isLoading ? "처리 중..." : "토큰 발급받기"}
       </button>
 
-      <div className="help-text">
+      <div className={styles.helpText}>
         <p>
           * API 키와 시크릿은 한국투자증권 개발자 센터에서 발급받으실 수
           있습니다.
@@ -182,7 +183,7 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
         <p>* 계좌번호는 숫자만 입력해주세요 (예: 5012345678).</p>
       </div>
 
-      <div className="security-info">
+      <div className={styles.securityInfo}>
         <h3>보안 정보</h3>
         <ul>
           <li>입력하신 정보는 서버에 안전하게 암호화되어 저장됩니다.</li>

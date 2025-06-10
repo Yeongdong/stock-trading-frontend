@@ -4,6 +4,7 @@ import toast from "@/utils/toast";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
+import styles from "./StockOrderForm.module.css";
 
 const StockOrderForm = () => {
   const [acntPrdtCd] = useState<string>("01");
@@ -67,9 +68,7 @@ const StockOrderForm = () => {
             handleError: true,
           });
 
-          if (response.error) {
-            throw new Error(response.error);
-          }
+          if (response.error) throw new Error(response.error);
 
           addError({
             message: ERROR_MESSAGES.ORDER.ORDER_SUCCESS,
@@ -97,52 +96,63 @@ const StockOrderForm = () => {
   };
 
   return (
-    <fieldset className="stock-order-form">
+    <fieldset className={styles.fieldset}>
       <legend>주식 주문</legend>
       <div>
-        <label>거래 구분</label>
-        <div className="radio-group">
-          <input
-            type="radio"
-            name="trId"
-            value="VTTC0802U"
-            id="buy"
-            checked={trId === "VTTC0802U"}
-            onChange={(e) => setTrId(e.target.value)}
-          />
-          <label htmlFor="buy">매수</label>
-          <input
-            type="radio"
-            name="trId"
-            value="VTTC0801U"
-            id="sell"
-            checked={trId === "VTTC0801U"}
-            onChange={(e) => setTrId(e.target.value)}
-          />
-          <label htmlFor="sell">매도</label>
+        <div className={styles.formGroup}>
+          <label>거래 구분</label>
+          <div className={styles.radioGroup}>
+            <input
+              type="radio"
+              name="trId"
+              value="VTTC0802U"
+              id="buy"
+              checked={trId === "VTTC0802U"}
+              onChange={(e) => setTrId(e.target.value)}
+            />
+            <label htmlFor="buy">매수</label>
+            <input
+              type="radio"
+              name="trId"
+              value="VTTC0801U"
+              id="sell"
+              checked={trId === "VTTC0801U"}
+              onChange={(e) => setTrId(e.target.value)}
+            />
+            <label htmlFor="sell">매도</label>
+          </div>
         </div>
-        <div className="form-group">
+
+        <div className={styles.formGroup}>
           <label>주문 종목</label>
           <input
             type="text"
             value={pdno}
             onChange={(e) => setPdno(e.target.value)}
+            placeholder="종목코드 (6자리)"
+            maxLength={6}
+            className={styles.input}
           />
         </div>
-        <div className="form-group">
+
+        <div className={styles.formGroup}>
           <label>주문 수량</label>
           <input
             type="number"
             min="1"
             value={ordQty}
             onChange={(e) => setOrdQty(e.target.value)}
+            placeholder="주문 수량"
+            className={styles.input}
           />
         </div>
-        <div className="form-group">
+
+        <div className={styles.formGroup}>
           <label>주문 구분</label>
           <select
             value={ordDvsn}
             onChange={(e) => setOrderDvsn(e.target.value)}
+            className={styles.select}
           >
             <option>00: 지정가</option>
             <option>01: 시장가</option>
@@ -163,19 +173,23 @@ const StockOrderForm = () => {
             <option>16: FOK최유리 (즉시체결,전량취소)</option>
           </select>
         </div>
-        <div className="form-group">
+
+        <div className={styles.formGroup}>
           <label>주문 단가</label>
           <input
             type="number"
             min="0"
             value={ordUnpr}
             onChange={(e) => setOrdUnpr(e.target.value)}
+            placeholder="주문 단가"
+            className={styles.input}
           />
         </div>
+
         <button
           onClick={handleOrder}
           disabled={isLoading}
-          className="btn btn-success"
+          className={styles.orderButton}
         >
           {isLoading ? "주문 중..." : "주문"}
         </button>

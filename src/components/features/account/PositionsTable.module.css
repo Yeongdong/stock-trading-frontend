@@ -1,0 +1,108 @@
+.tableContainer {
+  background-color: var(--color-bg-white);
+  border-radius: var(--border-radius-large);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.positionsTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg-white);
+}
+
+.positionsTable th {
+  background-color: var(--color-bg-light);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.positionsTable th:hover {
+  background-color: var(--color-bg-border);
+}
+
+.positionsTable td {
+  padding: var(--spacing-md);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  font-size: var(--font-size-sm);
+  vertical-align: middle;
+}
+
+.positionsTable td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.stockName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: monospace;
+}
+
+.emptyRow {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+}
+
+.emptyRow td {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+}
+
+/* 정렬 인디케이터 */
+.positionsTable th::after {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: var(--spacing-xs);
+  vertical-align: middle;
+  opacity: 0.3;
+}
+
+.positionsTable th.sortAsc::after {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid var(--color-text-primary);
+  opacity: 1;
+}
+
+.positionsTable th.sortDesc::after {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--color-text-primary);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .positionsTable {
+    font-size: var(--font-size-xs);
+  }
+
+  .positionsTable th,
+  .positionsTable td {
+    padding: var(--spacing-sm);
+  }
+
+  .positionsTable th {
+    font-size: var(--font-size-xs);
+  }
+}

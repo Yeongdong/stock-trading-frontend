@@ -1,5 +1,6 @@
 import React from "react";
 import { OrderExecutionTableProps } from "@/types/components/orderExecution";
+import styles from "./OrderExecutionTable.module.css";
 
 const OrderExecutionTable: React.FC<OrderExecutionTableProps> = ({
   items,
@@ -33,8 +34,8 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = ({
 
   if (isLoading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
         <p>주문체결내역을 조회하는 중...</p>
       </div>
     );
@@ -42,20 +43,20 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = ({
 
   if (items.length === 0) {
     return (
-      <div className="empty-state">
+      <div className={styles.emptyState}>
         <p>조회된 체결내역이 없습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="order-execution-table-container">
-      <div className="table-header">
+    <div className={styles.orderExecutionTableContainer}>
+      <div className={styles.tableHeader}>
         <h4>체결내역 (총 {items.length}건)</h4>
       </div>
 
-      <div className="table-wrapper">
-        <table className="order-execution-table">
+      <div className={styles.tableWrapper}>
+        <table className={styles.orderExecutionTable}>
           <thead>
             <tr>
               <th>주문일자</th>
@@ -75,31 +76,37 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = ({
               <tr key={`${item.orderNumber}-${index}`}>
                 <td>{formatDate(item.orderDate)}</td>
                 <td>
-                  <div className="stock-info">
-                    <span className="stock-name">{item.stockName}</span>
-                    <span className="stock-code">({item.stockCode})</span>
+                  <div className={styles.stockInfo}>
+                    <span className={styles.stockName}>{item.stockName}</span>
+                    <span className={styles.stockCode}>({item.stockCode})</span>
                   </div>
                 </td>
                 <td>
                   <span
-                    className={`order-side ${
-                      item.orderSide === "매수" ? "buy" : "sell"
+                    className={`${styles.orderSide} ${
+                      item.orderSide === "매수" ? styles.buy : styles.sell
                     }`}
                   >
                     {item.orderSide}
                   </span>
                 </td>
-                <td className="number">{formatNumber(item.orderQuantity)}</td>
-                <td className="number">{formatNumber(item.orderPrice)}원</td>
-                <td className="number">
+                <td className={styles.number}>
+                  {formatNumber(item.orderQuantity)}
+                </td>
+                <td className={styles.number}>
+                  {formatNumber(item.orderPrice)}원
+                </td>
+                <td className={styles.number}>
                   {formatNumber(item.executedQuantity)}
                 </td>
-                <td className="number">{formatNumber(item.executedPrice)}원</td>
-                <td className="number">
+                <td className={styles.number}>
+                  {formatNumber(item.executedPrice)}원
+                </td>
+                <td className={styles.number}>
                   {formatNumber(item.executedAmount)}원
                 </td>
                 <td>
-                  <span className="order-status">{item.orderStatus}</span>
+                  <span className={styles.orderStatus}>{item.orderStatus}</span>
                 </td>
                 <td>{formatTime(item.executionTime)}</td>
               </tr>

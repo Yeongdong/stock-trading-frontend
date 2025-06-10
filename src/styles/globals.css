@@ -275,12 +275,6 @@ button:disabled {
   text-decoration: none;
 }
 
-.btn-secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-text-white);
-  border-color: var(--color-secondary);
-}
-
 .logout-button {
   padding: var(--spacing-xs) var(--spacing-md);
   background-color: var(--color-bg-lighter);

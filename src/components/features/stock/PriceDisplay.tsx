@@ -1,24 +1,22 @@
 import React, { memo, useMemo } from "react";
 import { PriceDisplayProps } from "@/types";
+import styles from "./StockPriceCard.module.css";
 
 const PriceDisplay: React.FC<PriceDisplayProps> = memo(
   ({ price, priceChange, changeRate, className = "" }) => {
     // 가격 변화에 따른 스타일 클래스
-    const priceChangeClass = useMemo(
-      () =>
-        priceChange > 0
-          ? "price-up"
-          : priceChange < 0
-          ? "price-down"
-          : "price-unchanged",
-      [priceChange]
-    );
+    const priceChangeClass = useMemo(() => {
+      if (priceChange > 0) return styles.priceUp;
+      if (priceChange < 0) return styles.priceDown;
+      return styles.priceUnchanged;
+    }, [priceChange]);
 
     // 숫자 포맷팅
     const formattedPrice = useMemo(
       () => Number(price).toLocaleString(),
       [price]
     );
+
     const formattedChange = useMemo(() => {
       const prefix = priceChange > 0 ? "+" : "";
       return `${prefix}${Number(priceChange).toLocaleString()}`;
@@ -27,12 +25,12 @@ const PriceDisplay: React.FC<PriceDisplayProps> = memo(
     const formattedRate = useMemo(() => changeRate.toFixed(2), [changeRate]);
 
     return (
-      <div className={`price-container ${className}`}>
-        <div className={`current-price ${priceChangeClass}`}>
+      <div className={`${styles.priceContainer} ${className}`}>
+        <div className={`${styles.currentPrice} ${priceChangeClass}`}>
           {formattedPrice} 원
         </div>
 
-        <div className={`price-change ${priceChangeClass}`}>
+        <div className={`${styles.priceChange} ${priceChangeClass}`}>
           {formattedChange} 원 ({formattedRate}%)
         </div>
       </div>

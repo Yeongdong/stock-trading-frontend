@@ -1,0 +1,159 @@
+.kisTokenForm {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-white);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-md);
+}
+
+.kisTokenForm h1 {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.kisTokenForm > p {
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: var(--spacing-xxl);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+}
+
+.formGroup label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputWrapper input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-width) var(--border-style) var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  background-color: var(--color-bg-input);
+  transition: border-color 0.2s ease;
+}
+
+.inputWrapper input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.inputWrapper input:disabled {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.toggleVisibility,
+.copyButton {
+  position: absolute;
+  right: var(--spacing-sm);
+  background: none;
+  border: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+}
+
+.toggleVisibility:hover,
+.copyButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-light);
+}
+
+.btn {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin: var(--spacing-xl) 0;
+}
+
+.btn:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.helpText {
+  background-color: var(--color-bg-light);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-xl);
+}
+
+.helpText p {
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.helpText p:last-child {
+  margin-bottom: 0;
+}
+
+.securityInfo {
+  margin-top: var(--spacing-xl);
+  background-color: var(--color-info-bg);
+  border-left: 4px solid var(--color-info);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+}
+
+.securityInfo h3 {
+  margin-top: 0;
+  color: var(--color-info);
+  font-size: var(--font-size-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.securityInfo ul {
+  margin: 0;
+  padding-left: var(--spacing-xl);
+}
+
+.securityInfo li {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .kisTokenForm {
+    margin: var(--spacing-md);
+    padding: var(--spacing-lg);
+  }
+
+  .kisTokenForm h1 {
+    font-size: var(--font-size-xl);
+  }
+}

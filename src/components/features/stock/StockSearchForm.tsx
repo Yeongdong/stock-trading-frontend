@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useStockSearch } from "@/hooks/stock/useStockSearch";
 import { StockSearchRequest, StockSearchResponse } from "@/types/stock/search";
+import styles from "./StockSearchForm.module.css";
 
 interface StockSearchFormProps {
   onSearchResults?: (results: StockSearchResponse) => void;
@@ -15,9 +16,7 @@ const StockSearchForm: React.FC<StockSearchFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!searchTerm.trim()) {
-      return;
-    }
+    if (!searchTerm.trim()) return;
 
     const request: StockSearchRequest = {
       searchTerm: searchTerm.trim(),
@@ -26,26 +25,24 @@ const StockSearchForm: React.FC<StockSearchFormProps> = ({
     };
 
     const response = await searchStocks(request);
-    if (response && onSearchResults) {
-      onSearchResults(response);
-    }
+    if (response && onSearchResults) onSearchResults(response);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="stock-search-form">
-      <div className="search-input-group">
+    <form onSubmit={handleSubmit} className={styles.stockSearchForm}>
+      <div className={styles.searchInputGroup}>
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="종목명 또는 종목코드를 입력하세요 (예: 삼성전자, 005930)"
           disabled={isLoading}
-          className="search-input"
+          className={styles.searchInput}
         />
         <button
           type="submit"
           disabled={isLoading || !searchTerm.trim()}
-          className="btn btn-primary"
+          className={styles.searchButton}
         >
           {isLoading ? "검색중..." : "검색"}
         </button>

@@ -1,6 +1,7 @@
 import { OrderExecutionInquiryRequest } from "@/types";
 import { OrderExecutionSearchFormProps } from "@/types/components/orderExecution";
 import React, { useState } from "react";
+import styles from "./OrderExecutionSearchForm.module.css";
 
 const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
   onSearch,
@@ -42,11 +43,11 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
   };
 
   return (
-    <div className="order-execution-search-form">
+    <div className={styles.orderExecutionSearchForm}>
       <h3>주문체결내역 조회</h3>
       <form onSubmit={handleSubmit}>
-        <div className="form-row">
-          <div className="form-group">
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
             <label htmlFor="startDate">조회시작일</label>
             <input
               type="date"
@@ -56,10 +57,11 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
               max={getTodayString()}
               disabled={isLoading}
               required
+              className={styles.input}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="endDate">조회종료일</label>
             <input
               type="date"
@@ -69,12 +71,13 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
               max={getTodayString()}
               disabled={isLoading}
               required
+              className={styles.input}
             />
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
             <label htmlFor="stockCode">종목코드 (선택)</label>
             <input
               type="text"
@@ -85,16 +88,18 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
               maxLength={6}
               pattern="[0-9]*"
               disabled={isLoading}
+              className={styles.input}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="orderType">매매구분</label>
             <select
               id="orderType"
               value={orderType}
               onChange={(e) => setOrderType(e.target.value)}
               disabled={isLoading}
+              className={styles.select}
             >
               <option value="00">전체</option>
               <option value="02">매수</option>
@@ -103,7 +108,7 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
           </div>
         </div>
 
-        <div className="form-actions">
+        <div className={styles.formActions}>
           <button
             type="button"
             onClick={() => {
@@ -111,12 +116,16 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
               setEndDate(getTodayString());
             }}
             disabled={isLoading}
-            className="preset-button"
+            className={styles.presetButton}
           >
             최근 1개월
           </button>
 
-          <button type="submit" disabled={isLoading} className="search-button">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={styles.searchButton}
+          >
             {isLoading ? "조회중..." : "조회"}
           </button>
         </div>

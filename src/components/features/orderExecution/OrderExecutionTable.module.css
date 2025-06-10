@@ -1,0 +1,127 @@
+.orderExecutionTableContainer {
+  background-color: var(--color-bg-white);
+  border-radius: var(--border-radius-large);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tableHeader {
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-light);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+.tableHeader h4 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.orderExecutionTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg-white);
+}
+
+.orderExecutionTable th {
+  background-color: var(--color-bg-light);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.orderExecutionTable td {
+  padding: var(--spacing-md);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  font-size: var(--font-size-sm);
+  vertical-align: top;
+}
+
+.stockInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stockName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.stockCode {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.orderSide {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.orderSide.buy {
+  color: var(--color-stock-up);
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+.orderSide.sell {
+  color: var(--color-stock-down);
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: monospace;
+}
+
+.orderStatus {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  background-color: var(--color-bg-light);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+}
+
+.loadingSpinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-bg-border);
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+  margin-right: var(--spacing-sm);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+}

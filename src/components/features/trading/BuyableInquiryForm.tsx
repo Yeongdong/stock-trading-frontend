@@ -3,6 +3,7 @@ import { useBuyableInquiry } from "@/hooks/trading/useBuyableInquiry";
 import { useCurrentPrice } from "@/hooks/stock/useCurrentPrice";
 import { BuyableInquiryRequest, BuyableInquiryFormProps } from "@/types";
 import useDebounce from "@/hooks/common/useDebounce";
+import styles from "./BuyableInquiryForm.module.css";
 
 const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
   onResult,
@@ -82,10 +83,10 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
   };
 
   return (
-    <div className="buyable-inquiry-form">
-      <div className="form-header">
+    <div className={styles.buyableInquiryForm}>
+      <div className={styles.formHeader}>
         <h3>매수가능조회</h3>
-        <div className="auto-price-toggle">
+        <div className={styles.autoPriceToggle}>
           <label htmlFor="autoFetchPrice">
             <input
               type="checkbox"
@@ -99,10 +100,10 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="form-row">
-          <div className="form-group">
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
             <label htmlFor="stockCode">종목코드</label>
-            <div className="input-with-indicator">
+            <div className={styles.inputWithIndicator}>
               <input
                 type="text"
                 id="stockCode"
@@ -112,18 +113,19 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
                 maxLength={6}
                 disabled={isLoading}
                 required
+                className={styles.input}
               />
               {isPriceLoading && (
-                <div className="price-loading-indicator">
-                  <span className="loading-spinner">⟳</span>
+                <div className={styles.priceLoadingIndicator}>
+                  <span className={styles.loadingSpinner}>⟳</span>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="orderPrice">주문가격</label>
-            <div className="input-with-action">
+            <div className={styles.inputWithAction}>
               <input
                 type="number"
                 id="orderPrice"
@@ -134,12 +136,13 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
                 step="1"
                 disabled={isLoading}
                 required
+                className={styles.input}
               />
               <button
                 type="button"
                 onClick={() => stockCode && fetchCurrentPrice(stockCode)}
                 disabled={!stockCode || isPriceLoading}
-                className="btn btn-primary"
+                className={styles.fetchPriceBtn}
                 title="현재가 가져오기"
               >
                 🔄
@@ -148,25 +151,26 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
             <label htmlFor="orderType">주문구분</label>
             <select
               id="orderType"
               value={orderType}
               onChange={(e) => setOrderType(e.target.value)}
               disabled={isLoading}
+              className={styles.select}
             >
               <option value="00">지정가</option>
               <option value="01">시장가</option>
             </select>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <button
               type="submit"
               disabled={isLoading || isPriceLoading}
-              className="btn btn-primary"
+              className={`${styles.btn} ${styles.btnPrimary}`}
             >
               {isLoading ? "조회중..." : "매수가능조회"}
             </button>
@@ -174,7 +178,7 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
         </div>
       </form>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className={styles.errorMessage}>{error}</div>}
     </div>
   );
 };
