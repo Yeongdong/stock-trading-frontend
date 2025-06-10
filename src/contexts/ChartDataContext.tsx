@@ -10,16 +10,14 @@ import React, {
 } from "react";
 import {
   PriceDataPoint,
-  StockTransaction,
+  RealtimeStockData,
   ChartDataState,
   ChartDataAction,
   ChartDataContextType,
 } from "@/types";
 import { LIMITS } from "@/constants";
 
-const initialState: ChartDataState = {
-  chartData: {},
-};
+const initialState: ChartDataState = {};
 
 function chartDataReducer(
   state: ChartDataState,
@@ -28,7 +26,7 @@ function chartDataReducer(
   switch (action.type) {
     case "UPDATE_CHART_DATA": {
       const { symbol, dataPoint } = action.payload;
-      const currentData = state.chartData[symbol] || [];
+      const currentData = state[symbol] || [];
 
       // 마지막 데이터와 같으면 상태 변경 없음
       const lastPoint = currentData[currentData.length - 1];
@@ -48,18 +46,12 @@ function chartDataReducer(
       };
     }
     case "REMOVE_CHART_DATA": {
-      const newChartData = { ...state.chartData };
+      const newChartData = { ...state };
       delete newChartData[action.payload];
-      return {
-        ...state,
-        chartData: newChartData,
-      };
+      return newChartData;
     }
     case "CLEAR_ALL_CHART_DATA":
-      return {
-        ...state,
-        chartData: {},
-      };
+      return {};
     default:
       return state;
   }
@@ -72,10 +64,10 @@ const ChartDataContext = createContext<ChartDataContextType | undefined>(
 export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [state, dispatch] = useReducer(chartDataReducer, initialState);
+  const [chartData, dispatch] = useReducer(chartDataReducer, initialState);
 
   // 차트 데이터 업데이트 함수
-  const updateChartData = useCallback((stockData: StockTransaction) => {
+  const updateChartData = useCallback((stockData: RealtimeStockData) => {
     const symbol = stockData.symbol;
     const dataPoint: PriceDataPoint = {
       time: new Date().toLocaleTimeString(),
@@ -101,21 +93,21 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
   // 특정 종목의 차트 데이터 조회
   const getChartData = useCallback(
     (symbol: string): PriceDataPoint[] => {
-      return state.chartData[symbol] || [];
+      return chartData[symbol] || [];
     },
-    [state.chartData]
+    [chartData]
   );
 
   const contextValue = useMemo(
     () => ({
-      chartData: state.chartData,
+      chartData,
       updateChartData,
       removeChartData,
       clearAllChartData,
       getChartData,
     }),
     [
-      state.chartData,
+      chartData,
       updateChartData,
       removeChartData,
       clearAllChartData,

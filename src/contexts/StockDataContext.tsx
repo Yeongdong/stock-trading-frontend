@@ -12,7 +12,7 @@ import {
   StockDataAction,
   StockDataState,
   StockDataContextType,
-  KisTransactionInfo,
+  RealtimeStockData,
 } from "@/types";
 
 const initialState: StockDataState = {
@@ -72,7 +72,7 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
 
   // 주식 데이터 업데이트 함수
   const updateStockData = useCallback(
-    (symbol: string, data: KisTransactionInfo) => {
+    (symbol: string, data: RealtimeStockData) => {
       dispatch({ type: "UPDATE_STOCK_DATA", payload: { symbol, data } });
     },
     []
@@ -85,7 +85,7 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
 
   // 특정 종목의 주식 데이터 조회 함수
   const getStockData = useCallback(
-    (symbol: string): KisTransactionInfo | null => {
+    (symbol: string): RealtimeStockData | null => {
       const data = state.stockData[symbol] || null;
 
       if (data) {

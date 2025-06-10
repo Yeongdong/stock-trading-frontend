@@ -1,4 +1,4 @@
-import { PriceDataPoint } from "../contexts";
+import { PriceDataPoint } from "../realtime/stock";
 
 export interface StockPriceCardProps {
   symbol: string;

@@ -11,7 +11,7 @@ import React, {
   useRef,
 } from "react";
 import {
-  StockTransaction,
+  RealtimeStockData,
   RealtimePriceAction,
   RealtimePriceState,
   RealtimePriceActions,
@@ -32,8 +32,6 @@ function realtimePriceReducer(
   state: RealtimePriceState,
   action: RealtimePriceAction
 ): RealtimePriceState {
-  console.log("🔄 [RealtimePriceReducer] action 수신:", action.type, action);
-
   switch (action.type) {
     case "UPDATE_STOCK_DATA":
       return {
@@ -82,7 +80,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
   const isInitializedRef = useRef<boolean>(false);
   const cleanupFunctionRef = useRef<(() => void) | null>(null);
 
-  const handleStockPrice = useCallback((data: StockTransaction) => {
+  const handleStockPrice = useCallback((data: RealtimeStockData) => {
     dispatch({
       type: "UPDATE_STOCK_DATA",
       payload: { symbol: data.symbol, data },
@@ -150,7 +148,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
 
   // 특정 종목 데이터 가져오기
   const getStockData = useCallback(
-    (symbol: string): StockTransaction | null => {
+    (symbol: string): RealtimeStockData | null => {
       return state.stockData[symbol] || null;
     },
     [state.stockData]

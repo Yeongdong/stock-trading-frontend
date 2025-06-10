@@ -25,7 +25,7 @@ export const useStockOperations = () => {
 
   // 구독 관련 기능 래퍼
   const handleSubscribeSymbol = useCallback(
-    async (symbol: string) => {
+    async (symbol: string): Promise<boolean> => {
       try {
         const success = await subscribeSymbol(symbol);
         if (success) {
@@ -48,7 +48,7 @@ export const useStockOperations = () => {
   );
 
   const handleUnsubscribeSymbol = useCallback(
-    async (symbol: string) => {
+    async (symbol: string): Promise<boolean> => {
       try {
         const success = await unsubscribeSymbol(symbol);
         if (success) {

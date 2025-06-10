@@ -1,12 +1,7 @@
-import { KisTransactionInfo } from "../realtime";
-
-export interface PriceDataPoint {
-  time: string;
-  price: number;
-}
+import { RealtimeStockData, PriceDataPoint } from "../realtime/stock";
 
 export interface ChartDataState {
-  chartData: Record<string, PriceDataPoint[]>;
+  [symbol: string]: PriceDataPoint[];
 }
 
 export type ChartDataAction =
@@ -17,8 +12,9 @@ export type ChartDataAction =
   | { type: "REMOVE_CHART_DATA"; payload: string }
   | { type: "CLEAR_ALL_CHART_DATA" };
 
-export interface ChartDataContextType extends ChartDataState {
-  updateChartData: (stockData: StockTransaction) => void;
+export interface ChartDataContextType {
+  chartData: ChartDataState;
+  updateChartData: (stockData: RealtimeStockData) => void;
   removeChartData: (symbol: string) => void;
   clearAllChartData: () => void;
   getChartData: (symbol: string) => PriceDataPoint[];
@@ -46,45 +42,33 @@ export interface SubscriptionContextType {
   isSubscribed: (symbol: string) => boolean;
 }
 
-export interface StockTransaction {
-  symbol: string; // 종목코드
-  stockName?: string; // 종목명
-  price: number; // 현재가격
-  priceChange: number; // 전일대비 변동폭
-  changeType: string; // 등락구분 (상승/하락)
-  changeRate: number; // 변동률
-  volume: number; // 거래량
-  totalVolume: number; // 누적거래량
-  transactionTime: string; // 거래시간
-}
-
 export interface StockDataState {
-  stockData: Record<string, KisTransactionInfo>;
+  stockData: Record<string, RealtimeStockData>;
   isLoading: boolean;
   error: string | null;
 }
 
 export type StockDataAction =
-  | { type: "SET_STOCK_DATA"; payload: Record<string, KisTransactionInfo> }
+  | { type: "SET_STOCK_DATA"; payload: Record<string, RealtimeStockData> }
   | {
       type: "UPDATE_STOCK_DATA";
-      payload: { symbol: string; data: KisTransactionInfo };
+      payload: { symbol: string; data: RealtimeStockData };
     }
   | { type: "REMOVE_STOCK_DATA"; payload: string }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null };
 
 export interface StockDataContextType {
-  stockData: Record<string, KisTransactionInfo>;
+  stockData: Record<string, RealtimeStockData>;
   isLoading: boolean;
   error: string | null;
-  updateStockData: (symbol: string, data: KisTransactionInfo) => void;
+  updateStockData: (symbol: string, data: RealtimeStockData) => void;
   removeStockData: (symbol: string) => void;
-  getStockData: (symbol: string) => KisTransactionInfo | null;
+  getStockData: (symbol: string) => RealtimeStockData | null;
 }
 
 export interface StockCardDataResult {
-  stockData: StockTransaction | null;
+  stockData: RealtimeStockData | null;
   chartData: PriceDataPoint[];
   blinkClass: string;
   isUnsubscribing: boolean;

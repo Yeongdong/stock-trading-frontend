@@ -4,7 +4,7 @@ import {
   EventTypes,
   EventDataMap,
   ErrorInfo,
-  KisTransactionInfo,
+  RealtimeStockData,
 } from "@/types";
 import { LIMITS, TIMINGS, ERROR_MESSAGES } from "@/constants";
 
@@ -70,7 +70,7 @@ export class RealtimeSocketService {
       // 이벤트 핸들러 등록
       this.registerEventHandlers();
 
-      console.log("🔌 [SignalR] 연결 시작...");
+      console.log("SignalR 연결 시작...");
       // 연결 시작
       await this.hubConnection.start();
       this.reconnectAttempts = 0;
@@ -101,7 +101,7 @@ export class RealtimeSocketService {
     });
 
     // 실시간 주가 데이터 수신 이벤트
-    this.hubConnection.on("ReceiveStockPrice", (data: KisTransactionInfo) => {
+    this.hubConnection.on("ReceiveStockPrice", (data: RealtimeStockData) => {
       // 데이터 유효성 검사
       if (!data || !data.symbol) {
         console.error("유효하지 않은 주가 데이터:", data);

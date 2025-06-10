@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { StockTransaction, StockCardDataResult } from "@/types";
+import { RealtimeStockData, StockCardDataResult } from "@/types";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { TIMINGS, ANIMATIONS } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
@@ -10,7 +10,7 @@ export const useStockCardData = (symbol: string): StockCardDataResult => {
     useStockOperations();
   const { addError } = useError();
 
-  const [stockData, setStockData] = useState<StockTransaction | null>(null);
+  const [stockData, setStockData] = useState<RealtimeStockData | null>(null);
   const [blinkClass, setBlinkClass] = useState<string>("");
   const [isUnsubscribing, setIsUnsubscribing] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);

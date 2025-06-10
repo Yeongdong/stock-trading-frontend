@@ -1,4 +1,4 @@
-import { StockTransaction } from "../contexts";
+import { RealtimeStockData } from "./stock";
 
 export interface TradeExecutionData {
   OrderId: string;
@@ -14,7 +14,7 @@ export interface ConnectionData {
 }
 
 export interface EventDataMap {
-  stockPrice: StockTransaction;
+  stockPrice: RealtimeStockData;
   tradeExecution: TradeExecutionData;
   connected: ConnectionData;
 }
@@ -29,20 +29,20 @@ export type ErrorInfo = {
 export type RealtimePriceAction =
   | {
       type: "UPDATE_STOCK_DATA";
-      payload: { symbol: string; data: StockTransaction };
+      payload: { symbol: string; data: RealtimeStockData };
     }
   | { type: "SET_CONNECTED"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "REMOVE_STOCK_DATA"; payload: string };
 
 export interface RealtimePriceState {
-  stockData: Record<string, StockTransaction>;
+  stockData: Record<string, RealtimeStockData>;
   isConnected: boolean;
   error: string | null;
 }
 
 export interface RealtimePriceActions {
-  getStockData: (symbol: string) => StockTransaction | null;
+  getStockData: (symbol: string) => RealtimeStockData | null;
   removeStockData: (symbol: string) => void;
 }
 
@@ -53,18 +53,4 @@ export interface DashboardStateResult {
   showLoading: boolean;
   showEmptyState: boolean;
   subscribedSymbols: string[];
-}
-
-export interface KisTransactionInfo {
-  symbol: string; // 종목코드
-  price: number; // 체결가격
-  volume: number; // 체결수량
-  transactionTime: string; // 체결시간 (ISO 문자열)
-  priceChange: number; // 전일대비
-  changeType: string; // 등락구분 (상승/하락)
-  changeRate: number; // 등락률
-  totalVolume: number; // 누적거래량
-  openPrice: number; // 시가
-  highPrice: number; // 고가
-  lowPrice: number; // 저가
 }

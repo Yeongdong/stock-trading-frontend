@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { StockTransaction } from "@/types";
+import { RealtimeStockData } from "@/types";
 import { useRealtimePrice } from "@/contexts/RealtimePriceContext";
 import { TIMINGS, ANIMATIONS } from "@/constants";
 
 export const useRealtimeUpdates = (symbol: string) => {
   const { stockData } = useRealtimePrice();
-  const [localStockData, setLocalStockData] = useState<StockTransaction | null>(
-    null
-  );
+  const [localStockData, setLocalStockData] =
+    useState<RealtimeStockData | null>(null);
   const [blinkClass, setBlinkClass] = useState<string>("");
 
   // 실시간 데이터 업데이트 처리

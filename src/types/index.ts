@@ -18,6 +18,7 @@ export * from "./order/execution";
 export * from "./trading/buyable";
 
 // 실시간 데이터 관련 타입
+export * from "./realtime/stock";
 export * from "./realtime/realtime";
 
 // 사용자 관련 타입

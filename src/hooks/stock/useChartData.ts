@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { LIMITS } from "@/constants";
-import { StockTransaction } from "@/types";
-import { PriceDataPoint, ChartDataState } from "@/types/contexts/stockData";
+import { PriceDataPoint, RealtimeStockData, ChartDataState } from "@/types";
 
 export const useChartData = () => {
   const [chartData, setChartData] = useState<ChartDataState>({});
@@ -9,7 +8,7 @@ export const useChartData = () => {
   const lastUpdatesRef = useRef<Record<string, number>>({});
 
   // 차트 데이터 업데이트
-  const updateChartData = useCallback((data: StockTransaction) => {
+  const updateChartData = useCallback((data: RealtimeStockData) => {
     const symbol = data.symbol;
     const currentTime = Date.now();
 
