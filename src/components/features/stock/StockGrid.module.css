@@ -1,0 +1,28 @@
+.stockGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+  padding: var(--spacing-md);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .stockGrid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .stockGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+    padding: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .stockGrid {
+    gap: var(--spacing-sm);
+  }
+}

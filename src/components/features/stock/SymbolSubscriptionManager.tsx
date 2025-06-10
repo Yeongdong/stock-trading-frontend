@@ -1,14 +1,15 @@
 import React, { memo } from "react";
 import { useSymbolSubscription } from "@/hooks/stock/useSymbolSubscription";
 import SymbolInputForm from "./SymbolInputForm";
+import styles from "./SymbolSubscriptionManager.module.css";
 
 const SymbolSubscriptionManager: React.FC = memo(() => {
   const { symbolInput, isLoading, error, handleInputChange, handleSubscribe } =
     useSymbolSubscription();
 
   return (
-    <div className="subscription-manager">
-      <h3>종목 구독</h3>
+    <div className={styles.subscriptionManager}>
+      <h3 className={styles.title}>종목 구독</h3>
       <SymbolInputForm
         symbolInput={symbolInput}
         onInputChange={handleInputChange}

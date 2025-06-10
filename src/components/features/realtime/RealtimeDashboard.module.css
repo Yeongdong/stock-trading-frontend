@@ -1,0 +1,24 @@
+.realtimeDashboard {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-lighter);
+  min-height: 100vh;
+}
+
+.subscriptionSection {
+  margin-bottom: var(--spacing-xxl);
+}
+
+.contentArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .realtimeDashboard {
+    padding: var(--spacing-md);
+  }
+}
