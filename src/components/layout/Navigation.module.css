@@ -9,11 +9,13 @@
 /* 네비게이션 리스트 */
 .navList {
   display: flex;
+  justify-content: center;
   gap: var(--spacing-xxl);
   list-style: none;
   margin: 0 auto;
-  padding: 0;
-  max-width: var(--container-max-width);
+  padding: 0 var(--spacing-xl);
+  width: 100%;
+  max-width: 100vw;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -35,6 +37,8 @@
   display: block;
   white-space: nowrap;
   position: relative;
+  min-width: 100px;
+  text-align: center;
 }
 
 /* 호버 효과 */
@@ -47,9 +51,8 @@
 
 /* 활성 상태 */
 .navLink.active {
-  background-color: var(--color-primary);
-  color: var(--color-text-white);
-  box-shadow: var(--shadow-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
 }
 
 .navLink.active:hover {
@@ -59,7 +62,6 @@
 
 /* 활성 링크 인디케이터 */
 .navLink.active::after {
-  content: "";
   position: absolute;
   bottom: -var(--spacing-lg);
   left: 50%;
