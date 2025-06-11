@@ -31,9 +31,8 @@ export class RealtimeSocketService {
   }
 
   public async start(): Promise<boolean> {
-    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected)
       return true;
-    }
 
     try {
       if (this.hubConnection) {
@@ -53,9 +52,9 @@ export class RealtimeSocketService {
           nextRetryDelayInMilliseconds: (retryContext) => {
             if (
               retryContext.previousRetryCount >= LIMITS.MAX_RECONNECT_ATTEMPTS
-            ) {
+            )
               return null;
-            }
+
             return Math.min(
               2000 * Math.pow(2, retryContext.previousRetryCount),
               32000
@@ -176,6 +175,19 @@ export class RealtimeSocketService {
     setTimeout(() => {
       this.start();
     }, TIMINGS.RECONNECT_DELAY * this.reconnectAttempts);
+  }
+
+  private isMarketOpen(): boolean {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const currentTime = hours * 100 + minutes;
+
+    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+
+    const isMarketHours = currentTime >= 900 && currentTime <= 1530;
+
+    return isWeekday && isMarketHours;
   }
 }
 
