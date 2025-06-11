@@ -3,6 +3,7 @@ import { formatKRW } from "@/utils/formatters";
 import LoadingIndicator from "@/components/common/LoadingIndicator";
 import styles from "./InvestmentSummary.module.css";
 import { Position, Summary } from "@/types/stock/balance";
+import Link from "next/link";
 
 interface SummaryCardData {
   icon: string;
@@ -130,8 +131,12 @@ const InvestmentSummary: React.FC<InvestmentSummaryProps> = memo(
 
     return (
       <section className={styles.investmentSummary}>
-        <h2 className={styles.sectionTitle}>📊 내 투자 현황 요약</h2>
-
+        <div className={styles.header}>
+          <h2 className={styles.sectionTitle}>📊 내 투자 현황 요약</h2>
+          <Link href="/balance" className={styles.balanceButton}>
+            잔고 확인 →
+          </Link>
+        </div>
         <div className={styles.cardsContainer}>
           {summaryCards.map((card, index) => (
             <div key={index} className={styles.summaryCard}>

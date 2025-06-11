@@ -7,6 +7,14 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* 헤더 영역 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
 /* 섹션 제목 */
 .sectionTitle {
   font-size: var(--font-size-lg);
@@ -56,6 +64,22 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
+}
+
+.balanceButton {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s ease;
+}
+
+.balanceButton:hover {
+  background-color: var(--color-bg-light);
 }
 
 /* 카드 바디 */
