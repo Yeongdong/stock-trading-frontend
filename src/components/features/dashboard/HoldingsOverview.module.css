@@ -137,13 +137,14 @@
 
 /* 액션 버튼 섹션 */
 .actionCell {
-  min-width: 140px;
+  min-width: 180px;
 }
 
 .actionButtons {
   display: flex;
   gap: var(--spacing-xs);
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .actionButton {
@@ -155,6 +156,18 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  min-width: 40px;
+}
+
+.buyButton {
+  background-color: var(--color-bg-white);
+  color: var(--color-stock-up);
+  border-color: var(--color-stock-up);
+}
+
+.buyButton:hover {
+  background-color: var(--color-stock-up);
+  color: var(--color-text-white);
 }
 
 .sellButton {
@@ -226,6 +239,7 @@
   .actionButton {
     font-size: var(--font-size-xs);
     padding: var(--spacing-xs);
+    min-width: 35px;
   }
 }
 
