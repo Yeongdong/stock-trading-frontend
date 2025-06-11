@@ -70,37 +70,49 @@ const RealtimePriceActionsContext = createContext<
   RealtimePriceActions | undefined
 >(undefined);
 
-export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+interface ContextUpdaters {
+  updateStockData: (symbol: string, data: RealtimeStockData) => void;
+  updateChartData: (data: RealtimeStockData) => void;
+}
+
+export const RealtimePriceProvider: React.FC<{
+  children: ReactNode;
+  contextUpdaters?: ContextUpdaters;
+}> = ({ children, contextUpdaters }) => {
   const [state, dispatch] = useReducer(realtimePriceReducer, initialState);
   const { addError } = useError();
   const { isAuthenticated, isLoading } = useAuth();
 
   const isInitializedRef = useRef<boolean>(false);
   const cleanupFunctionRef = useRef<(() => void) | null>(null);
+  const updatersRef = useRef<ContextUpdaters | undefined>(contextUpdaters);
+
+  useEffect(() => {
+    updatersRef.current = contextUpdaters;
+  }, [contextUpdaters]);
 
   const handleStockPrice = useCallback((data: RealtimeStockData) => {
     dispatch({
       type: "UPDATE_STOCK_DATA",
       payload: { symbol: data.symbol, data },
     });
+
+    const updaters = updatersRef.current;
+    if (updaters) {
+      updaters.updateStockData(data.symbol, data);
+      updaters.updateChartData(data);
+    }
   }, []);
 
-  // 실시간 서비스 시작
   const startRealTimeService = useCallback(async () => {
     if (!isAuthenticated) return false;
-
     if (state.isConnected && isInitializedRef.current) return true;
 
     try {
-      // 1. 서버측 실시간 서비스 시작
       const response = await realtimeApiService.startRealTimeService();
       if (response.error) throw new Error(response.error);
 
-      // 2. 클라이언트측 WebSocket 연결 시작
       realtimeSocketService.setErrorCallback((errorMessage) => {
-        console.error("SignalR 오류:", errorMessage);
         addError({
           message: errorMessage,
           severity: "error",
@@ -110,7 +122,6 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
       const connected = await realtimeSocketService.start();
 
       if (connected) {
-        // 3. 이벤트 핸들러 등록
         const unsubscribe = realtimeSocketService.subscribe(
           "stockPrice",
           handleStockPrice
@@ -135,9 +146,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
         throw new Error("SignalR 연결 실패");
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      console.error("실시간 서비스 시작 실패:", errorMsg);
-
+      console.error(err);
       addError({
         message: ERROR_MESSAGES.REALTIME.CONNECTION_FAILED,
         severity: "error",
@@ -146,7 +155,6 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [isAuthenticated, state.isConnected, handleStockPrice, addError]);
 
-  // 특정 종목 데이터 가져오기
   const getStockData = useCallback(
     (symbol: string): RealtimeStockData | null => {
       return state.stockData[symbol] || null;
@@ -154,12 +162,10 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
     [state.stockData]
   );
 
-  // 특정 종목 데이터 삭제
   const removeStockData = useCallback((symbol: string) => {
     dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
   }, []);
 
-  // 실시간 서비스 초기화
   useEffect(() => {
     if (!isAuthenticated || isLoading || isInitializedRef.current) return;
 
@@ -169,10 +175,7 @@ export const RealtimePriceProvider: React.FC<{ children: ReactNode }> = ({
 
     initializeService();
 
-    // 컴포넌트 언마운트시 정리
     return () => {
-      console.log("🧹 [RealtimePriceContext] useEffect cleanup 실행");
-
       if (cleanupFunctionRef.current) {
         cleanupFunctionRef.current();
         cleanupFunctionRef.current = null;

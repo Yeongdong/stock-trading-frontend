@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { StockMiniChartProps } from "@/types";
 import { useChartCalculations } from "@/hooks/stock/useChartCalculations";
 import ChartRenderer from "./ChartRenderer";
@@ -6,6 +6,8 @@ import ChartInfo from "./ChartInfo";
 
 const StockMiniChart: React.FC<StockMiniChartProps> = memo(
   ({ data, height = 120 }) => {
+    const chartCalculations = useChartCalculations(data);
+
     const {
       hasData,
       yDomain,
@@ -14,19 +16,24 @@ const StockMiniChart: React.FC<StockMiniChartProps> = memo(
       lineColor,
       priceChangePercentage,
       priceChangeClass,
-    } = useChartCalculations(data);
+    } = chartCalculations;
 
-    if (!hasData) {
-      return (
+    // 차트 데이터가 없는 경우 메모이제이션
+    const placeholderContent = useMemo(
+      () => (
         <div className="stock-mini-chart-placeholder">
           <p>차트 데이터 수집 중...</p>
         </div>
-      );
+      ),
+      []
+    );
+
+    if (!hasData) {
+      return placeholderContent;
     }
 
     return (
       <div className="stock-mini-chart">
-        {/* 차트 렌더링 컴포넌트 */}
         <ChartRenderer
           data={data}
           yDomain={yDomain}
@@ -35,7 +42,6 @@ const StockMiniChart: React.FC<StockMiniChartProps> = memo(
           height={height}
         />
 
-        {/* 차트 정보 컴포넌트 */}
         <ChartInfo
           startPrice={startPrice}
           currentPrice={currentPrice}
@@ -43,6 +49,17 @@ const StockMiniChart: React.FC<StockMiniChartProps> = memo(
           priceChangeClass={priceChangeClass}
         />
       </div>
+    );
+  },
+  // props 비교 함수로 불필요한 리렌더링 방지
+  (prevProps, nextProps) => {
+    return (
+      prevProps.symbol === nextProps.symbol &&
+      prevProps.height === nextProps.height &&
+      prevProps.data.length === nextProps.data.length &&
+      (prevProps.data.length === 0 ||
+        prevProps.data[prevProps.data.length - 1]?.price ===
+          nextProps.data[nextProps.data.length - 1]?.price)
     );
   }
 );

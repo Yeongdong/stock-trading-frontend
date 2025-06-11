@@ -2,8 +2,6 @@ import { useCallback, useMemo } from "react";
 import { useStockSubscription } from "@/contexts/StockSubscriptionContext";
 import { useChartData } from "@/contexts/ChartDataContext";
 import { useStockData } from "@/contexts/StockDataContext";
-import { useError } from "@/contexts/ErrorContext";
-import { ERROR_MESSAGES } from "@/constants";
 
 export const useStockOperations = () => {
   const {
@@ -14,72 +12,36 @@ export const useStockOperations = () => {
     isSubscribed,
   } = useStockSubscription();
 
-  const {
-    getStockData,
-    isLoading: stockDataLoading,
-    error: stockDataError,
-  } = useStockData();
-
+  const { getStockData, isLoading: stockDataLoading } = useStockData();
   const { getChartData } = useChartData();
-  const { addError } = useError();
 
-  // 구독 관련 기능 래퍼
+  // 구독 관련 기능 래핑
   const handleSubscribeSymbol = useCallback(
     async (symbol: string): Promise<boolean> => {
-      try {
-        const success = await subscribeSymbol(symbol);
-        if (success) {
-          addError({
-            message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_SUCCESS(symbol),
-            severity: "info",
-          });
-        }
-        return success;
-      } catch (error) {
-        console.error(error);
-        addError({
-          message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_FAIL(symbol),
-          severity: "error",
-        });
-        return false;
-      }
+      return await subscribeSymbol(symbol);
     },
-    [subscribeSymbol, addError]
+    [subscribeSymbol]
   );
 
   const handleUnsubscribeSymbol = useCallback(
     async (symbol: string): Promise<boolean> => {
-      try {
-        const success = await unsubscribeSymbol(symbol);
-        if (success) {
-          addError({
-            message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_SUCCESS(symbol),
-            severity: "info",
-          });
-        }
-        return success;
-      } catch (error) {
-        console.error(error);
-        addError({
-          message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
-          severity: "error",
-        });
-        return false;
-      }
+      return await unsubscribeSymbol(symbol);
     },
-    [unsubscribeSymbol, addError]
+    [unsubscribeSymbol]
   );
 
   return useMemo(
     () => ({
+      // 구독 상태
       subscribedSymbols,
       isLoading: subscriptionLoading || stockDataLoading,
-      error: stockDataError,
 
+      // 구독 관리
       subscribeSymbol: handleSubscribeSymbol,
       unsubscribeSymbol: handleUnsubscribeSymbol,
       isSubscribed,
 
+      // 데이터 접근
       getStockData,
       getChartData,
     }),
@@ -87,7 +49,6 @@ export const useStockOperations = () => {
       subscribedSymbols,
       subscriptionLoading,
       stockDataLoading,
-      stockDataError,
       handleSubscribeSymbol,
       handleUnsubscribeSymbol,
       isSubscribed,

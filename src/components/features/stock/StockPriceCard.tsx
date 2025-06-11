@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { StockPriceCardProps } from "@/types";
 import { useStockCardData } from "@/hooks/stock/useStockCardData";
 import StockPriceHeader from "./StockPriceHeader";
@@ -18,20 +18,7 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
     handleUnsubscribe,
   } = useStockCardData(symbol);
 
-  useEffect(() => {
-    if (stockData) {
-      console.log(`📊 ${symbol} 카드 데이터 업데이트:`, {
-        price: stockData.price,
-        change: stockData.priceChange,
-        changeRate: stockData.changeRate,
-        time: new Date(stockData.transactionTime).toLocaleTimeString(),
-      });
-    }
-  }, [stockData, symbol]);
-
-  if (isLoading || !stockData) {
-    return <StockCardSkeleton symbol={symbol} />;
-  }
+  if (isLoading || !stockData) return <StockCardSkeleton symbol={symbol} />;
 
   const getBlinkClassName = () => {
     switch (blinkClass) {

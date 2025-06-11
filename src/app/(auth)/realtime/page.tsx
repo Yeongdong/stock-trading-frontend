@@ -1,24 +1,42 @@
 "use client";
 
+import React from "react";
 import RealtimeDashboard from "@/components/features/realtime/RealtimeDashboard";
-import RealtimeDataSynchronizer from "@/components/system/RealtimeDataSynchronizer";
 import { StockSubscriptionProvider } from "@/contexts/StockSubscriptionContext";
-import { StockDataProvider } from "@/contexts/StockDataContext";
-import { ChartDataProvider } from "@/contexts/ChartDataContext";
+import { StockDataProvider, useStockData } from "@/contexts/StockDataContext";
+import { ChartDataProvider, useChartData } from "@/contexts/ChartDataContext";
 import { RealtimePriceProvider } from "@/contexts/RealtimePriceContext";
+
+function RealtimeProviderConnector({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { updateStockData } = useStockData();
+  const { updateChartData } = useChartData();
+
+  return (
+    <RealtimePriceProvider
+      contextUpdaters={{
+        updateStockData,
+        updateChartData,
+      }}
+    >
+      {children}
+    </RealtimePriceProvider>
+  );
+}
 
 export default function RealtimePage() {
   return (
-    <RealtimePriceProvider>
+    <ChartDataProvider>
       <StockDataProvider>
-        <ChartDataProvider>
-          <StockSubscriptionProvider>
-            {/* 데이터 동기화 컴포넌트 */}
-            <RealtimeDataSynchronizer />
+        <StockSubscriptionProvider>
+          <RealtimeProviderConnector>
             <RealtimeDashboard />
-          </StockSubscriptionProvider>
-        </ChartDataProvider>
+          </RealtimeProviderConnector>
+        </StockSubscriptionProvider>
       </StockDataProvider>
-    </RealtimePriceProvider>
+    </ChartDataProvider>
   );
 }

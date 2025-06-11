@@ -1,13 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { ERROR_MESSAGES, TIMINGS } from "@/constants";
-import { useError } from "@/contexts/ErrorContext";
 import useDebounce from "@/hooks/common/useDebounce";
 import { SymbolSubscriptionResult } from "@/types";
 
 export const useSymbolSubscription = (): SymbolSubscriptionResult => {
   const { subscribeSymbol, isSubscribed } = useStockOperations();
-  const { addError } = useError();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [symbolInput, setSymbolInput] = useState<string>("");
@@ -24,10 +22,6 @@ export const useSymbolSubscription = (): SymbolSubscriptionResult => {
 
       if (!/^\d{6}$/.test(symbol)) {
         setError(ERROR_MESSAGES.INVALID_SYMBOL);
-        addError({
-          message: ERROR_MESSAGES.INVALID_SYMBOL,
-          severity: "warning",
-        });
         return false;
       }
 
@@ -38,7 +32,7 @@ export const useSymbolSubscription = (): SymbolSubscriptionResult => {
 
       return true;
     },
-    [isSubscribed, addError]
+    [isSubscribed]
   );
 
   // 디바운스된 입력값 검증
@@ -57,8 +51,6 @@ export const useSymbolSubscription = (): SymbolSubscriptionResult => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value.toUpperCase();
       setSymbolInput(value);
-
-      // 사용자가 타이핑 중일 때는 에러 메시지 초기화
       if (error) setError("");
     },
     [error]
@@ -72,8 +64,8 @@ export const useSymbolSubscription = (): SymbolSubscriptionResult => {
       const trimmedSymbol = symbolInput.trim();
       if (!validateSymbol(trimmedSymbol)) return;
 
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const success = await subscribeSymbol(trimmedSymbol);
         if (success) {
           setSymbolInput("");
@@ -81,8 +73,8 @@ export const useSymbolSubscription = (): SymbolSubscriptionResult => {
           setError(ERROR_MESSAGES.SUBSCRIBE_FAIL);
         }
       } catch (err) {
+        console.error(err);
         setError(ERROR_MESSAGES.SUBSCRIBE_ERROR);
-        console.error("Subscribe error:", err);
       } finally {
         setIsLoading(false);
       }
