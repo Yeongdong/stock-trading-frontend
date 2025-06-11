@@ -30,7 +30,7 @@ function RealtimeProviderConnector({
   );
 }
 
-function RealtimeContent() {
+export default function RealtimePage() {
   const marketInfo = useMarketGuard();
 
   useEffect(() => {
@@ -51,16 +51,12 @@ function RealtimeContent() {
     );
   }
 
-  return <RealtimeDashboard />;
-}
-
-export default function RealtimePage() {
   return (
     <ChartDataProvider>
       <StockDataProvider>
         <StockSubscriptionProvider>
           <RealtimeProviderConnector>
-            <RealtimeContent />
+            <RealtimeDashboard />
           </RealtimeProviderConnector>
         </StockSubscriptionProvider>
       </StockDataProvider>
