@@ -176,19 +176,6 @@ export class RealtimeSocketService {
       this.start();
     }, TIMINGS.RECONNECT_DELAY * this.reconnectAttempts);
   }
-
-  private isMarketOpen(): boolean {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const currentTime = hours * 100 + minutes;
-
-    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
-
-    const isMarketHours = currentTime >= 900 && currentTime <= 1530;
-
-    return isWeekday && isMarketHours;
-  }
 }
 
 export const realtimeSocketService = new RealtimeSocketService();
