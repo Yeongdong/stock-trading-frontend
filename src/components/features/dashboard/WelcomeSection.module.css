@@ -1,0 +1,110 @@
+.welcomeSection {
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 인사말 섹션 */
+.greeting {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.greetingIcon {
+  font-size: var(--font-size-lg);
+}
+
+.greetingText {
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+}
+
+.greetingText strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+/* 시간 정보 섹션 */
+.timeInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+.currentTime {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 장 상태 표시 */
+.marketStatus {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  border: var(--border-width) var(--border-style);
+}
+
+.marketOpen {
+  background-color: var(--color-success);
+  color: var(--color-text-white);
+  border-color: var(--color-success);
+}
+
+.marketClosed {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-secondary);
+  border-color: var(--color-bg-border);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .welcomeSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .timeInfo {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .greetingText {
+    font-size: var(--font-size-base);
+  }
+
+  .currentTime,
+  .marketStatus {
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .welcomeSection {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .greeting {
+    gap: var(--spacing-xs);
+  }
+
+  .greetingIcon {
+    font-size: var(--font-size-md);
+  }
+
+  .timeInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+}

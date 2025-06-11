@@ -1,0 +1,317 @@
+.marketOverview {
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 섹션 제목 */
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 컨텐츠 컨테이너 (좌우 분할) */
+.contentContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+/* 좌측: 주요 지수 섹션 */
+.indicesSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.subsectionTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* 지수 목록 */
+.indicesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.indexItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+.indexName {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+}
+
+.indexValue {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.price {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+}
+
+.change {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+}
+
+/* 장 상황 통계 */
+.marketStatsSection {
+  padding-top: var(--spacing-md);
+  border-top: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+.statsTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.statsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.statLabel {
+  color: var(--color-text-primary);
+}
+
+.statValue {
+  font-weight: var(--font-weight-medium);
+}
+
+/* 우측: TOP 5 종목 섹션 */
+.topStocksSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.topStocksHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.moreButton {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s ease;
+}
+
+.moreButton:hover {
+  background-color: var(--color-bg-light);
+}
+
+/* TOP 5 종목 목록 */
+.topStocksList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.topStockItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  transition: background-color 0.2s ease;
+}
+
+.topStockItem:hover {
+  background-color: var(--color-bg-border);
+}
+
+.stockRank {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  min-width: 20px;
+}
+
+.stockInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stockName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.stockCode {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.stockPrice {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.changeRate {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+/* 수익/손실 색상 */
+.positive {
+  color: var(--color-stock-up);
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+.negative {
+  color: var(--color-stock-down);
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.neutral {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-light);
+}
+
+/* 로딩 상태 */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+}
+
+.loadingSpinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-bg-border);
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--spacing-sm);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .contentContainer {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .marketOverview {
+    padding: var(--spacing-lg);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .contentContainer {
+    gap: var(--spacing-md);
+  }
+
+  .indexItem,
+  .topStockItem {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .topStocksHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .marketOverview {
+    padding: var(--spacing-md);
+  }
+
+  .indexItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .indexValue {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .topStockItem {
+    gap: var(--spacing-sm);
+  }
+
+  .stockPrice {
+    align-items: flex-end;
+  }
+
+  .price {
+    font-size: var(--font-size-sm);
+  }
+}

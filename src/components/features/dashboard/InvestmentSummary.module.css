@@ -1,0 +1,163 @@
+.investmentSummary {
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 섹션 제목 */
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 카드 컨테이너 */
+.cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+}
+
+/* 개별 카드 스타일 */
+.summaryCard {
+  background-color: var(--color-bg-light);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 카드 헤더 */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.cardIcon {
+  font-size: var(--font-size-lg);
+}
+
+.cardTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+/* 카드 바디 */
+.cardBody {
+  text-align: center;
+}
+
+.cardValue {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.2;
+}
+
+.cardSubValue {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+/* 수익/손실 색상 */
+.positive {
+  color: var(--color-stock-up);
+}
+
+.negative {
+  color: var(--color-stock-down);
+}
+
+.neutral {
+  color: var(--color-text-primary);
+}
+
+/* 에러 메시지 */
+.errorMessage {
+  text-align: center;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-light);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .cardsContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .investmentSummary {
+    padding: var(--spacing-lg);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .cardsContainer {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .summaryCard {
+    padding: var(--spacing-md);
+  }
+
+  .cardValue {
+    font-size: var(--font-size-lg);
+  }
+
+  .cardSubValue {
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .investmentSummary {
+    padding: var(--spacing-md);
+  }
+
+  .cardHeader {
+    justify-content: center;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .cardIcon {
+    font-size: var(--font-size-md);
+  }
+
+  .cardTitle {
+    font-size: var(--font-size-xs);
+  }
+
+  .cardValue {
+    font-size: var(--font-size-md);
+  }
+
+  .summaryCard:hover {
+    transform: none;
+  }
+}
