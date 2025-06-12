@@ -9,7 +9,7 @@ const Navigation: React.FC<NavigationProps> = memo(({ className = "" }) => {
 
   const navItems: NavItem[] = [
     { href: "/dashboard", label: "대시보드" },
-    { href: "/stock-search", label: "종목 검색" },
+    // { href: "/stock-search", label: "종목 검색" },
     { href: "/order", label: "주식 주문" },
     { href: "/buyable-inquiry", label: "매수가능조회" },
     { href: "/balance", label: "잔고 확인" },

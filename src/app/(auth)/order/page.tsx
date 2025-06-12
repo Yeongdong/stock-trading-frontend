@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import EnhancedStockOrderForm from "@/components/features/stock/EnhancedStockOrderForm";
+import StockSearchView from "@/components/features/stock/StockSearchView";
 
 function OrderPageContent() {
   const searchParams = useSearchParams();
@@ -19,7 +20,7 @@ function OrderPageContent() {
 
   return (
     <div className="container">
-      <h1>주식 주문</h1>
+      <StockSearchView />
       <EnhancedStockOrderForm initialData={initialData} />
     </div>
   );
