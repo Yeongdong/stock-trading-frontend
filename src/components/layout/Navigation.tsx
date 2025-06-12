@@ -11,7 +11,7 @@ const Navigation: React.FC<NavigationProps> = memo(({ className = "" }) => {
     { href: "/dashboard", label: "대시보드" },
     // { href: "/stock-search", label: "종목 검색" },
     { href: "/order", label: "주식 주문" },
-    { href: "/buyable-inquiry", label: "매수가능조회" },
+    // { href: "/buyable-inquiry", label: "매수가능조회" },
     { href: "/balance", label: "잔고 확인" },
     { href: "/order-execution", label: "체결내역" },
     { href: "/period-price", label: "기간별 시세" },

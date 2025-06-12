@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { StockOrder, BuyableInquiryResponse } from "@/types";
+import { StockOrder } from "@/types";
 import toast from "@/utils/toast";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
-import BuyableInquiryForm from "../trading/BuyableInquiryForm";
-import BuyableInquiryResult from "../trading/BuyableInquiryResult";
 import styles from "./StockOrderForm.module.css";
 
 interface EnhancedStockOrderFormProps {
@@ -14,32 +12,38 @@ interface EnhancedStockOrderFormProps {
     orderPrice?: number;
     maxQuantity?: number;
   };
+  selectedStockCode?: string;
 }
 
 const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
   initialData,
+  selectedStockCode,
 }) => {
   const [acntPrdtCd] = useState<string>("01");
   const [trId, setTrId] = useState<string>("VTTC0802U");
   const [pdno, setPdno] = useState<string>(initialData?.stockCode || "");
   const [ordDvsn, setOrderDvsn] = useState<string>("00: 지정가");
-  const [ordQty, setOrdQty] = useState<string>("");
+  const [ordQty, setOrdQty] = useState<string>(
+    initialData?.maxQuantity?.toString() || ""
+  );
   const [ordUnpr, setOrdUnpr] = useState<string>(
     initialData?.orderPrice?.toString() || ""
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [showBuyableInquiry, setShowBuyableInquiry] = useState(false);
-  const [buyableData, setBuyableData] = useState<BuyableInquiryResponse | null>(
-    null
-  );
 
   const { addError } = useError();
 
-  // initialData가 변경되면 폼 업데이트
+  // initialData나 selectedStockCode가 변경되면 폼 업데이트
   useEffect(() => {
-    if (initialData?.stockCode) setPdno(initialData.stockCode);
+    if (selectedStockCode) {
+      setPdno(selectedStockCode);
+    } else if (initialData?.stockCode) {
+      setPdno(initialData.stockCode);
+    }
+
     if (initialData?.orderPrice) setOrdUnpr(initialData.orderPrice.toString());
-  }, [initialData]);
+    if (initialData?.maxQuantity) setOrdQty(initialData.maxQuantity.toString());
+  }, [initialData, selectedStockCode]);
 
   const validateOrder = () => {
     if (!pdno) {
@@ -101,13 +105,11 @@ const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
             severity: "info",
           });
 
-          // 주문 성공 후 폼 초기화
           setTrId("VTTC0802U");
           setPdno("");
           setOrderDvsn("00: 지정가");
           setOrdQty("");
           setOrdUnpr("");
-          setBuyableData(null);
         } catch (error) {
           console.error("Error submitting order: ", error);
           if (error instanceof Error) {
@@ -123,56 +125,13 @@ const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
     });
   };
 
-  const handleBuyableInquiryResult = (data: BuyableInquiryResponse) => {
-    setBuyableData(data);
-    // 조회 결과를 주문 폼에 자동 입력
-    setPdno(data.stockCode);
-    setOrdUnpr(data.orderPrice.toString());
-  };
-
-  const handleOrderFromBuyable = (stockCode: string, maxQuantity: number) => {
-    setPdno(stockCode);
-    setOrdQty(maxQuantity.toString());
-    setShowBuyableInquiry(false);
-
-    addError({
-      message: `주문 정보가 입력되었습니다. 수량을 조정 후 주문해주세요.`,
-      severity: "info",
-    });
-  };
-
   return (
     <div className={styles.enhancedStockOrderForm}>
       <div className={styles.formHeader}>
         <h2>주식 주문</h2>
-        <button
-          type="button"
-          onClick={() => setShowBuyableInquiry(!showBuyableInquiry)}
-          className={styles.toggleInquiryBtn}
-        >
-          {showBuyableInquiry ? "매수가능조회 숨기기" : "매수가능조회"}
-        </button>
       </div>
 
-      {/* 매수가능조회 섹션 */}
-      {showBuyableInquiry && (
-        <div className={styles.buyableInquirySection}>
-          <BuyableInquiryForm
-            onResult={handleBuyableInquiryResult}
-            initialStockCode={pdno}
-            initialOrderPrice={parseInt(ordUnpr) || 0}
-          />
-
-          {buyableData && (
-            <BuyableInquiryResult
-              data={buyableData}
-              onOrderClick={handleOrderFromBuyable}
-            />
-          )}
-        </div>
-      )}
-
-      {/* 기존 주문 폼 */}
+      {/* 주문 폼 */}
       <fieldset className={styles.fieldset}>
         <legend>주문 정보</legend>
 
@@ -222,11 +181,6 @@ const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
             placeholder="주문 수량"
             className={styles.input}
           />
-          {buyableData && (
-            <small className={styles.helperText}>
-              최대 매수가능: {buyableData.buyableQuantity.toLocaleString()}주
-            </small>
-          )}
         </div>
 
         <div className={styles.formGroup}>
@@ -266,11 +220,6 @@ const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
             placeholder="주문 단가"
             className={styles.input}
           />
-          {buyableData && (
-            <small className={styles.helperText}>
-              현재가: {buyableData.currentPrice.toLocaleString()}원
-            </small>
-          )}
         </div>
 
         <button

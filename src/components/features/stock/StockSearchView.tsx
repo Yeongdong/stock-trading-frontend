@@ -3,10 +3,16 @@ import StockSearchForm from "./StockSearchForm";
 import StockSearchResults from "./StockSearchResults";
 import { useStockSearch } from "@/hooks/stock/useStockSearch";
 import { StockSearchResult, StockSearchResponse } from "@/types/stock/search";
+import styles from "./StockSearchView.module.css";
 
-const StockSearchView: React.FC = () => {
+interface StockSearchViewProps {
+  onStockSelect?: (stock: StockSearchResult) => void;
+}
+
+const StockSearchView: React.FC<StockSearchViewProps> = ({ onStockSelect }) => {
   const [searchResults, setSearchResults] = useState<StockSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const { summary, getSearchSummary } = useStockSearch();
 
   useEffect(() => {
@@ -16,19 +22,19 @@ const StockSearchView: React.FC = () => {
   const handleSearchResults = (response: StockSearchResponse) => {
     setSearchResults(response.results);
     setIsSearching(false);
+    setHasSearched(true);
   };
 
   const handleStockSelect = (stock: StockSearchResult) => {
-    console.log("선택된 종목:", stock);
-    // 여기에 종목 선택 시 동작 구현 (예: 상세 페이지 이동, 주문 폼으로 이동 등)
+    onStockSelect?.(stock);
   };
 
   return (
-    <div className="stock-search-view">
-      <div className="search-header">
+    <div className={styles.stockSearchView}>
+      <div className={styles.searchHeader}>
         <h2>주식 종목 검색</h2>
         {summary && (
-          <div className="search-summary">
+          <div className={styles.searchSummary}>
             <span>
               전체 {summary.totalStocks?.toLocaleString() || 0}개 종목
             </span>
@@ -39,13 +45,14 @@ const StockSearchView: React.FC = () => {
         )}
       </div>
 
-      <div className="search-content">
+      <div className={styles.searchContent}>
         <StockSearchForm onSearchResults={handleSearchResults} />
 
         <StockSearchResults
           results={searchResults}
           isLoading={isSearching}
           onStockSelect={handleStockSelect}
+          hasSearched={hasSearched}
         />
       </div>
     </div>

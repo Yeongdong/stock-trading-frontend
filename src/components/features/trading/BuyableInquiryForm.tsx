@@ -34,6 +34,12 @@ const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
   );
 
   useEffect(() => {
+    if (initialStockCode) {
+      setStockCode(initialStockCode);
+    }
+  }, [initialStockCode]);
+
+  useEffect(() => {
     if (
       debouncedStockCode &&
       debouncedStockCode.length === 6 &&

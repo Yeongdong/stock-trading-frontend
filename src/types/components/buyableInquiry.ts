@@ -13,4 +13,5 @@ export interface BuyableInquiryResultProps {
 
 export interface BuyableInquiryViewProps {
   className?: string;
+  selectedStockCode?: string;
 }
