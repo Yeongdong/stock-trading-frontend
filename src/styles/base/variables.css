@@ -1,16 +1,18 @@
 :root {
-  /* 색상 변수 */
+  /* 기본 색상 */
   --color-primary: #0070f3;
   --color-primary-hover: #0056b3;
   --color-secondary: #6c757d;
+
+  /* 상태별 색상 */
   --color-success: #28a745;
-  --color-success-hover: #218838;
+  --color-success-light: #d4edda;
   --color-warning: #ffc107;
-  --color-warning-bg: #fff3cd;
+  --color-warning-light: #fff3cd;
   --color-error: #e53935;
-  --color-error-bg: #fdecea;
+  --color-error-light: #fdecea;
   --color-info: #2196f3;
-  --color-info-bg: #e3f2fd;
+  --color-info-light: #e3f2fd;
 
   /* 한국 주식 시장 색상 */
   --color-stock-up: #e53935; /* 상승: 빨간색 */
@@ -37,13 +39,13 @@
   --border-radius: 4px;
   --border-radius-large: 8px;
 
-  /* 간격 */
+  /* 간격 (8px 그리드 시스템) */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 20px;
-  --spacing-xxl: 24px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 40px;
 
   /* 폰트 크기 */
   --font-size-xs: 10px;
@@ -68,4 +70,10 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 2px 5px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  /* 반응형 브레이크포인트 */
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
 }
