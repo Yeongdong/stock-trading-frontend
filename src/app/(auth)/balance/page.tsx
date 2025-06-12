@@ -2,6 +2,7 @@
 
 import { useBalance } from "@/hooks/balance/useBalance";
 import AccountBalanceView from "@/components/features/account/AccountBalanceView";
+import OrderExecutionView from "@/components/features/orderExecution/OrderExecutionView";
 
 export default function BalancePage() {
   const { balanceData, isLoading, refetch } = useBalance();
@@ -24,6 +25,7 @@ export default function BalancePage() {
         isLoading={isLoading}
         onRefresh={refetch}
       />
+      <OrderExecutionView />
     </div>
   );
 }
