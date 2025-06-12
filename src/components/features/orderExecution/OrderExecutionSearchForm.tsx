@@ -3,12 +3,23 @@ import { OrderExecutionSearchFormProps } from "@/types/components/orderExecution
 import React, { useState } from "react";
 import styles from "./OrderExecutionSearchForm.module.css";
 
+const getTodayString = () => {
+  const today = new Date();
+  return today.toISOString().split("T")[0];
+};
+
+const get30DaysAgoString = () => {
+  const date = new Date();
+  date.setDate(date.getDate() - 30);
+  return date.toISOString().split("T")[0];
+};
+
 const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
   onSearch,
   isLoading,
 }) => {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(get30DaysAgoString());
+  const [endDate, setEndDate] = useState(getTodayString());
   const [stockCode, setStockCode] = useState("");
   const [orderType, setOrderType] = useState("00");
 
@@ -29,17 +40,6 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
     };
 
     onSearch(request);
-  };
-
-  const getTodayString = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  };
-
-  const getLastMonthString = () => {
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-    return lastMonth.toISOString().split("T")[0];
   };
 
   return (
@@ -109,18 +109,6 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
         </div>
 
         <div className={styles.formActions}>
-          <button
-            type="button"
-            onClick={() => {
-              setStartDate(getLastMonthString());
-              setEndDate(getTodayString());
-            }}
-            disabled={isLoading}
-            className={styles.presetButton}
-          >
-            최근 1개월
-          </button>
-
           <button
             type="submit"
             disabled={isLoading}
