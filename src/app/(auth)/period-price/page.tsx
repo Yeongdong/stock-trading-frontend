@@ -1,3 +1,4 @@
+/* 현재 사용하지 않는 페이지 - 기간별 시세
 "use client";
 
 import React, { useState } from "react";
@@ -150,3 +151,4 @@ export default function PeriodPricePage() {
     </div>
   );
 }
+*/

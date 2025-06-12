@@ -5,25 +5,33 @@ import { Suspense, useState } from "react";
 import EnhancedStockOrderForm from "@/components/features/stock/EnhancedStockOrderForm";
 import StockSearchView from "@/components/features/stock/StockSearchView";
 import BuyableInquiryView from "@/components/features/trading/BuyableInquiryView";
+import PeriodPriceChart from "@/components/features/stock/PeriodPriceChart";
 import { StockSearchResult } from "@/types/stock/search";
 import styles from "./page.module.css";
 
+interface StockInfo {
+  code: string;
+  name: string;
+}
+
 function OrderPageContent() {
   const searchParams = useSearchParams();
-  const [selectedStockCode, setSelectedStockCode] = useState<string>("");
-
+  const [selectedStock, setSelectedStock] = useState<StockInfo>({
+    code: "",
+    name: "",
+  });
   const stockCode = searchParams.get("stockCode");
   const orderPrice = searchParams.get("orderPrice");
   const maxQuantity = searchParams.get("maxQuantity");
 
   const initialData = {
-    stockCode: selectedStockCode || stockCode || undefined,
+    stockCode: selectedStock.code || stockCode || undefined,
     orderPrice: orderPrice ? parseInt(orderPrice) : undefined,
     maxQuantity: maxQuantity ? parseInt(maxQuantity) : undefined,
   };
 
   const handleStockSelect = (stock: StockSearchResult) => {
-    setSelectedStockCode(stock.code);
+    setSelectedStock(stock);
   };
 
   return (
@@ -38,13 +46,20 @@ function OrderPageContent() {
         <div className={styles.orderSection}>
           <EnhancedStockOrderForm
             initialData={initialData}
-            selectedStockCode={selectedStockCode}
+            selectedStockCode={selectedStock.code}
           />
         </div>
 
         <div className={styles.buyableInquirySection}>
-          <BuyableInquiryView selectedStockCode={selectedStockCode} />
+          <BuyableInquiryView selectedStockCode={selectedStock.code} />
         </div>
+      </div>
+
+      <div className={styles.chartSection}>
+        <PeriodPriceChart
+          stockName={selectedStock.name}
+          stockCode={selectedStock.code}
+        />
       </div>
     </div>
   );

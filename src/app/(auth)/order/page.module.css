@@ -24,6 +24,7 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xxl);
   align-items: start;
+  margin-bottom: var(--spacing-xxl);
 }
 
 /* 왼쪽 컬럼: 주식 주문 */
@@ -34,6 +35,24 @@
 /* 오른쪽 컬럼: 매수가능조회 */
 .buyableInquirySection {
   min-height: 50%;
+}
+
+/* 차트 섹션 */
+.chartSection {
+  width: 100%;
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+}
+
+.chartSectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
 }
 
 /* 반응형 처리 */
