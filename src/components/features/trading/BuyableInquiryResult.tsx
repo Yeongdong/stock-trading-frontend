@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BuyableInquiryResultProps } from "@/types/components/buyableInquiry";
 import { useCurrentPrice } from "@/hooks/stock/useCurrentPrice";
+import styles from "./BuyableInquiryResult.module.css";
 
 const BuyableInquiryResult: React.FC<BuyableInquiryResultProps> = ({
   data,
@@ -83,112 +84,126 @@ const BuyableInquiryResult: React.FC<BuyableInquiryResultProps> = ({
   const isPriceDifferent = displayPrice !== data.currentPrice;
 
   return (
-    <div className="buyable-inquiry-result">
-      <div className="result-header">
+    <div className={styles.buyableInquiryResult}>
+      <div className={styles.resultHeader}>
         <h4>매수가능정보</h4>
-        <div className="stock-info">
-          <span className="stock-name">{data.stockName}</span>
-          <span className="stock-code">({data.stockCode})</span>
+        <div className={styles.stockInfo}>
+          <span className={styles.stockName}>{data.stockName}</span>
+          <span className={styles.stockCode}>({data.stockCode})</span>
         </div>
       </div>
 
-      <div className="result-grid">
+      <div className={styles.resultGrid}>
         {/* 현재가 섹션 - 새로고침 기능 포함 */}
         <div
-          className={`result-item current-price-item ${
-            isPriceDifferent ? "price-updated" : ""
+          className={`${styles.resultItem} ${styles.currentPriceItem} ${
+            isPriceDifferent ? styles.highlight : ""
           }`}
         >
-          <div className="price-header">
-            <span className="label">현재가</span>
+          <div className={styles.priceHeader}>
+            <span className={styles.label}>현재가</span>
             <button
               onClick={handleRefreshPrice}
               disabled={isPriceLoading}
-              className="refresh-price-btn"
+              className={styles.refreshPriceBtn}
               title="현재가 새로고침"
             >
-              {isPriceLoading ? "⟳" : "🔄"}
+              {isPriceLoading ? "⟳" : "↻"}
             </button>
           </div>
-          <div className="price-info">
+          <div className={styles.priceInfo}>
             <span
-              className={`value ${getPriceChangeClass(
-                priceChangeInfo.changeType
-              )}`}
+              className={`${styles.value} ${
+                styles[getPriceChangeClass(priceChangeInfo.changeType)]
+              }`}
             >
               {formatCurrency(displayPrice)}
             </span>
-            {priceChangeInfo.changeType !== "보합" && (
-              <div
-                className={`price-change-info ${getPriceChangeClass(
-                  priceChangeInfo.changeType
-                )}`}
+            <div className={styles.priceChangeInfo}>
+              <span
+                className={`${styles.changeAmount} ${
+                  styles[getPriceChangeClass(priceChangeInfo.changeType)]
+                }`}
               >
-                <span className="change-amount">
-                  {priceChangeInfo.change > 0 ? "+" : ""}
-                  {formatNumber(priceChangeInfo.change)}
+                {priceChangeInfo.change > 0 ? "+" : ""}
+                {formatCurrency(priceChangeInfo.change)}
+              </span>
+              <span
+                className={`${styles.changeRate} ${
+                  styles[getPriceChangeClass(priceChangeInfo.changeType)]
+                }`}
+              >
+                ({priceChangeInfo.changeRate > 0 ? "+" : ""}
+                {priceChangeInfo.changeRate.toFixed(2)}%)
+              </span>
+              <span className={styles.changeType}>
+                [{priceChangeInfo.changeType}]
+              </span>
+              {priceChangeInfo.inquiryTime && (
+                <span className={styles.inquiryTime}>
+                  ({priceChangeInfo.inquiryTime})
                 </span>
-                <span className="change-rate">
-                  ({priceChangeInfo.changeRate > 0 ? "+" : ""}
-                  {priceChangeInfo.changeRate.toFixed(2)}%)
-                </span>
-                <span className="change-type">
-                  {priceChangeInfo.changeType}
-                </span>
-              </div>
-            )}
-            {priceChangeInfo.inquiryTime && (
-              <div className="inquiry-time">
-                조회시간:{" "}
-                {new Date(priceChangeInfo.inquiryTime).toLocaleString()}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="result-item">
-          <span className="label">주문가격</span>
-          <span className="value">{formatCurrency(data.orderPrice)}</span>
-        </div>
-
-        <div className="result-item highlight">
-          <span className="label">매수가능수량</span>
-          <span className="value primary">
-            {formatNumber(data.buyableQuantity)}주
-          </span>
-        </div>
-
-        <div className="result-item highlight">
-          <span className="label">매수가능금액</span>
-          <span className="value primary">
+        <div className={styles.resultItem}>
+          <span className={styles.label}>매수가능금액</span>
+          <span className={`${styles.value} ${styles.primary}`}>
             {formatCurrency(data.buyableAmount)}
           </span>
         </div>
 
-        <div className="result-item">
-          <span className="label">주문가능금액</span>
-          <span className="value">{formatCurrency(data.orderableAmount)}</span>
+        <div className={styles.resultItem}>
+          <span className={styles.label}>매수가능수량</span>
+          <span className={`${styles.value} ${styles.primary}`}>
+            {formatNumber(data.buyableQuantity)}주
+          </span>
         </div>
 
-        <div className="result-item">
-          <span className="label">현금잔고</span>
-          <span className="value">{formatCurrency(data.cashBalance)}</span>
+        <div className={styles.resultItem}>
+          <span className={styles.label}>주문가능금액</span>
+          <span className={styles.value}>
+            {formatCurrency(data.orderableAmount)}
+          </span>
+        </div>
+
+        <div className={styles.resultItem}>
+          <span className={styles.label}>보유현금</span>
+          <span className={styles.value}>
+            {formatCurrency(data.cashBalance)}
+          </span>
+        </div>
+
+        <div className={styles.resultItem}>
+          <span className={styles.label}>주문가격</span>
+          <span className={styles.value}>
+            {formatCurrency(data.orderPrice)}
+          </span>
+        </div>
+
+        <div className={styles.resultItem}>
+          <span className={styles.label}>주문단위</span>
+          <span className={styles.value}>
+            {formatNumber(data.unitQuantity)}주
+          </span>
         </div>
       </div>
 
-      {/* 가격 변동 알림 */}
+      {/* 가격 차이 경고 메시지 */}
       {isPriceDifferent && (
-        <div className="price-change-notice">
-          <span className="notice-icon">ℹ️</span>
-          현재가가 조회 시점과 다릅니다. 주문 전 최신 가격을 확인해주세요.
+        <div className={styles.priceWarning}>
+          <strong>💡 가격 변동 알림:</strong> 현재가가 주문가격과 다릅니다. 주문
+          전 최신 가격을 확인해주세요.
         </div>
       )}
 
       {onOrderClick && data.buyableQuantity > 0 && (
-        <div className="result-actions">
+        <div className={styles.resultActions}>
           <button
             onClick={() => onOrderClick(data.stockCode, data.buyableQuantity)}
-            className="order-button"
+            className={styles.orderButton}
           >
             이 조건으로 주문하기
           </button>
@@ -196,7 +211,7 @@ const BuyableInquiryResult: React.FC<BuyableInquiryResultProps> = ({
       )}
 
       {data.buyableQuantity === 0 && (
-        <div className="warning-message">
+        <div className={styles.warningMessage}>
           현재 조건으로는 매수가 불가능합니다.
         </div>
       )}
