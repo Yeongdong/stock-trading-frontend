@@ -1,0 +1,82 @@
+/* 요약 정보 컨테이너 */
+.summary {
+  display: flex;
+  gap: var(--spacing-xl);
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-lg);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* 요약 항목 */
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  text-align: center;
+}
+
+/* 라벨 */
+.label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 값 */
+.value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+/* 가격 변동 색상 */
+.up {
+  color: var(--color-stock-up) !important;
+}
+
+.down {
+  color: var(--color-stock-down) !important;
+}
+
+.neutral {
+  color: var(--color-stock-unchanged) !important;
+}
+
+/* SummaryData에서 사용하는 기본 value 클래스 */
+.valueUp {
+  color: var(--color-stock-up);
+}
+
+.valueDown {
+  color: var(--color-stock-down);
+}
+
+.valueNeutral {
+  color: var(--color-stock-unchanged);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .summary {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .summaryItem {
+    text-align: left;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .label {
+    font-size: var(--font-size-base);
+  }
+
+  .value {
+    font-size: var(--font-size-md);
+  }
+}

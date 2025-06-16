@@ -1,10 +1,11 @@
 import React, { memo } from "react";
 import { SymbolInputFormProps } from "@/types";
+import styles from "./SymbolInputForm.module.css";
 
 const SymbolInputForm: React.FC<SymbolInputFormProps> = memo(
   ({ symbolInput, onInputChange, onSubmit, isLoading, error }) => (
-    <form onSubmit={onSubmit} className="subscription-form">
-      <div className="input-group">
+    <form onSubmit={onSubmit} className={styles.subscriptionForm}>
+      <div className={styles.inputGroup}>
         <input
           type="text"
           value={symbolInput}
@@ -14,23 +15,25 @@ const SymbolInputForm: React.FC<SymbolInputFormProps> = memo(
           aria-label="종목 코드 입력"
           aria-invalid={!!error}
           aria-describedby={error ? "symbol-error" : undefined}
+          className={styles.input}
         />
         <button
           type="submit"
           disabled={isLoading || !symbolInput.trim()}
           aria-label="종목 구독"
+          className={styles.submitButton}
         >
           {isLoading ? "처리중..." : "구독"}
         </button>
       </div>
 
       {error && (
-        <div className="error-message" role="alert" id="symbol-error">
+        <div className={styles.errorMessage} role="alert" id="symbol-error">
           {error}
         </div>
       )}
 
-      <div className="help-text">
+      <div className={styles.helpText}>
         * 삼성전자: 005930, SK하이닉스: 000660, 카카오: 035720
       </div>
     </form>

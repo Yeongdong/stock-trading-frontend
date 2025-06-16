@@ -1,0 +1,52 @@
+.chartContainer {
+  margin: var(--spacing-md) 0;
+  border-top: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  padding: var(--spacing-sm) 0;
+  background-color: var(--color-bg-white);
+}
+
+/* 차트 데이터 로딩 플레이스홀더 */
+.placeholder {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 차트 정보 표시 영역 */
+.chartInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.chartLabel {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.chartValue {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* 가격 변동 색상 */
+.priceUp {
+  color: var(--color-stock-up);
+}
+
+.priceDown {
+  color: var(--color-stock-down);
+}
+
+.priceUnchanged {
+  color: var(--color-stock-unchanged);
+}

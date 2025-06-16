@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./PeriodPriceChart.module.css";
+import styles from "./PeriodPriceSummary.module.css";
 import { SummaryData } from "./PeriodPriceChartModel";
 
 interface PeriodPriceSummaryProps {

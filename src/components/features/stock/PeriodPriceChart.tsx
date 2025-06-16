@@ -65,8 +65,7 @@ export default function PeriodPriceChart({
         marketDivCode: "J",
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stockCode]);
+  }, [stockCode, fetchPeriodPrice, clearData]);
 
   const chartData = useMemo(() => {
     if (!data?.priceData) return [];
@@ -76,16 +75,37 @@ export default function PeriodPriceChart({
   const chartSetup = useMemo(() => {
     if (chartData.length === 0) return null;
 
+    console.log("🔍 Setting up chart with", chartData.length, "data points");
+    console.log(
+      "🔍 First 3 dates:",
+      chartData.slice(0, 3).map((d) => ({
+        date: d.date,
+        toString: d.date.toString(),
+        getTime: d.date.getTime(),
+      }))
+    );
+
     const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
       (d: ChartData) => d.date
     );
+
     const {
       data: chartDataWithX,
       xScale,
       xAccessor,
       displayXAccessor,
     } = xScaleProvider(chartData);
-    const xExtents = ChartDataProcessor.getXExtents(chartDataWithX, xAccessor);
+
+    const start = xAccessor(chartDataWithX[0]);
+    const end = xAccessor(chartDataWithX[chartDataWithX.length - 1]);
+    const xExtents = [start, end] as [number, number];
+
+    console.log("🔍 Chart setup complete:", {
+      dataPoints: chartDataWithX.length,
+      xExtents,
+      firstDate: chartDataWithX[0]?.date,
+      lastDate: chartDataWithX[chartDataWithX.length - 1]?.date,
+    });
 
     return {
       chartDataWithX,
@@ -101,10 +121,71 @@ export default function PeriodPriceChart({
   }, [data]);
 
   const handleFormSubmit = async (formData: PeriodPriceRequest) => {
-    console.log("Form Submit with data:", formData);
+    console.log("Form Submit:", formData);
     setFormData(formData);
     await fetchPeriodPrice(formData);
   };
+
+  const createTickFormatter = () => {
+    return (value: Date | number) => {
+      console.log("🔍 [TickFormatter] Input:", value, typeof value);
+
+      try {
+        let date: Date;
+
+        if (value instanceof Date) {
+          date = value;
+        } else if (typeof value === "number") {
+          // xScale의 역변환 사용
+          if (chartSetup?.xScale) {
+            const invertedDate = chartSetup.xScale.invert(value);
+            console.log("🔍 [TickFormatter] Inverted:", invertedDate);
+            date =
+              invertedDate instanceof Date
+                ? invertedDate
+                : new Date(invertedDate);
+          } else {
+            // 폴백: 숫자를 밀리초로 간주
+            date = new Date(value);
+          }
+        } else {
+          date = new Date(value);
+        }
+
+        console.log("🔍 [TickFormatter] Final date:", date, date.toString());
+
+        if (isNaN(date.getTime())) {
+          return "Invalid";
+        }
+
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const result = `${month}/${day}`;
+
+        console.log("🔍 [TickFormatter] Result:", result);
+        return result;
+      } catch (error) {
+        console.error("🔍 [TickFormatter] Error:", error);
+        return "Error";
+      }
+    };
+  };
+
+  // const getDateFormatter = () => {
+  //   const period = formData.periodDivCode;
+  //   switch (period) {
+  //     case "D": // 일봉 - 월/일
+  //       return timeFormat("%m/%d");
+  //     case "W": // 주봉 - 월/일
+  //       return timeFormat("%m/%d");
+  //     case "M": // 월봉 - 년/월
+  //       return timeFormat("%Y/%m");
+  //     case "Y": // 년봉 - 년
+  //       return timeFormat("%Y");
+  //     default:
+  //       return timeFormat("%m/%d");
+  //   }
+  // };
 
   return (
     <div className={styles.container}>
@@ -144,7 +225,7 @@ export default function PeriodPriceChart({
                 <XAxis
                   axisAt="bottom"
                   orient="bottom"
-                  tickFormat={timeFormat("%m/%d")}
+                  tickFormat={createTickFormatter()}
                 />
                 <YAxis
                   axisAt="right"

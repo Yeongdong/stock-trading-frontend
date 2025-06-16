@@ -3,6 +3,7 @@ import { StockMiniChartProps } from "@/types";
 import { useChartCalculations } from "@/hooks/stock/useChartCalculations";
 import ChartRenderer from "./ChartRenderer";
 import ChartInfo from "./ChartInfo";
+import styles from "./StockMiniChart.module.css";
 
 const StockMiniChart: React.FC<StockMiniChartProps> = memo(
   ({ data, height = 120 }) => {
@@ -21,7 +22,7 @@ const StockMiniChart: React.FC<StockMiniChartProps> = memo(
     // 차트 데이터가 없는 경우 메모이제이션
     const placeholderContent = useMemo(
       () => (
-        <div className="stock-mini-chart-placeholder">
+        <div className={styles.placeholder}>
           <p>차트 데이터 수집 중...</p>
         </div>
       ),
@@ -33,7 +34,7 @@ const StockMiniChart: React.FC<StockMiniChartProps> = memo(
     }
 
     return (
-      <div className="stock-mini-chart">
+      <div className={styles.chartContainer}>
         <ChartRenderer
           data={data}
           yDomain={yDomain}
