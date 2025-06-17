@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { PeriodPriceRequest, PERIOD_OPTIONS } from "../../../types/stock/price";
+
 import styles from "./PeriodPriceForm.module.css";
 import { DateFormatter } from "./PeriodPriceChartModel";
+import { PERIOD_OPTIONS, PeriodPriceRequest } from "@/types/stock/price";
 
 interface PeriodPriceFormProps {
   initialData: PeriodPriceRequest;
