@@ -8,10 +8,13 @@
   --color-success: #28a745;
   --color-success-light: #d4edda;
   --color-warning: #ffc107;
+  --color-warning-bg: #fff3cd;
   --color-warning-light: #fff3cd;
   --color-error: #e53935;
   --color-error-light: #fdecea;
+  --color-error-bg: #fdecea;
   --color-info: #2196f3;
+  --color-info-bg: #e3f2fd;
   --color-info-light: #e3f2fd;
 
   /* 한국 주식 시장 색상 */

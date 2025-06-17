@@ -187,34 +187,6 @@
   font-size: var(--font-size-sm);
 }
 
-/* 에러 상태 */
-.error-state {
-  text-align: center;
-  padding: var(--spacing-xxl);
-  background-color: var(--color-error-bg);
-  border-radius: var(--border-radius-large);
-  border: var(--border-width) var(--border-style) #f5c6cb;
-}
-
-.error-state h1 {
-  color: #721c24;
-  margin-bottom: var(--spacing-lg);
-}
-
-.retry-button {
-  background-color: var(--color-error);
-  color: var(--color-text-white);
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-weight: var(--font-weight-medium);
-}
-
-.retry-button:hover {
-  background-color: #c62828;
-}
-
 /* 404 페이지 */
 .not-found-container {
   text-align: center;
