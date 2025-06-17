@@ -1,7 +1,8 @@
+import { RequestPriority } from "@/services/api/common/rateLimiter";
+
 export interface ApiResponse<T = void> {
   data?: T;
   error?: string;
-  message?: string;
   status: number;
 }
 
@@ -9,6 +10,9 @@ export interface ApiOptions {
   headers?: Record<string, string>;
   requiresAuth?: boolean;
   handleError?: boolean;
+  priority?: RequestPriority;
+  maxRetries?: number;
+  timeout?: number;
 }
 
 // 페이지네이션을 위한 공통 타입
