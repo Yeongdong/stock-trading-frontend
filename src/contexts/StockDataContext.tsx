@@ -8,12 +8,8 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import { RealtimeStockData } from "@/types";
-import {
-  StockDataAction,
-  StockDataContextType,
-  StockDataState,
-} from "@/types/contexts";
+import { StockData, StockCode } from "@/types/core/stock";
+import { StockDataState, StockDataAction } from "@/types/core/state";
 
 const initialState: StockDataState = {
   stockData: {},
@@ -61,7 +57,16 @@ function stockDataReducer(
   }
 }
 
-const StockDataContext = createContext<StockDataContextType | undefined>(
+interface StockDataContextValue {
+  stockData: Record<StockCode, StockData>;
+  isLoading: boolean;
+  error: string | null;
+  updateStockData: (symbol: StockCode, data: StockData) => void;
+  removeStockData: (symbol: StockCode) => void;
+  getStockData: (symbol: StockCode) => StockData | null;
+}
+
+const StockDataContext = createContext<StockDataContextValue | undefined>(
   undefined
 );
 
@@ -70,25 +75,17 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(stockDataReducer, initialState);
 
-  // 주식 데이터 업데이트 함수
-  const updateStockData = useCallback(
-    (symbol: string, data: RealtimeStockData) => {
-      dispatch({ type: "UPDATE_STOCK_DATA", payload: { symbol, data } });
-    },
-    []
-  );
+  const updateStockData = useCallback((symbol: StockCode, data: StockData) => {
+    dispatch({ type: "UPDATE_STOCK_DATA", payload: { symbol, data } });
+  }, []);
 
-  // 주식 데이터 제거 함수
-  const removeStockData = useCallback((symbol: string) => {
+  const removeStockData = useCallback((symbol: StockCode) => {
     dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
   }, []);
 
-  // 특정 종목의 주식 데이터 조회 함수
   const getStockData = useCallback(
-    (symbol: string): RealtimeStockData | null => {
-      const data = state.stockData[symbol] || null;
-
-      return data;
+    (symbol: StockCode): StockData | null => {
+      return state.stockData[symbol] || null;
     },
     [state.stockData]
   );

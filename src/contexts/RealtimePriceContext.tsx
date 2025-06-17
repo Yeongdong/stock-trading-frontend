@@ -10,28 +10,24 @@ import React, {
   ReactNode,
   useRef,
 } from "react";
-import { RealtimeStockData } from "@/types";
+import { StockData, StockCode } from "@/types/core/stock";
+import { RealtimeState, RealtimeAction } from "@/types/core/state";
 import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
+import { realtimeApiService } from "@/services/api/realtime/realtimeApiService";
 import { useError } from "./ErrorContext";
 import { useAuth } from "./AuthContext";
 import { ERROR_MESSAGES } from "@/constants";
-import {
-  RealtimePriceAction,
-  RealtimePriceActions,
-  RealtimePriceState,
-} from "@/types/realtime/realtime";
-import { realtimeApiService } from "@/services/api/realtime/realtimeApiService";
 
-const initialState: RealtimePriceState = {
+const initialState: RealtimeState = {
   stockData: {},
   isConnected: false,
   error: null,
 };
 
 function realtimePriceReducer(
-  state: RealtimePriceState,
-  action: RealtimePriceAction
-): RealtimePriceState {
+  state: RealtimeState,
+  action: RealtimeAction
+): RealtimeState {
   switch (action.type) {
     case "UPDATE_STOCK_DATA":
       return {
@@ -63,17 +59,22 @@ function realtimePriceReducer(
   }
 }
 
-const RealtimePriceStateContext = createContext<RealtimePriceState | undefined>(
+interface RealtimePriceActions {
+  getStockData: (symbol: StockCode) => StockData | null;
+  removeStockData: (symbol: StockCode) => void;
+}
+
+interface ContextUpdaters {
+  updateStockData: (symbol: StockCode, data: StockData) => void;
+  updateChartData: (data: StockData) => void;
+}
+
+const RealtimePriceStateContext = createContext<RealtimeState | undefined>(
   undefined
 );
 const RealtimePriceActionsContext = createContext<
   RealtimePriceActions | undefined
 >(undefined);
-
-interface ContextUpdaters {
-  updateStockData: (symbol: string, data: RealtimeStockData) => void;
-  updateChartData: (data: RealtimeStockData) => void;
-}
 
 export const RealtimePriceProvider: React.FC<{
   children: ReactNode;
@@ -91,15 +92,15 @@ export const RealtimePriceProvider: React.FC<{
     updatersRef.current = contextUpdaters;
   }, [contextUpdaters]);
 
-  const handleStockPrice = useCallback((data: RealtimeStockData) => {
+  const handleStockPrice = useCallback((data: StockData) => {
     dispatch({
       type: "UPDATE_STOCK_DATA",
-      payload: { symbol: data.symbol, data },
+      payload: { symbol: data.code, data },
     });
 
     const updaters = updatersRef.current;
     if (updaters) {
-      updaters.updateStockData(data.symbol, data);
+      updaters.updateStockData(data.code, data);
       updaters.updateChartData(data);
     }
   }, []);
@@ -156,13 +157,13 @@ export const RealtimePriceProvider: React.FC<{
   }, [isAuthenticated, state.isConnected, handleStockPrice, addError]);
 
   const getStockData = useCallback(
-    (symbol: string): RealtimeStockData | null => {
+    (symbol: StockCode): StockData | null => {
       return state.stockData[symbol] || null;
     },
     [state.stockData]
   );
 
-  const removeStockData = useCallback((symbol: string) => {
+  const removeStockData = useCallback((symbol: StockCode) => {
     dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
   }, []);
 
