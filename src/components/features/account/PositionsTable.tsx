@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Position, PositionsTableProps } from "@/types";
+
 import { formatKRW } from "@/utils/formatters";
 import styles from "./PositionsTable.module.css";
+import { Position } from "@/types/stock";
+import { PositionsTableProps } from "@/types/components/account";
 
 type SortKey = keyof Position;
 type SortOrder = "asc" | "desc";

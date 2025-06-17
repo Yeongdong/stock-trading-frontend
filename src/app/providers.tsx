@@ -2,7 +2,7 @@
 
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import { useNetworkStatus } from "@/hooks/common/useNetworkStatus";
-import ErrorDisplayContainer from "@/components/common/ErrorDisplayContainer";
+import ErrorDisplayContainer from "@/components/ui/ErrorDisplayContainer";
 
 function NetworkStatusMonitor() {
   useNetworkStatus();

@@ -1,4 +1,4 @@
-import { SummaryCardsProps } from "@/types";
+import { SummaryCardsProps } from "@/types/components/account";
 import { formatKRW } from "../../../utils/formatters";
 import styles from "./SummaryCard.module.css";
 

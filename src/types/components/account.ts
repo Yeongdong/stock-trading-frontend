@@ -1,4 +1,4 @@
-import { StockBalance, Position, Summary } from "@/types";
+import { Position, StockBalance, Summary } from "../stock";
 
 export interface AccountBalanceViewProps {
   balanceData: StockBalance | null;

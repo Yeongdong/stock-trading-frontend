@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import "@/styles/error.css";
 import Providers from "./providers";
 
 export const metadata = {

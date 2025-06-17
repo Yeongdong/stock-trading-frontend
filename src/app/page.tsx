@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { authService } from "@/services/api";
+import { authService } from "@/services/api/auth/authService";
 
 export default function HomePage() {
   const router = useRouter();

@@ -16,11 +16,6 @@ module.exports = {
     "/node_modules/",
     "^.+\\.module\\.(css|sass|scss)$",
   ],
-  globals: {
-    "ts-jest": {
-      tsconfig: "tsconfig.jest.json",
-    },
-  },
   // Haste 모듈 충돌 해결
   haste: {
     forceNodeFilesystemAPI: true,

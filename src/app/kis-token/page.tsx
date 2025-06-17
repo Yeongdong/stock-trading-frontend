@@ -5,7 +5,7 @@ import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import KisTokenForm from "@/components/features/account/KisTokenForm";
-import LoadingIndicator from "@/components/common/LoadingIndicator";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user/user";
 

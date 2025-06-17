@@ -1,10 +1,10 @@
 import React, { memo, useMemo } from "react";
-import { Position } from "@/types";
 import { formatKRW } from "@/utils/formatters";
 import Link from "next/link";
-import LoadingIndicator from "@/components/common/LoadingIndicator";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import styles from "./HoldingsOverview.module.css";
 import { useRouter } from "next/navigation";
+import { Position } from "@/types/stock";
 
 interface HoldingItem extends Position {
   profitLossRate: number;

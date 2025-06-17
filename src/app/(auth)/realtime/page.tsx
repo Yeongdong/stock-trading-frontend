@@ -8,7 +8,7 @@ import { ChartDataProvider, useChartData } from "@/contexts/ChartDataContext";
 import { RealtimePriceProvider } from "@/contexts/RealtimePriceContext";
 import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
 import { useMarketGuard } from "@/hooks/realtime/useMarketGuard";
-import MarketClosedNotice from "@/components/common/MarketClosedNotice";
+import MarketClosedNotice from "@/components/ui/MarketClosedNotice";
 
 function RealtimeProviderConnector({
   children,

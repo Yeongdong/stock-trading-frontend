@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@/contexts/AuthContext";
-import AuthGuard from "@/components/common/AuthGuard";
+import AuthGuard from "@/components/ui/AuthGuard";
 import Header from "@/components/layout/Header";
 
 export default function AuthLayout({

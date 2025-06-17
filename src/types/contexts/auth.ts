@@ -1,4 +1,4 @@
-import { AuthUser } from "../user";
+import { AuthUser } from "../user/user";
 
 export interface AuthContextType {
   isAuthenticated: boolean;

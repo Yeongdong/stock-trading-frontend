@@ -1,4 +1,4 @@
-import { StockOrder } from "@/types";
+import { StockOrder } from "@/types/stock";
 
 interface OrderConfirmToastOptions {
   onConfirm: () => void;

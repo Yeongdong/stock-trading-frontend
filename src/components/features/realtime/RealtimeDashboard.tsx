@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import SymbolSubscriptionManager from "../stock/SymbolSubscriptionManager";
-import LoadingIndicator from "../../common/LoadingIndicator";
+import LoadingIndicator from "../../ui/LoadingIndicator";
 import EmptySubscriptionState from "./EmptySubscriptionState";
 import StockGrid from "../stock/StockGrid";
 import DashboardHeader from "./DashboardHeader";

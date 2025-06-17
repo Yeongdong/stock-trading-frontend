@@ -9,7 +9,7 @@ import { apiClient } from "@/services/api/common/apiClient";
 import { userService } from "@/services/api/user/userService";
 import { useRouter } from "next/navigation";
 import { GoogleLoginResponse } from "@/types/auth/auth";
-import { AuthUser } from "@/types";
+import { AuthUser } from "@/types/user/user";
 
 enum TokenStatus {
   VALID = "valid",

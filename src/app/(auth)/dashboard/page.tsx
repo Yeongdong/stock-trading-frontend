@@ -6,7 +6,7 @@ import InvestmentSummary from "@/components/features/dashboard/InvestmentSummary
 import styles from "./page.module.css";
 import MarketOverview from "@/components/features/dashboard/MarketOverview";
 import HoldingsOverview from "@/components/features/dashboard/HoldingsOverview";
-import LoadingIndicator from "@/components/common/LoadingIndicator";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
 
 export default function DashboardPage() {
   const { balanceData, isLoading } = useBalance();
