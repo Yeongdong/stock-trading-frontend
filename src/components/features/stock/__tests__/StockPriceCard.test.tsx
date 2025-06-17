@@ -7,7 +7,7 @@ import {
   act,
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import StockPriceCard from "@/components/features/stock/StockPriceCard";
+import StockPriceCard from "@/components/features/stock/realtime/StockPriceCard";
 import { StockTransaction } from "@/types";
 import { useStockData } from "@/contexts/StockDataContext";
 import { useError } from "@/contexts/ErrorContext";

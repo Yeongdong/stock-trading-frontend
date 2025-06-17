@@ -5,19 +5,19 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import { PeriodPriceRequest } from "@/types/stock/price";
 import { usePeriodPrice } from "@/hooks/stock/usePeriodPrice";
 import { PeriodPriceForm } from "./PeriodPriceForm";
-import { PeriodPriceSummary } from "./PeriodPriceSummary";
 import { ProcessedChartData, DataProcessor } from "@/utils/dataProcessor";
 import { FormManager } from "@/utils/formManager";
 import { SummaryData } from "./PeriodPriceChartModel";
 import styles from "./PeriodPriceChart.module.css";
 import { ChartManager } from "@/services/chart/chartManager";
+import { PeriodPriceSummary } from "./PeriodPriceSummary";
 
 interface PeriodChartProps {
   stockCode: string;
   stockName?: string;
 }
 
-export default function PeriodChart({
+export default function PeriodPriceChart({
   stockCode,
   stockName,
 }: PeriodChartProps) {

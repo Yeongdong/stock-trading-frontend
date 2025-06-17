@@ -1,4 +1,3 @@
-// src/components/features/stock/ChartRenderer.tsx
 import { ChartRendererProps } from "@/types/components/stock";
 import React, { memo, useMemo } from "react";
 import {

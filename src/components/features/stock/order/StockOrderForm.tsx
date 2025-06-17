@@ -6,7 +6,7 @@ import { apiClient } from "@/services/api/common/apiClient";
 import styles from "./StockOrderForm.module.css";
 import { StockOrder } from "@/types/stock";
 
-interface EnhancedStockOrderFormProps {
+interface StockOrderFormProps {
   initialData?: {
     stockCode?: string;
     orderPrice?: number;
@@ -15,7 +15,7 @@ interface EnhancedStockOrderFormProps {
   selectedStockCode?: string;
 }
 
-const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
+const StockOrderForm: React.FC<StockOrderFormProps> = ({
   initialData,
   selectedStockCode,
 }) => {
@@ -126,7 +126,7 @@ const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
   };
 
   return (
-    <div className={styles.enhancedStockOrderForm}>
+    <div className={styles.StockOrderForm}>
       <div className={styles.formHeader}>
         <h2>주식 주문</h2>
       </div>
@@ -234,4 +234,4 @@ const EnhancedStockOrderForm: React.FC<EnhancedStockOrderFormProps> = ({
   );
 };
 
-export default EnhancedStockOrderForm;
+export default StockOrderForm;

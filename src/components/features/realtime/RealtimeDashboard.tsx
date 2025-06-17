@@ -3,9 +3,9 @@ import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import SymbolSubscriptionManager from "../stock/SymbolSubscriptionManager";
 import LoadingIndicator from "../../ui/LoadingIndicator";
 import EmptySubscriptionState from "./EmptySubscriptionState";
-import StockGrid from "../stock/StockGrid";
 import DashboardHeader from "./DashboardHeader";
 import styles from "./RealtimeDashboard.module.css";
+import StockGrid from "../stock/realtime/StockGrid";
 
 const RealtimeDashboard: React.FC = memo(() => {
   const { subscribedSymbols, isLoading } = useStockOperations();
