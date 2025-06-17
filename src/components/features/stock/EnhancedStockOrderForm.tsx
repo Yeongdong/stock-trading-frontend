@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { StockOrder } from "@/types";
 import toast from "@/utils/toast";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import styles from "./StockOrderForm.module.css";
+import { StockOrder } from "@/types/stock";
 
 interface EnhancedStockOrderFormProps {
   initialData?: {

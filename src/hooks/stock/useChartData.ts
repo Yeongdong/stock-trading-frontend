@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { LIMITS } from "@/constants";
-import { PriceDataPoint, RealtimeStockData, ChartDataState } from "@/types";
+import { PriceDataPoint, RealtimeStockData } from "@/types";
+import { ChartDataState } from "@/types/contexts";
 
 export const useChartData = () => {
   const [chartData, setChartData] = useState<ChartDataState>({});

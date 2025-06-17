@@ -7,11 +7,13 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { authService } from "@/services/api";
+
 import { usePathname, useRouter } from "next/navigation";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
-import { AuthContextType, AuthUser } from "@/types";
+import { authService } from "@/services/api/auth/authService";
+import { AuthContextType } from "@/types/contexts";
+import { AuthUser } from "@/types/user/user";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

@@ -1,5 +1,5 @@
+import { ChartInfoProps } from "@/types/components/stock";
 import React, { memo } from "react";
-import { ChartInfoProps } from "@/types";
 
 const ChartInfo: React.FC<ChartInfoProps> = memo(
   ({ startPrice, currentPrice, priceChangePercentage, priceChangeClass }) => (

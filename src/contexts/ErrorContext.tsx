@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  AppError,
+  ErrorAction,
+  ErrorContextType,
+  ErrorState,
+} from "@/types/contexts";
 import React, {
   createContext,
   useContext,
@@ -7,7 +13,6 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import { AppError, ErrorAction, ErrorContextType, ErrorState } from "@/types";
 
 const initialState: ErrorState = {
   errors: [],

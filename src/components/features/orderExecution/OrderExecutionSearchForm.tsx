@@ -1,7 +1,7 @@
-import { OrderExecutionInquiryRequest } from "@/types";
 import { OrderExecutionSearchFormProps } from "@/types/components/orderExecution";
 import React, { useState } from "react";
 import styles from "./OrderExecutionSearchForm.module.css";
+import { OrderExecutionInquiryRequest } from "@/types/order/execution";
 
 const getTodayString = () => {
   const today = new Date();

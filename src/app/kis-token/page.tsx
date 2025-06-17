@@ -7,7 +7,7 @@ import { apiClient } from "@/services/api/common/apiClient";
 import KisTokenForm from "@/components/features/account/KisTokenForm";
 import LoadingIndicator from "@/components/common/LoadingIndicator";
 import { useRouter } from "next/navigation";
-import { User } from "@/types";
+import { User } from "@/types/user/user";
 
 export default function KisTokenPage() {
   const [user, setUser] = useState<User | null>(null);

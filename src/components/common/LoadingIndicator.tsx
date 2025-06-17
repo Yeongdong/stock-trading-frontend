@@ -1,6 +1,6 @@
 import React, { memo } from "react";
-import { LoadingIndicatorProps } from "@/types";
 import styles from "./LoadingIndicator.module.css";
+import { LoadingIndicatorProps } from "@/types/components/common";
 
 interface ExtendedLoadingIndicatorProps extends LoadingIndicatorProps {
   size?: "default" | "small";

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { ERROR_MESSAGES, TIMINGS } from "@/constants";
 import useDebounce from "@/hooks/common/useDebounce";
-import { SymbolSubscriptionResult } from "@/types";
+import { SymbolSubscriptionResult } from "@/types/contexts";
 
 export const useSymbolSubscription = (): SymbolSubscriptionResult => {
   const { subscribeSymbol, isSubscribed } = useStockOperations();

@@ -3,7 +3,7 @@ import {
   PeriodPriceRequest,
   PeriodPriceResponse,
 } from "../../types/stock/price";
-import { stockService } from "@/services/api";
+import { stockService } from "@/services/api/stock/stockService";
 
 export const usePeriodPrice = () => {
   const [data, setData] = useState<PeriodPriceResponse | null>(null);

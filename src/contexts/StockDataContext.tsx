@@ -8,12 +8,12 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
+import { RealtimeStockData } from "@/types";
 import {
   StockDataAction,
-  StockDataState,
   StockDataContextType,
-  RealtimeStockData,
-} from "@/types";
+  StockDataState,
+} from "@/types/contexts";
 
 const initialState: StockDataState = {
   stockData: {},

@@ -8,14 +8,13 @@ import React, {
   useMemo,
   ReactNode,
 } from "react";
+import { PriceDataPoint, RealtimeStockData } from "@/types";
+import { LIMITS } from "@/constants";
 import {
-  PriceDataPoint,
-  RealtimeStockData,
-  ChartDataState,
   ChartDataAction,
   ChartDataContextType,
-} from "@/types";
-import { LIMITS } from "@/constants";
+  ChartDataState,
+} from "@/types/contexts";
 
 const initialState: ChartDataState = {};
 

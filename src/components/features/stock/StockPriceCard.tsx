@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { StockPriceCardProps } from "@/types";
+import { StockPriceCardProps } from "@/types/components/stock";
 import { useStockCardData } from "@/hooks/stock/useStockCardData";
 import StockPriceHeader from "./StockPriceHeader";
 import PriceDisplay from "./PriceDisplay";

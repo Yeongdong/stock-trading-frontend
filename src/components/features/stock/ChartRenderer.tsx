@@ -1,4 +1,5 @@
 // src/components/features/stock/ChartRenderer.tsx
+import { ChartRendererProps } from "@/types/components/stock";
 import React, { memo, useMemo } from "react";
 import {
   LineChart,
@@ -9,7 +10,6 @@ import {
   ReferenceLine,
   Tooltip,
 } from "recharts";
-import { ChartRendererProps } from "@/types";
 
 const ChartRenderer: React.FC<ChartRendererProps> = memo(
   ({ data, yDomain, startPrice, lineColor, height }) => {

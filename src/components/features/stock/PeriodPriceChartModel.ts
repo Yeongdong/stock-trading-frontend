@@ -1,4 +1,4 @@
-import { PeriodPriceData, PeriodPriceResponse } from "@/types";
+import { PeriodPriceData, PeriodPriceResponse } from "@/types/stock/price";
 
 export interface ChartData {
   date: Date;

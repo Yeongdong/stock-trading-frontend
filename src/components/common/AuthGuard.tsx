@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import LoadingIndicator from "./LoadingIndicator";
-import { AuthGuardProps } from "@/types/components";
+import { AuthGuardProps } from "@/types/components/auth";
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();

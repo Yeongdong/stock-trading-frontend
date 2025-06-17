@@ -28,7 +28,7 @@ const InvestmentSummary: React.FC<InvestmentSummaryProps> = memo(
 
       // 총평가금액
       const totalValue = parseInt(summary.tot_evlu_amt);
-      const totalDeposit = parseInt(summary.dnca_tot_amt);
+      // const totalDeposit = parseInt(summary.dnca_tot_amt);
       const stockValue = parseInt(summary.scts_evlu_amt);
 
       // 전일대비 계산 (임시로 2.1% 고정값 - 실제론 API에서 받아와야 함)

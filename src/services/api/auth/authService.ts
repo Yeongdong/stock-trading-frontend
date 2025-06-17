@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/api/common";
-import { AuthCheckResponse, GoogleLoginResponse } from "@/types";
+import { AuthCheckResponse, GoogleLoginResponse } from "@/types/auth";
 
 export const authService = {
   googleLogin: async (

@@ -1,8 +1,9 @@
 import React, { memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NavigationProps, NavItem } from "@/types";
+
 import styles from "./Navigation.module.css";
+import { NavigationProps, NavItem } from "@/types/components/common";
 
 const Navigation: React.FC<NavigationProps> = memo(({ className = "" }) => {
   const pathname = usePathname();

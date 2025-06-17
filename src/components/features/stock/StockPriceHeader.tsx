@@ -1,6 +1,6 @@
 import React, { memo } from "react";
-import { StockPriceHeaderProps } from "@/types";
 import styles from "./StockPriceCard.module.css";
+import { StockPriceHeaderProps } from "@/types/components/stock";
 
 const StockPriceHeader: React.FC<StockPriceHeaderProps> = memo(
   ({ symbol, name, isUnsubscribing, onUnsubscribe }) => {

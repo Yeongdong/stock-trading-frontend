@@ -1,11 +1,12 @@
 import { useState, useCallback } from "react";
 import { useError } from "@/contexts/ErrorContext";
-import { stockService } from "@/services/api";
+
 import {
   StockSearchRequest,
   StockSearchResult,
   StockSearchSummary,
 } from "@/types/stock/search";
+import { stockService } from "@/services/api/stock/stockService";
 
 export const useStockSearch = () => {
   const [results, setResults] = useState<StockSearchResult[]>([]);

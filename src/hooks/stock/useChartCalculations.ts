@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { PriceDataPoint, ChartCalculationResult } from "@/types";
+import { PriceDataPoint } from "@/types";
+import { ChartCalculationResult } from "@/types/contexts";
 
 export const useChartCalculations = (
   data: PriceDataPoint[]

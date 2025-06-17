@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import BuyableInquiryForm from "./BuyableInquiryForm";
 import BuyableInquiryResult from "./BuyableInquiryResult";
-import { BuyableInquiryResponse, BuyableInquiryViewProps } from "@/types";
+import { BuyableInquiryResponse } from "@/types/trading/buyable";
+import { BuyableInquiryViewProps } from "@/types/components/buyableInquiry";
 
 const BuyableInquiryView: React.FC<BuyableInquiryViewProps> = ({
   className = "",

@@ -10,12 +10,13 @@ import React, {
 } from "react";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
-import { realtimeApiService } from "@/services/api";
+
 import {
   SubscriptionAction,
   SubscriptionState,
   SubscriptionContextType,
 } from "@/types/contexts/stockData";
+import { realtimeApiService } from "@/services/api/realtime/realtimeApiService";
 
 const initialState: SubscriptionState = {
   subscribedSymbols: [],

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { RealtimeStockData, StockCardDataResult } from "@/types";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { ANIMATIONS } from "@/constants";
+import { StockCardDataResult } from "@/types/contexts";
+import { RealtimeStockData } from "@/types";
 
 export const useStockCardData = (symbol: string): StockCardDataResult => {
   const { getStockData, getChartData, unsubscribeSymbol } =

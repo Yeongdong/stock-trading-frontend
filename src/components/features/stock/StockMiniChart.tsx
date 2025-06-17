@@ -1,9 +1,9 @@
 import React, { memo, useMemo } from "react";
-import { StockMiniChartProps } from "@/types";
 import { useChartCalculations } from "@/hooks/stock/useChartCalculations";
 import ChartRenderer from "./ChartRenderer";
 import ChartInfo from "./ChartInfo";
 import styles from "./StockMiniChart.module.css";
+import { StockMiniChartProps } from "@/types/components/stock";
 
 const StockMiniChart: React.FC<StockMiniChartProps> = memo(
   ({ data, height = 120 }) => {

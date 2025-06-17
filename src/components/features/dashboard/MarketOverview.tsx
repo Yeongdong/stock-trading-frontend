@@ -102,9 +102,9 @@ const MarketOverview: React.FC = memo(() => {
     return price.toLocaleString();
   };
 
-  const formatChange = (change: number): string => {
-    return change > 0 ? `+${change.toFixed(2)}` : change.toFixed(2);
-  };
+  // const formatChange = (change: number): string => {
+  //   return change > 0 ? `+${change.toFixed(2)}` : change.toFixed(2);
+  // };
 
   const formatChangeRate = (rate: number): string => {
     return rate > 0 ? `+${rate.toFixed(1)}%` : `${rate.toFixed(1)}%`;

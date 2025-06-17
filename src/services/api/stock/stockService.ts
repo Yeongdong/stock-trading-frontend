@@ -1,17 +1,18 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
+import { ApiResponse } from "@/types";
+import { StockBalance, StockOrder } from "@/types/stock";
 import {
-  StockOrder,
-  StockBalance,
-  CurrentPriceResponse,
   CurrentPriceRequest,
+  CurrentPriceResponse,
+  PeriodPriceRequest,
+  PeriodPriceResponse,
+} from "@/types/stock/price";
+import {
   StockSearchRequest,
   StockSearchResult,
   StockSearchSummary,
-  PeriodPriceResponse,
-  ApiResponse,
-  PeriodPriceRequest,
-} from "@/types";
+} from "@/types/stock/search";
 
 export const stockService = {
   getBalance: async (): Promise<ApiResponse<StockBalance>> => {

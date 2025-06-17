@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from "react";
-import { PriceDisplayProps } from "@/types";
 import styles from "./StockPriceCard.module.css";
+import { PriceDisplayProps } from "@/types/components/stock";
 
 const PriceDisplay: React.FC<PriceDisplayProps> = memo(
   ({ price, priceChange, changeRate, className = "" }) => {

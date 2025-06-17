@@ -1,6 +1,6 @@
 import React, { memo } from "react";
-import { ErrorDisplayProps } from "@/types";
 import styles from "./ErrorDisplay.module.css";
+import { ErrorDisplayProps } from "@/types/components/common";
 
 const ErrorDisplay: React.FC<ErrorDisplayProps> = memo(
   ({ error, title = "오류 발생", onRetry }) => (
