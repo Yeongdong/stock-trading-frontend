@@ -1,6 +1,7 @@
 // API 관련 타입
 export * from "./api/common";
 export * from "./api/user";
+export * from "./api/realtime";
 
 // 인증 관련 타입
 export * from "./auth/auth";

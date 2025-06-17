@@ -44,7 +44,6 @@ export const useOrderExecution = () => {
           message: errorMessage,
           severity: "error",
         });
-        console.error("Order execution inquiry error:", err);
       } finally {
         setIsLoading(false);
       }

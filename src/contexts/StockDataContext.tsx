@@ -88,15 +88,6 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
     (symbol: string): RealtimeStockData | null => {
       const data = state.stockData[symbol] || null;
 
-      if (data) {
-        console.log(
-          `📋 [StockDataContext] ${symbol} 데이터 조회 성공:`,
-          data.price
-        );
-      } else {
-        console.log(`📋 [StockDataContext] ${symbol} 데이터 없음`);
-      }
-
       return data;
     },
     [state.stockData]

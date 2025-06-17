@@ -1,4 +1,5 @@
 import React from "react";
+import { UI_MESSAGES } from "@/constants";
 import styles from "./MarketClosedNotice.module.css";
 
 interface MarketClosedNoticeProps {
@@ -15,17 +16,22 @@ const MarketClosedNotice: React.FC<MarketClosedNoticeProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.icon}>{statusIcon}</div>
-      <h2 className={styles.title}>실시간 서비스 일시 중단</h2>
+      <h2 className={styles.title}>
+        {UI_MESSAGES.MARKET_STATUS.SERVICE_SUSPENDED}
+      </h2>
       <p className={styles.status}>
         현재 상태: <strong>{statusText}</strong>
       </p>
       <p className={styles.description}>
-        한국거래소는 평일 오전 9시부터 오후 3시 30분까지 운영됩니다.
-        <br />장 시간 외에는 실시간 데이터를 제공하지 않습니다.
+        {UI_MESSAGES.MARKET_STATUS.MARKET_HOURS}
+        <br />
+        {UI_MESSAGES.MARKET_STATUS.NO_REALTIME_DATA}
       </p>
       {nextOpenTime && (
         <div className={styles.nextOpen}>
-          <span className={styles.nextOpenLabel}>다음 장 시작:</span>
+          <span className={styles.nextOpenLabel}>
+            {UI_MESSAGES.MARKET_STATUS.NEXT_OPEN}
+          </span>
           <span className={styles.nextOpenTime}>{nextOpenTime}</span>
         </div>
       )}

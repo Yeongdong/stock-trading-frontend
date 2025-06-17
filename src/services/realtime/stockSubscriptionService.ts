@@ -3,24 +3,18 @@ import { apiClient } from "../api/common/apiClient";
 import { SubscriptionsResponse } from "@/types";
 
 export class StockSubscriptionService {
-  // 현재 구독중인 종목 코드 목록
   private subscribedSymbols: string[] = [];
 
   constructor() {
-    // 로컬 스토리지에서 구독 정보 로드
     this.loadSubscriptions();
   }
 
-  // 로컬 스토리지에서 구독 정보 로드
   private loadSubscriptions(): void {
     try {
       const savedSymbols = localStorage.getItem(
         STORAGE_KEYS.SUBSCRIBED_SYMBOLS
       );
-      if (savedSymbols) {
-        this.subscribedSymbols = JSON.parse(savedSymbols);
-        console.log("저장된 구독 목록 로드:", this.subscribedSymbols);
-      }
+      if (savedSymbols) this.subscribedSymbols = JSON.parse(savedSymbols);
     } catch (error) {
       console.error("구독 목록 로드 중 오류", error);
       this.subscribedSymbols = [];
@@ -51,10 +45,7 @@ export class StockSubscriptionService {
 
   // 새로운 종목 구독
   public async subscribeSymbol(symbol: string): Promise<boolean> {
-    if (this.isSubscribed(symbol)) {
-      console.log(`이미 구독중인 종목: ${symbol}`);
-      return true;
-    }
+    if (this.isSubscribed(symbol)) return true;
 
     try {
       const response = await apiClient.post(
@@ -65,15 +56,12 @@ export class StockSubscriptionService {
         }
       );
 
-      if (response.status !== 200) {
-        return false;
-      }
+      if (response.status !== 200) return false;
 
       // 구독 목록에 추가
       this.subscribedSymbols.push(symbol);
       this.saveSubscriptions();
 
-      console.log(`새 종목 구독 완료: ${symbol}`);
       return true;
     } catch (error) {
       console.error(`종목 구독 실패: ${symbol}`, error);
@@ -83,19 +71,14 @@ export class StockSubscriptionService {
 
   // 종목 구독 취소
   public async unsubscribeSymbol(symbol: string): Promise<boolean> {
-    if (!this.isSubscribed(symbol)) {
-      console.log(`구독 중이 아닌 종목: ${symbol}`);
-      return true;
-    }
+    if (!this.isSubscribed(symbol)) return true;
 
     try {
       const response = await apiClient.delete(API.REALTIME.SUBSCRIBE(symbol), {
         requiresAuth: true,
       });
 
-      if (response.status !== 200) {
-        return false;
-      }
+      if (response.status !== 200) return false;
 
       // 구독 목록에서 제거
       this.subscribedSymbols = this.subscribedSymbols.filter(
@@ -103,7 +86,6 @@ export class StockSubscriptionService {
       );
       this.saveSubscriptions();
 
-      console.log(`종목 구독 취소 완료: ${symbol}`);
       return true;
     } catch (error) {
       console.error(`종목 구독 취소 실패: ${symbol}`, error);

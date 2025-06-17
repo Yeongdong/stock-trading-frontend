@@ -1,5 +1,3 @@
-// src/types/order/execution.ts
-
 export interface OrderExecutionInquiryRequest {
   startDate: string;
   endDate: string;
