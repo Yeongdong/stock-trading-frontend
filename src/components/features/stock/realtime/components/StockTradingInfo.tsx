@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from "react";
 import styles from "./StockPriceCard.module.css";
-import { TradingInfoProps } from "@/types/components/stock";
+import { TradingInfoProps } from "@/types";
 
 const TradingInfo: React.FC<TradingInfoProps> = memo(({ volume, time }) => {
   // 거래량 포맷팅

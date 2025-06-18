@@ -1,12 +1,12 @@
 import { useError } from "@/contexts/ErrorContext";
 import { orderExecutionService } from "@/services/api/orderExecution/orderExecutionService";
-import {
-  OrderExecutionInquiryRequest,
-  OrderExecutionInquiryResponse,
-} from "@/types/order/execution";
 import { useCallback, useState } from "react";
 import { ErrorHandler } from "@/utils/errorHandler";
 import { ERROR_CODES, StandardError } from "@/types/common/error";
+import {
+  OrderExecutionInquiryRequest,
+  OrderExecutionInquiryResponse,
+} from "@/types";
 
 export const useOrderExecution = () => {
   const [data, setData] = useState<OrderExecutionInquiryResponse | null>(null);

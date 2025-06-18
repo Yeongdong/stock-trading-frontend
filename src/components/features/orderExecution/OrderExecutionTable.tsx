@@ -1,12 +1,14 @@
 import React from "react";
-import { OrderExecutionTableProps } from "@/types/components/orderExecution";
+
 import styles from "./OrderExecutionTable.module.css";
+import { OrderExecutionTableProps } from "@/types";
 
 const OrderExecutionTable: React.FC<OrderExecutionTableProps> = ({
   items,
   isLoading,
 }) => {
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | undefined) => {
+    if (typeof num !== "number" || isNaN(num)) return "-";
     return num.toLocaleString();
   };
 
@@ -83,19 +85,15 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = ({
                 </td>
                 <td>
                   <span
-                    className={`${styles.orderSide} ${
-                      item.orderSide === "매수" ? styles.buy : styles.sell
+                    className={`${styles.orderType} ${
+                      item.orderType === "매수" ? styles.buy : styles.sell
                     }`}
                   >
-                    {item.orderSide}
+                    {item.orderType}
                   </span>
                 </td>
-                <td className={styles.number}>
-                  {formatNumber(item.orderQuantity)}
-                </td>
-                <td className={styles.number}>
-                  {formatNumber(item.orderPrice)}원
-                </td>
+                <td className={styles.number}>{formatNumber(item.quantity)}</td>
+                <td className={styles.number}>{formatNumber(item.price)}원</td>
                 <td className={styles.number}>
                   {formatNumber(item.executedQuantity)}
                 </td>
@@ -106,9 +104,9 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = ({
                   {formatNumber(item.executedAmount)}원
                 </td>
                 <td>
-                  <span className={styles.orderStatus}>{item.orderStatus}</span>
+                  <span className={styles.orderStatus}>{item.status}</span>
                 </td>
-                <td>{formatTime(item.executionTime)}</td>
+                <td>{formatTime(item.executionTime ?? "")}</td>
               </tr>
             ))}
           </tbody>

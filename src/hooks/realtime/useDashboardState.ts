@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
-import { DashboardStateResult } from "@/types/realtime/realtime";
+import { DashboardStateResult } from "@/types";
 
 export const useDashboardState = (): DashboardStateResult => {
   const { subscribedSymbols } = useStockOperations();

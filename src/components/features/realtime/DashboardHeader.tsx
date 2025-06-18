@@ -1,4 +1,4 @@
-import { DashboardHeaderProps } from "@/types/components/realtime";
+import { DashboardHeaderProps } from "@/types";
 import React, { memo } from "react";
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = memo(({ title }) => (

@@ -10,13 +10,17 @@ import React, {
   ReactNode,
   useRef,
 } from "react";
-import { StockData, StockCode } from "@/types/core/stock";
-import { RealtimeState, RealtimeAction } from "@/types/core/state";
+
 import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
 import { realtimeApiService } from "@/services/api/realtime/realtimeApiService";
 import { useError } from "./ErrorContext";
-import { useAuth } from "./AuthContext";
+
 import { ERROR_MESSAGES } from "@/constants";
+import {
+  RealtimeAction,
+  RealtimeState,
+} from "@/types/domains/realtime/context";
+import { StockCode, StockData } from "@/types";
 
 const initialState: RealtimeState = {
   stockData: {},

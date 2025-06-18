@@ -1,14 +1,4 @@
-import { RequestPriority } from "./rateLimiter";
-
-/**
- * API 엔드포인트별 우선순위 매핑 규칙
- */
-export interface ApiPriorityRule {
-  readonly pattern: RegExp;
-  readonly methods: string[];
-  readonly priority: RequestPriority;
-  readonly description: string;
-}
+import { ApiPriorityRule, RequestPriority } from "@/types";
 
 export const API_PRIORITY_RULES: ApiPriorityRule[] = [
   // CRITICAL: 실시간 주문 관련

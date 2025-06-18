@@ -1,11 +1,11 @@
 import React, { memo } from "react";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/layout/Navigation";
 import styles from "./Header.module.css";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const Header: React.FC = memo(() => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthContext();
 
   const handleLogout = async () => {
     try {

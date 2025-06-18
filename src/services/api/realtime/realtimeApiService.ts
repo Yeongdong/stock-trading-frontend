@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";
-import { SubscriptionsResponse } from "@/types/api/realtime";
+import { SubscriptionsResponse } from "@/types";
 
 export const realtimeApiService = {
   startRealTimeService: async (): Promise<ApiResponse> => {

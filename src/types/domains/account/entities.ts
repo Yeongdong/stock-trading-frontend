@@ -1,12 +1,6 @@
-export interface BuyableInquiryData {
-  stockCode: string;
-  stockName: string;
-  currentPrice: number;
-  buyableCash: number;
-  buyableQuantity: number;
-  latestPrice?: {
-    currentPrice: number;
-    change: number;
-    changeRate: number;
-  };
+import { Position } from "../stock";
+
+export interface HoldingItem extends Position {
+  profitLossRate: number;
+  profitLossAmount: number;
 }

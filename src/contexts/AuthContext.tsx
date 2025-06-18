@@ -13,8 +13,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
 import { authService } from "@/services/api/auth/authService";
-import { AuthContextType } from "@/types/contexts";
-import { AuthUser } from "@/types/user/user";
+import { AuthUser } from "@/types";
+import { AuthContextType } from "@/types/domains/auth/context";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

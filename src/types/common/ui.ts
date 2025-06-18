@@ -1,7 +1,17 @@
 import { ReactNode, MouseEvent, ChangeEvent } from "react";
 
-// 로딩 상태
-export type LoadingState = "idle" | "loading" | "success" | "error";
+// 로딩 관련 Props
+export interface LoadingIndicatorProps {
+  message?: string;
+  size?: "default" | "small";
+  variant?: "default" | "inline";
+}
+
+export interface ErrorDisplayProps {
+  error: string;
+  title?: string;
+  onRetry?: () => void;
+}
 
 // 기본 컴포넌트 Props
 export interface BaseProps {
@@ -28,4 +38,23 @@ export interface TableColumn<T = unknown> {
   dataIndex: keyof T;
   width?: string | number;
   render?: (value: T[keyof T], record: T) => ReactNode;
+}
+
+export interface NavigationProps {
+  className?: string;
+}
+
+export interface NavItem {
+  href: string;
+  label: string;
+}
+
+export interface AuthGuardProps {
+  children: React.ReactNode;
+}
+
+export interface MarketClosedNoticeProps {
+  statusText: string;
+  statusIcon: string;
+  nextOpenTime?: string;
 }

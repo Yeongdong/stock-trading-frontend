@@ -1,9 +1,6 @@
 import { API } from "@/constants";
-import {
-  BuyableInquiryRequest,
-  BuyableInquiryResponse,
-} from "@/types/trading/buyable";
 import { apiClient } from "../common/apiClient";
+import { BuyableInquiryRequest, BuyableInquiryResponse } from "@/types";
 
 export const buyableInquiryService = {
   getBuyableInquiry: async (

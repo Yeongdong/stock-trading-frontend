@@ -3,7 +3,7 @@ import { useState } from "react";
 import { formatKRW } from "@/utils/formatters";
 import styles from "./PositionsTable.module.css";
 import { Position } from "@/types/domains/stock";
-import { PositionsTableProps } from "@/types/components/account";
+import { PositionsTableProps } from "@/types";
 
 type SortKey = keyof Position;
 type SortOrder = "asc" | "desc";

@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import styles from "./EmptySubscriptionState.module.css";
-import { EmptySubscriptionStateProps } from "@/types/components/realtime";
+import { EmptySubscriptionStateProps } from "@/types";
 
 const EmptySubscriptionState: React.FC<EmptySubscriptionStateProps> = memo(
   ({

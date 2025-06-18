@@ -1,9 +1,10 @@
 import React from "react";
-import { AccountBalanceViewProps } from "@/types/components/account";
+
 import { SummaryCard } from "@/components/features/account/SummaryCard";
 import { PositionsTable } from "@/components/features/account/PositionsTable";
 import { ERROR_MESSAGES } from "@/constants/errors";
 import styles from "./AccountBalanceView.module.css";
+import { AccountBalanceViewProps } from "@/types";
 
 const AccountBalanceView: React.FC<AccountBalanceViewProps> = ({
   balanceData,

@@ -11,11 +11,7 @@ import { SummaryData } from "./PeriodPriceChartModel";
 import styles from "./PeriodPriceChart.module.css";
 import { ChartManager } from "@/services/chart/chartManager";
 import { PeriodPriceSummary } from "./PeriodPriceSummary";
-
-interface PeriodChartProps {
-  stockCode: string;
-  stockName?: string;
-}
+import { PeriodChartProps } from "@/types";
 
 export default function PeriodPriceChart({
   stockCode,

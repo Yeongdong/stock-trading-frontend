@@ -1,4 +1,4 @@
-import { ChartRendererProps } from "@/types/components/stock";
+import { ChartRendererProps } from "@/types";
 import React, { memo, useMemo } from "react";
 import {
   LineChart,

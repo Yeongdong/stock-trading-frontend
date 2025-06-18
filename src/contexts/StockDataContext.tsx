@@ -1,5 +1,7 @@
 "use client";
 
+import { StockCode, StockData } from "@/types";
+import { StockDataAction, StockDataState } from "@/types/domains/stock/context";
 import React, {
   createContext,
   useContext,
@@ -8,8 +10,6 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import { StockData, StockCode } from "@/types/core/stock";
-import { StockDataState, StockDataAction } from "@/types/core/state";
 
 const initialState: StockDataState = {
   stockData: {},

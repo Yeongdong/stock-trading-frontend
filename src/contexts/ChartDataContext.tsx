@@ -14,7 +14,7 @@ import {
   ChartDataAction,
   ChartDataContextType,
   ChartDataState,
-} from "@/types/contexts";
+} from "@/types/domains/realtime/context";
 
 const initialState: ChartDataState = {};
 

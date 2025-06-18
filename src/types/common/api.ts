@@ -23,3 +23,17 @@ export interface PaginatedResponse<T> {
   pageSize: number;
   hasMore: boolean;
 }
+
+export enum RequestPriority {
+  LOW = 1,
+  NORMAL = 2,
+  HIGH = 3,
+  CRITICAL = 4, // 실시간 주문
+}
+
+export interface ApiPriorityRule {
+  readonly pattern: RegExp;
+  readonly methods: string[];
+  readonly priority: RequestPriority;
+  readonly description: string;
+}

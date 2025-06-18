@@ -1,13 +1,8 @@
 import React, { memo } from "react";
 import styles from "./LoadingIndicator.module.css";
-import { LoadingIndicatorProps } from "@/types/components/common";
+import { LoadingIndicatorProps } from "@/types";
 
-interface ExtendedLoadingIndicatorProps extends LoadingIndicatorProps {
-  size?: "default" | "small";
-  variant?: "default" | "inline";
-}
-
-const LoadingIndicator: React.FC<ExtendedLoadingIndicatorProps> = memo(
+const LoadingIndicator: React.FC<LoadingIndicatorProps> = memo(
   ({
     message = "데이터를 불러오는 중...",
     size = "default",

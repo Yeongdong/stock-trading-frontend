@@ -1,10 +1,10 @@
 import { ApiResponse } from "@/types/common/api";
+import { apiClient } from "../common/apiClient";
+import { API } from "@/constants";
 import {
   OrderExecutionInquiryRequest,
   OrderExecutionInquiryResponse,
-} from "@/types/order/execution";
-import { apiClient } from "../common/apiClient";
-import { API } from "@/constants";
+} from "@/types";
 
 export const orderExecutionService = {
   getOrderExecutions: async (

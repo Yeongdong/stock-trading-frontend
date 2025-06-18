@@ -1,12 +1,12 @@
 import * as signalR from "@microsoft/signalr";
-import { RealtimeStockData } from "@/types";
-import { LIMITS, TIMINGS } from "@/constants";
 import {
   ErrorInfo,
   EventDataMap,
   EventTypes,
+  RealtimeStockData,
   TradeExecutionData,
-} from "@/types/realtime/realtime";
+} from "@/types";
+import { LIMITS, TIMINGS } from "@/constants";
 
 export class RealtimeSocketService {
   private hubConnection: signalR.HubConnection | null = null;

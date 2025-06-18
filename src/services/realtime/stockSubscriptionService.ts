@@ -1,6 +1,6 @@
 import { API, STORAGE_KEYS } from "@/constants";
 import { apiClient } from "../api/common/apiClient";
-import { SubscriptionsResponse } from "@/types/api/realtime";
+import { SubscriptionsResponse } from "@/types";
 
 export class StockSubscriptionService {
   private subscribedSymbols: string[] = [];

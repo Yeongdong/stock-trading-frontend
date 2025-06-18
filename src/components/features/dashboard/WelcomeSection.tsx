@@ -1,15 +1,11 @@
 import React, { memo, useMemo } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import styles from "./WelcomeSection.module.css";
 
-interface MarketStatus {
-  isOpen: boolean;
-  statusText: string;
-  statusIcon: string;
-}
+import styles from "./WelcomeSection.module.css";
+import { MarketStatus } from "@/types";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const WelcomeSection: React.FC = memo(() => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
 
   // 현재 시간과 장 상태 계산
   const { currentTime, marketStatus } = useMemo(() => {

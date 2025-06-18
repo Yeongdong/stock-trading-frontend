@@ -15,3 +15,6 @@ export type OrderStatus = "pending" | "filled" | "cancelled";
 
 // 기간 코드 (차트용)
 export type PeriodCode = "D" | "W" | "M";
+
+// 시장 타입
+export type MarketType = "regular" | "afterHours" | "preMarket" | "closed";

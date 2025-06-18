@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";
-import { StockBalance, StockOrder } from "@/types/domains/stock";
+import { Balance, StockOrder } from "@/types/domains/stock";
 import {
   CurrentPriceRequest,
   CurrentPriceResponse,
@@ -15,8 +15,8 @@ import {
 } from "@/types/domains/stock/search";
 
 export const stockService = {
-  getBalance: async (): Promise<ApiResponse<StockBalance>> => {
-    return apiClient.get<StockBalance>(API.STOCK.BALANCE, {
+  getBalance: async (): Promise<ApiResponse<Balance>> => {
+    return apiClient.get<Balance>(API.STOCK.BALANCE, {
       requiresAuth: true,
     });
   },

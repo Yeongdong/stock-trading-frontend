@@ -1,12 +1,7 @@
 import React from "react";
 import { UI_MESSAGES } from "@/constants";
 import styles from "./MarketClosedNotice.module.css";
-
-interface MarketClosedNoticeProps {
-  statusText: string;
-  statusIcon: string;
-  nextOpenTime?: string;
-}
+import { MarketClosedNoticeProps } from "@/types";
 
 const MarketClosedNotice: React.FC<MarketClosedNoticeProps> = ({
   statusText,

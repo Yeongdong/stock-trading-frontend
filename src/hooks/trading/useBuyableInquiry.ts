@@ -1,9 +1,7 @@
 import { useError } from "@/contexts/ErrorContext";
 import { buyableInquiryService } from "@/services/api/buyable/buyableInquiryService";
-import {
-  BuyableInquiryRequest,
-  BuyableInquiryResponse,
-} from "@/types/trading/buyable";
+import { BuyableInquiryRequest, BuyableInquiryResponse } from "@/types";
+
 import { useCallback, useState } from "react";
 
 export const useBuyableInquiry = () => {

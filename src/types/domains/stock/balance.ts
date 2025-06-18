@@ -53,7 +53,7 @@ export interface Summary {
   asst_icdc_erng_rt: string;
 }
 
-export interface StockBalance {
+export interface Balance {
   positions: Position[];
   summary: Summary;
 }

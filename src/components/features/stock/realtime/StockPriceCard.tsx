@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { StockPriceCardProps } from "@/types/components/stock";
+
 import { useStockCardData } from "@/hooks/stock/useStockCardData";
 import StockPriceHeader from "./components/StockPriceHeader";
 import PriceDisplay from "./components/StockPriceDisplay";
@@ -7,6 +7,7 @@ import TradingInfo from "./components/StockTradingInfo";
 import StockMiniChart from "../chart/StockMiniChart";
 import StockCardSkeleton from "../common/StockCardSkeleton";
 import styles from "./StockPriceCard.module.css";
+import { StockPriceCardProps } from "@/types";
 
 const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
   const {

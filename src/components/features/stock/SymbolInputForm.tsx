@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { UI_MESSAGES } from "@/constants";
 import styles from "./SymbolInputForm.module.css";
-import { SymbolInputFormProps } from "@/types/components/stock";
+import { SymbolInputFormProps } from "@/types";
 
 const SymbolInputForm: React.FC<SymbolInputFormProps> = memo(
   ({ symbolInput, onInputChange, onSubmit, isLoading, error }) => (

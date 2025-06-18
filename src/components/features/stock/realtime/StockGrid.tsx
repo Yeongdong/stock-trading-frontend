@@ -1,7 +1,8 @@
 import React, { memo } from "react";
-import { StockGridProps } from "@/types/components/stock";
+
 import styles from "./StockGrid.module.css";
 import StockPriceCard from "./StockPriceCard";
+import { StockGridProps } from "@/types";
 
 const StockGrid: React.FC<StockGridProps> = memo(({ symbols }) => (
   <div className={styles.stockGrid}>

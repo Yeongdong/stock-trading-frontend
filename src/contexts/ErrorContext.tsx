@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  AppError,
-  ErrorAction,
-  ErrorContextType,
-  ErrorState,
-} from "@/types/contexts";
+import { AppError, ErrorAction, ErrorContextType, ErrorState } from "@/types";
 import React, {
   createContext,
   useContext,

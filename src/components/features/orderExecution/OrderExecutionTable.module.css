@@ -62,7 +62,7 @@
   font-size: var(--font-size-xs);
 }
 
-.orderSide {
+.orderType {
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--border-radius);
   font-size: var(--font-size-xs);
@@ -70,12 +70,12 @@
   text-align: center;
 }
 
-.orderSide.buy {
+.orderType.buy {
   color: var(--color-stock-up);
   background-color: rgba(229, 57, 53, 0.1);
 }
 
-.orderSide.sell {
+.orderType.sell {
   color: var(--color-stock-down);
   background-color: rgba(33, 150, 243, 0.1);
 }

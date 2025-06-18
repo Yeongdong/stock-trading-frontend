@@ -3,8 +3,7 @@ import { useBuyableInquiry } from "@/hooks/trading/useBuyableInquiry";
 import { useCurrentPrice } from "@/hooks/stock/useCurrentPrice";
 import useDebounce from "@/hooks/common/useDebounce";
 import styles from "./BuyableInquiryForm.module.css";
-import { BuyableInquiryFormProps } from "@/types/components/buyableInquiry";
-import { BuyableInquiryRequest } from "@/types/trading/buyable";
+import { BuyableInquiryFormProps, BuyableInquiryRequest } from "@/types";
 
 const BuyableInquiryForm: React.FC<BuyableInquiryFormProps> = ({
   onResult,

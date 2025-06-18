@@ -8,15 +8,7 @@ import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import { userService } from "@/services/api/user/userService";
 import { useRouter } from "next/navigation";
-import { GoogleLoginResponse } from "@/types/auth/auth";
-import { AuthUser } from "@/types/user/user";
-
-enum TokenStatus {
-  VALID = "valid",
-  MISSING = "missing",
-  EXPIRED = "expired",
-  INVALID = "invalid",
-}
+import { AuthUser, GoogleLoginResponse, TokenStatus } from "@/types";
 
 const LoginForm = () => {
   const { addError } = useError();

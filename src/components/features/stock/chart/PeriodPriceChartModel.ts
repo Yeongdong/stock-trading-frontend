@@ -1,16 +1,8 @@
+import { ChartData } from "@/types";
 import {
   PeriodPriceData,
   PeriodPriceResponse,
 } from "@/types/domains/stock/price";
-
-export interface ChartData {
-  date: Date;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
 
 export class DateFormatter {
   static parseYYYYMMDD(dateStr: string): Date {

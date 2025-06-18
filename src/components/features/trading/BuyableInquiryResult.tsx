@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { BuyableInquiryResultProps } from "@/types/components/buyableInquiry";
 import { useCurrentPrice } from "@/hooks/stock/useCurrentPrice";
 import styles from "./BuyableInquiryResult.module.css";
+import { BuyableInquiryResultProps } from "@/types";
 
 const BuyableInquiryResult: React.FC<BuyableInquiryResultProps> = ({
   data,

@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 import { useOrderExecution } from "@/hooks/orderExecution/useOrderExecution";
-import { OrderExecutionViewProps } from "@/types/components/orderExecution";
-import { OrderExecutionInquiryRequest } from "@/types/order/execution";
 import OrderExecutionSearchForm from "./OrderExecutionSearchForm";
 import OrderExecutionTable from "./OrderExecutionTable";
+import { OrderExecutionInquiryRequest, OrderExecutionViewProps } from "@/types";
 
 const createDefaultSearchRequest = (): OrderExecutionInquiryRequest => {
   const getTodayString = () => {

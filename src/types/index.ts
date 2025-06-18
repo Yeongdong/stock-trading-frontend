@@ -5,7 +5,6 @@ export * from "./common/ui";
 
 export * from "./domains/auth/entities";
 export * from "./domains/stock/entities";
-export * from "./domains/stock/api";
 export * from "./domains/stock/components";
 export * from "./domains/order/entities";
 export * from "./domains/order/components";

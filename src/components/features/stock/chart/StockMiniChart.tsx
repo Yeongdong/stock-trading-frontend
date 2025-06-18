@@ -3,7 +3,7 @@ import { useChartCalculations } from "@/hooks/stock/useChartCalculations";
 import ChartRenderer from "./ChartRenderer";
 import ChartInfo from "./ChartInfo";
 import styles from "./StockMiniChart.module.css";
-import { StockMiniChartProps } from "@/types/components/stock";
+import { StockMiniChartProps } from "@/types";
 
 const StockMiniChart: React.FC<StockMiniChartProps> = memo(
   ({ data, height = 120 }) => {
