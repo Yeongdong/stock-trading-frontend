@@ -5,6 +5,8 @@ import {
   OrderExecutionInquiryResponse,
 } from "@/types/order/execution";
 import { useCallback, useState } from "react";
+import { ErrorHandler } from "@/utils/errorHandler";
+import { ERROR_CODES } from "@/types/errors/standardError";
 
 export const useOrderExecution = () => {
   const [data, setData] = useState<OrderExecutionInquiryResponse | null>(null);
@@ -14,18 +16,28 @@ export const useOrderExecution = () => {
 
   const fetchOrderExecutions = useCallback(
     async (request: OrderExecutionInquiryRequest) => {
+      setIsLoading(true);
+      setError(null);
       try {
-        setIsLoading(true);
-        setError(null);
-
         const response = await orderExecutionService.getOrderExecutions(
           request
         );
 
-        if (response.error) throw new Error(response.error);
+        if (response.error) {
+          const standardError = ErrorHandler.createBusinessError(
+            ERROR_CODES.BUSINESS_ORDER_FAIL,
+            response.error
+          );
+          throw standardError;
+        }
 
-        if (!response.data)
-          throw new Error("주문체결내역 데이터를 받지 못했습니다.");
+        if (!response.data) {
+          const standardError = ErrorHandler.createBusinessError(
+            ERROR_CODES.SYSTEM_PARSING,
+            "주문체결내역 데이터를 받지 못했습니다."
+          );
+          throw standardError;
+        }
 
         setData(response.data);
 
@@ -34,15 +46,13 @@ export const useOrderExecution = () => {
           severity: "info",
         });
       } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : "주문체결내역 조회 중 오류가 발생했습니다.";
+        const standardError = ErrorHandler.standardize(err);
 
-        setError(errorMessage);
+        setError(standardError.message);
         addError({
-          message: errorMessage,
-          severity: "error",
+          message: standardError.message,
+          code: standardError.code,
+          severity: standardError.severity,
         });
       } finally {
         setIsLoading(false);

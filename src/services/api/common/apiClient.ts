@@ -1,46 +1,39 @@
 import React from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { ApiOptions, ApiResponse } from "@/types/api/common";
-import {
-  rateLimiter,
-  RateLimitError,
-  RequestTimeoutError,
-} from "./rateLimiter";
+import { ErrorHandler } from "@/utils/errorHandler";
+import { rateLimiter } from "./rateLimiter";
 import { ApiPriorityManager } from "./apiPriorityConfig";
 
-class ApiClient {
-  private errorHandler: ((message: string, code?: string) => void) | null =
-    null;
+export class ApiClient {
+  private errorHandler?: (message: string, code: string) => void;
   private requestIdCounter = 0;
 
-  setErrorHandler(handler: (message: string, code?: string) => void): void {
+  setErrorHandler(handler: (message: string, code: string) => void): void {
     this.errorHandler = handler;
   }
 
-  async get<T = void>(
-    url: string,
-    options: ApiOptions = {}
-  ): Promise<ApiResponse<T>> {
+  async get<T>(url: string, options: ApiOptions = {}): Promise<ApiResponse<T>> {
     return this.executeRequest<T>("GET", url, undefined, options);
   }
 
-  async post<T = void, D = unknown>(
+  async post<T>(
     url: string,
-    data: D,
+    data?: unknown,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>("POST", url, data, options);
   }
 
-  async put<T = void, D = unknown>(
+  async put<T>(
     url: string,
-    data: D,
+    data?: unknown,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>("PUT", url, data, options);
   }
 
-  async delete<T = void>(
+  async delete<T>(
     url: string,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
@@ -84,7 +77,7 @@ class ApiClient {
       handleError: true,
       priority: ApiPriorityManager.determinePriority(url, method),
       maxRetries: 3,
-      timeout: 10000,
+      timeout: 30000,
       ...options,
     };
   }
@@ -95,45 +88,27 @@ class ApiClient {
     data: unknown,
     options: Required<ApiOptions>
   ): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          ...options.headers,
-        },
-        body: data ? JSON.stringify(data) : undefined,
-        credentials: "include",
-        signal: AbortSignal.timeout(options.timeout),
-      });
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+      signal: AbortSignal.timeout(options.timeout),
+    });
 
-      const responseData = await response.json().catch(() => ({}));
+    const responseData = await response.json().catch(() => ({}));
 
-      return {
-        data: response.ok ? responseData : undefined,
-        error: !response.ok
-          ? responseData.message ||
-            `HTTP ${response.status}: 요청 처리 중 오류 발생`
-          : undefined,
-        status: response.status,
-      };
-    } catch (error) {
-      throw this.transformError(error as Error);
-    }
-  }
-
-  private transformError(error: Error): Error {
-    if (error.name === "AbortError") {
-      return new RequestTimeoutError();
-    }
-
-    if (error instanceof TypeError && error.message.includes("fetch")) {
-      return new Error(
-        "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요."
-      );
-    }
-
-    return error;
+    return {
+      data: response.ok ? responseData : undefined,
+      error: !response.ok
+        ? responseData.message ||
+          `HTTP ${response.status}: 요청 처리 중 오류 발생`
+        : undefined,
+      status: response.status,
+    };
   }
 
   private handleResponseError<T>(
@@ -141,7 +116,12 @@ class ApiClient {
     options: Required<ApiOptions>
   ): void {
     if (response.error && options.handleError && this.errorHandler) {
-      this.errorHandler(response.error, response.status.toString());
+      const standardError = ErrorHandler.fromHttpStatus(
+        response.status,
+        response.error
+      );
+
+      this.errorHandler(standardError.message, standardError.code);
     }
   }
 
@@ -149,30 +129,14 @@ class ApiClient {
     error: Error,
     options: Required<ApiOptions>
   ): ApiResponse<T> {
-    let errorMessage = "알 수 없는 오류 발생";
-    let errorCode = "UNKNOWN_ERROR";
-
-    if (error instanceof RequestTimeoutError) {
-      errorMessage = "요청 시간이 초과되었습니다.";
-      errorCode = "TIMEOUT_ERROR";
-    } else if (error instanceof RateLimitError) {
-      errorMessage = error.message;
-      errorCode = "RATE_LIMIT_ERROR";
-    } else if (error.message.includes("네트워크")) {
-      errorMessage = error.message;
-      errorCode = "NETWORK_ERROR";
-    } else {
-      errorMessage = error.message;
-    }
-
-    console.error("API 요청 실패:", error);
+    const standardError = ErrorHandler.standardize(error);
 
     if (options.handleError && this.errorHandler) {
-      this.errorHandler(errorMessage, errorCode);
+      this.errorHandler(standardError.message, standardError.code);
     }
 
     return {
-      error: errorMessage,
+      error: standardError.message,
       status: 0,
     };
   }
@@ -188,7 +152,7 @@ export const useApiClient = () => {
       addError({
         message,
         code,
-        severity: "error",
+        severity: ErrorHandler.getSeverityFromCode(code),
       });
     });
   }, [addError]);
