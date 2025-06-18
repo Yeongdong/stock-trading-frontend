@@ -1,6 +1,6 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
-import { StockBalance } from "@/types/stock/balance";
+import { StockBalance } from "@/types/domains/stock/balance";
 
 export const balanceService = {
   getBalance: async (): Promise<StockBalance> => {

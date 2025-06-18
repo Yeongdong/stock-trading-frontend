@@ -1,5 +1,5 @@
 import { Time } from "lightweight-charts";
-import { PeriodPriceData } from "@/types/stock/price";
+import { PeriodPriceData } from "@/types/domains/stock/price";
 
 export interface ChartData {
   time: Time;

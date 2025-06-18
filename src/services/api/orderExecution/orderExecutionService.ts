@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/types/api/common";
+import { ApiResponse } from "@/types/common/api";
 import {
   OrderExecutionInquiryRequest,
   OrderExecutionInquiryResponse,

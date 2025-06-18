@@ -6,7 +6,7 @@ import {
 } from "@/types/order/execution";
 import { useCallback, useState } from "react";
 import { ErrorHandler } from "@/utils/errorHandler";
-import { ERROR_CODES } from "@/types/errors/standardError";
+import { ERROR_CODES, StandardError } from "@/types/common/error";
 
 export const useOrderExecution = () => {
   const [data, setData] = useState<OrderExecutionInquiryResponse | null>(null);
@@ -23,19 +23,12 @@ export const useOrderExecution = () => {
           request
         );
 
-        if (response.error) {
-          const standardError = ErrorHandler.createBusinessError(
-            ERROR_CODES.BUSINESS_ORDER_FAIL,
-            response.error
-          );
-          throw standardError;
-        }
-
-        if (!response.data) {
-          const standardError = ErrorHandler.createBusinessError(
-            ERROR_CODES.SYSTEM_PARSING,
-            "주문체결내역 데이터를 받지 못했습니다."
-          );
+        if (response.error || !response.data) {
+          const standardError: StandardError = {
+            code: ERROR_CODES.BUSINESS_ORDER_FAIL,
+            message: response.error ?? "Unknown error occurred",
+            severity: "error",
+          };
           throw standardError;
         }
 

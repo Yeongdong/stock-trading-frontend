@@ -1,6 +1,9 @@
 import { useCallback, useState } from "react";
 import { useError } from "@/contexts/ErrorContext";
-import { CurrentPriceRequest, CurrentPriceResponse } from "@/types/stock/price";
+import {
+  CurrentPriceRequest,
+  CurrentPriceResponse,
+} from "@/types/domains/stock/price";
 import { stockService } from "@/services/api/stock/stockService";
 
 export const useCurrentPrice = () => {

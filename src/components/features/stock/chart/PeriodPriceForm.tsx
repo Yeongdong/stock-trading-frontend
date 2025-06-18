@@ -2,7 +2,10 @@ import React, { useState } from "react";
 
 import styles from "./PeriodPriceForm.module.css";
 import { DateFormatter } from "./PeriodPriceChartModel";
-import { PERIOD_OPTIONS, PeriodPriceRequest } from "@/types/stock/price";
+import {
+  PERIOD_OPTIONS,
+  PeriodPriceRequest,
+} from "@/types/domains/stock/price";
 
 interface PeriodPriceFormProps {
   initialData: PeriodPriceRequest;

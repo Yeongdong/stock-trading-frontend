@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import StockSearchForm from "./StockSearchForm";
 import StockSearchResults from "./StockSearchResults";
 import { useStockSearch } from "@/hooks/stock/useStockSearch";
-import { StockSearchResult, StockSearchResponse } from "@/types/stock/search";
+import {
+  StockSearchResult,
+  StockSearchResponse,
+} from "@/types/domains/stock/search";
 import styles from "./StockSearchView.module.css";
 
 interface StockSearchViewProps {

@@ -1,10 +1,10 @@
-export interface RateLimitConfig {
-  readonly requestsPerSecond: number;
-  readonly burstLimit: number;
-  readonly retryDelay: number;
-  readonly maxRetries: number;
-  readonly timeoutMs: number;
-}
+// export interface RateLimitConfig {
+//   readonly requestsPerSecond: number;
+//   readonly burstLimit: number;
+//   readonly retryDelay: number;
+//   readonly maxRetries: number;
+//   readonly timeoutMs: number;
+// }
 
 export interface QueueStatus {
   readonly queueLength: number;
@@ -13,12 +13,12 @@ export interface QueueStatus {
   readonly lastRequestTime: number;
 }
 
-export enum RequestPriority {
-  LOW = 1,
-  NORMAL = 2,
-  HIGH = 3,
-  CRITICAL = 4, // 실시간 주문
-}
+// export enum RequestPriority {
+//   LOW = 1,
+//   NORMAL = 2,
+//   HIGH = 3,
+//   CRITICAL = 4, // 실시간 주문
+// }
 
 export class RateLimitError extends Error {
   constructor(message: string, public readonly retryAfter?: number) {

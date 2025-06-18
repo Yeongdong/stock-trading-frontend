@@ -4,7 +4,7 @@ import Link from "next/link";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import styles from "./HoldingsOverview.module.css";
 import { useRouter } from "next/navigation";
-import { Position } from "@/types/stock";
+import { Position } from "@/types/domains/stock";
 
 interface HoldingItem extends Position {
   profitLossRate: number;

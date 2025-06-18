@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useStockSearch } from "@/hooks/stock/useStockSearch";
-import { StockSearchRequest, StockSearchResponse } from "@/types/stock/search";
+import {
+  StockSearchRequest,
+  StockSearchResponse,
+} from "@/types/domains/stock/search";
 import styles from "./StockSearchForm.module.css";
 
 interface StockSearchFormProps {

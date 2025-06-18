@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useMemo } from "react";
 
-import { PeriodPriceRequest } from "@/types/stock/price";
+import { PeriodPriceRequest } from "@/types/domains/stock/price";
 import { usePeriodPrice } from "@/hooks/stock/usePeriodPrice";
 import { PeriodPriceForm } from "./PeriodPriceForm";
 import { ProcessedChartData, DataProcessor } from "@/utils/dataProcessor";

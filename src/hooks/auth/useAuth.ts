@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { authService } from "@/services/api/auth/authService";
 import { ErrorHandler } from "@/utils/errorHandler";
-import { ERROR_CODES } from "@/types/errors/standardError";
+import { ERROR_CODES, StandardError } from "@/types/common/error";
 
 export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,10 +11,11 @@ export const useAuth = () => {
   const login = useCallback(
     async (credential: string) => {
       if (!credential?.trim()) {
-        const validationError = ErrorHandler.createValidationError(
-          "인증정보",
-          "Google 인증이 필요합니다"
-        );
+        const validationError: StandardError = {
+          code: ERROR_CODES.VALIDATION_REQUIRED,
+          message: "인증정보: Google 인증이 필요합니다",
+          severity: "warning",
+        };
 
         addError({
           message: validationError.message,

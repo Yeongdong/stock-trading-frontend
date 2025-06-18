@@ -1,4 +1,4 @@
-import { PeriodPriceRequest } from "@/types/stock/price";
+import { PeriodPriceRequest } from "@/types/domains/stock/price";
 
 export class FormManager {
   public static getDefaultRequest(stockCode: string): PeriodPriceRequest {

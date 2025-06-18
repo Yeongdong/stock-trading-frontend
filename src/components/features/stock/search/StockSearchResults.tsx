@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { StockSearchResult } from "@/types/stock/search";
+import { StockSearchResult } from "@/types/domains/stock/search";
 import styles from "./StockSearchResults.module.css";
 
 interface StockSearchResultsProps {

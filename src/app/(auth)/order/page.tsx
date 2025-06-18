@@ -5,7 +5,7 @@ import { Suspense, useState } from "react";
 import EnhancedStockOrderForm from "@/components/features/stock/order/StockOrderForm";
 import StockSearchView from "@/components/features/stock/search/StockSearchView";
 import BuyableInquiryView from "@/components/features/trading/BuyableInquiryView";
-import { StockSearchResult } from "@/types/stock/search";
+import { StockSearchResult } from "@/types/domains/stock/search";
 import styles from "./page.module.css";
 import PeriodPriceChart from "@/components/features/stock/chart/PeriodPriceChart";
 

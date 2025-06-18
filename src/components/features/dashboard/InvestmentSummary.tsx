@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect } from "react";
 import { formatKRW } from "@/utils/formatters";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import styles from "./InvestmentSummary.module.css";
-import { Position, Summary } from "@/types/stock/balance";
+import { Position, Summary } from "@/types/domains/stock/balance";
 import Link from "next/link";
 
 interface SummaryCardData {

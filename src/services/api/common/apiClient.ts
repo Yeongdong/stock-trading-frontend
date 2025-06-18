@@ -1,6 +1,6 @@
 import React from "react";
 import { useError } from "@/contexts/ErrorContext";
-import { ApiOptions, ApiResponse } from "@/types/api/common";
+import { ApiOptions, ApiResponse } from "@/types/common/api";
 import { ErrorHandler } from "@/utils/errorHandler";
 import { rateLimiter } from "./rateLimiter";
 import { ApiPriorityManager } from "./apiPriorityConfig";

@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { balanceService } from "@/services/api/balance/balanceService";
-import { StockBalance } from "@/types/stock/balance";
+import { StockBalance } from "@/types/domains/stock/balance";
 import { ErrorHandler } from "@/utils/errorHandler";
 
 export const useBalance = () => {

@@ -5,7 +5,7 @@ import {
   StockSearchRequest,
   StockSearchResult,
   StockSearchSummary,
-} from "@/types/stock/search";
+} from "@/types/domains/stock/search";
 import { stockService } from "@/services/api/stock/stockService";
 
 export const useStockSearch = () => {

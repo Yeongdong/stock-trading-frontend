@@ -1,10 +1,9 @@
-import { StandardError, ERROR_CODES } from "@/types/errors/standardError";
-import { ERROR_MESSAGES } from "@/constants/errors";
-
-interface HttpErrorResponse {
-  status: number;
-  message?: string;
-}
+import { ERROR_MESSAGES } from "@/constants";
+import {
+  StandardError,
+  ERROR_CODES,
+  HttpErrorResponse,
+} from "@/types/common/error";
 
 export class ErrorHandler {
   static standardize(
@@ -110,32 +109,6 @@ export class ErrorHandler {
     }
 
     return "error";
-  }
-
-  static createValidationError(
-    field: string,
-    rule: string,
-    value?: string | number | boolean
-  ): StandardError {
-    return {
-      code: ERROR_CODES.VALIDATION_FORMAT,
-      message: `${field}: ${rule}`,
-      severity: "warning",
-      context: { field, rule, value },
-    };
-  }
-
-  static createBusinessError(
-    code: string,
-    message: string,
-    context?: Record<string, string | number | boolean>
-  ): StandardError {
-    return {
-      code,
-      message,
-      severity: "error",
-      context,
-    };
   }
 
   private static isStandardError(error: unknown): error is StandardError {
