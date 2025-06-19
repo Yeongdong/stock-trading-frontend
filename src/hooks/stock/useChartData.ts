@@ -1,24 +1,16 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { LIMITS } from "@/constants";
 import { PriceDataPoint, RealtimeStockData } from "@/types";
 import { ChartDataState } from "@/types/domains/realtime/context";
 
+/**
+ * 차트 데이터 관리 훅
+ */
 export const useChartData = () => {
   const [chartData, setChartData] = useState<ChartDataState>({});
 
-  const lastUpdatesRef = useRef<Record<string, number>>({});
-
   // 차트 데이터 업데이트
   const updateChartData = useCallback((data: RealtimeStockData) => {
-    const symbol = data.symbol;
-    const currentTime = Date.now();
-
-    const MIN_UPDATE_INTERVAL = 100;
-
-    const lastUpdate = lastUpdatesRef.current[symbol] || 0;
-    if (currentTime - lastUpdate < MIN_UPDATE_INTERVAL) {
-      return;
-    }
     setChartData((prevChartData) => {
       const symbol = data.symbol;
       const newDataPoint = {
@@ -28,12 +20,12 @@ export const useChartData = () => {
 
       const currentData = prevChartData[symbol] || [];
 
+      // 동일한 가격은 스킵
       const lastPoint = currentData[currentData.length - 1];
-      if (lastPoint && lastPoint.price === newDataPoint.price) {
+      if (lastPoint && lastPoint.price === newDataPoint.price)
         return prevChartData;
-      }
 
-      // 최대 길이 제한
+      // 최대 길이 제한 적용
       const updatedData = [...currentData, newDataPoint].slice(
         -LIMITS.MAX_CHART_DATA_POINTS
       );
@@ -60,17 +52,6 @@ export const useChartData = () => {
       delete newChartData[symbol];
       return newChartData;
     });
-
-    const newLastUpdates = { ...lastUpdatesRef.current };
-    delete newLastUpdates[symbol];
-    lastUpdatesRef.current = newLastUpdates;
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      // 컴포넌트 언마운트 시 참조 정리
-      lastUpdatesRef.current = {};
-    };
   }, []);
 
   return {

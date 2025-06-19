@@ -60,13 +60,7 @@ export const useLoginHandler = () => {
           { requiresAuth: false }
         );
 
-        if (response.error) {
-          const standardError = ErrorHandler.fromHttpStatus(
-            response.status,
-            response.error
-          );
-          throw standardError;
-        }
+        if (response.error) return { success: false };
 
         const data = response.data!;
         const tokenStatus = getTokenStatus(data.user);

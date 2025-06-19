@@ -1,55 +1,49 @@
-import { useError } from "@/contexts/ErrorContext";
+import { useState, useCallback } from "react";
 import { orderExecutionService } from "@/services/api/orderExecution/orderExecutionService";
-import { useCallback, useState } from "react";
-import { ErrorHandler } from "@/utils/errorHandler";
-import { ERROR_CODES, StandardError } from "@/types/common/error";
+import { useDateUtils } from "@/hooks/common/useDateUtils";
 import {
   OrderExecutionInquiryRequest,
   OrderExecutionInquiryResponse,
 } from "@/types";
 
+const DEFAULT_SEARCH_PERIOD = 30; // 기본 30일
+
 export const useOrderExecution = () => {
   const [data, setData] = useState<OrderExecutionInquiryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { addError } = useError();
+  const { getTodayString, getDaysAgoString, formatDateForApi } = useDateUtils();
+
+  // 기본 검색 조건 생성
+  const createDefaultRequest = useCallback((): OrderExecutionInquiryRequest => {
+    return {
+      startDate: formatDateForApi(getDaysAgoString(DEFAULT_SEARCH_PERIOD)),
+      endDate: formatDateForApi(getTodayString()),
+      orderType: "00", // 전체
+    };
+  }, [getTodayString, getDaysAgoString, formatDateForApi]);
 
   const fetchOrderExecutions = useCallback(
-    async (request: OrderExecutionInquiryRequest) => {
+    async (request?: OrderExecutionInquiryRequest) => {
+      const searchRequest = request || createDefaultRequest();
       setIsLoading(true);
 
       try {
         const response = await orderExecutionService.getOrderExecutions(
-          request
+          searchRequest
         );
 
-        if (response.error || !response.data) {
-          const standardError: StandardError = {
-            code: ERROR_CODES.BUSINESS_ORDER_FAIL,
-            message: response.error ?? "주문체결내역 조회에 실패했습니다.",
-            severity: "error",
-          };
-          throw standardError;
+        if (response.data && !response.error) {
+          setData(response.data);
+          return response.data;
         }
 
-        setData(response.data);
-
-        addError({
-          message: `주문체결내역 조회 완료: 총 ${response.data.executions.length}건`,
-          severity: "info",
-        });
-      } catch (err) {
-        const standardError = ErrorHandler.standardize(err);
-
-        addError({
-          message: standardError.message,
-          code: standardError.code,
-          severity: standardError.severity,
-        });
+        setData(null);
+        return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [addError]
+    [createDefaultRequest]
   );
 
   const clearData = useCallback(() => {
@@ -61,5 +55,6 @@ export const useOrderExecution = () => {
     isLoading,
     fetchOrderExecutions,
     clearData,
+    createDefaultRequest,
   };
 };

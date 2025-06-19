@@ -60,8 +60,6 @@ export interface MarketClosedNoticeProps {
   title: string;
   statusText: string;
   description: string;
-  nextOpenTime?: string;
-  nextOpenLabel?: string;
 }
 
 export interface NavigationProps {

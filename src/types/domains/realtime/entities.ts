@@ -76,3 +76,9 @@ export type ErrorInfo = {
   message: string;
   code?: string;
 };
+
+export interface MarketInfo {
+  readonly isOpen: boolean;
+  readonly statusText: string;
+  readonly statusIcon: string;
+}

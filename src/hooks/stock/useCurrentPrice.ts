@@ -1,56 +1,43 @@
 import { useCallback, useState } from "react";
-import { useError } from "@/contexts/ErrorContext";
 import {
   CurrentPriceRequest,
   CurrentPriceResponse,
 } from "@/types/domains/stock/price";
 import { stockService } from "@/services/api/stock/stockService";
 
+/**
+ * 현재가 조회 훅
+ */
 export const useCurrentPrice = () => {
   const [data, setData] = useState<CurrentPriceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { addError } = useError();
 
-  const getCurrentPrice = useCallback(
-    async (request: CurrentPriceRequest) => {
-      try {
-        setIsLoading(true);
-        setError(null);
+  const getCurrentPrice = useCallback(async (request: CurrentPriceRequest) => {
+    setIsLoading(true);
 
-        const response = await stockService.getCurrentPrice(request);
-        setData(response.data!);
+    try {
+      const response = await stockService.getCurrentPrice(request);
 
+      if (response.data && !response.error) {
+        setData(response.data);
         return response;
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : "현재가 조회 중 오류가 발생했습니다.";
-
-        setError(errorMessage);
-        addError({
-          message: errorMessage,
-          severity: "error",
-        });
-        console.error("Current price inquiry error:", err);
-        return null;
-      } finally {
-        setIsLoading(false);
       }
-    },
-    [addError]
-  );
+
+      // 실패 시 null 설정
+      setData(null);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const clearData = useCallback(() => {
     setData(null);
-    setError(null);
   }, []);
 
   return {
     data,
     isLoading,
-    error,
     getCurrentPrice,
     clearData,
   };

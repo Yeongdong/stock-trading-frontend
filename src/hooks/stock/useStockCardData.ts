@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { ANIMATIONS } from "@/constants";
-
 import { RealtimeStockData } from "@/types";
-import { StockCardDataResult } from "@/types/domains/stock/hooks";
+import { RealtimeCardDataResult } from "@/types/domains/realtime/hooks";
 
-export const useStockCardData = (symbol: string): StockCardDataResult => {
+export const useStockCardData = (symbol: string): RealtimeCardDataResult => {
   const { getStockData, getChartData, unsubscribeSymbol } =
     useStockOperations();
 
@@ -13,7 +12,7 @@ export const useStockCardData = (symbol: string): StockCardDataResult => {
   const [blinkClass, setBlinkClass] = useState<string>("");
   const [isUnsubscribing, setIsUnsubscribing] = useState<boolean>(false);
 
-  // 주식 데이터 업데이트 감지
+  // 실시간 데이터 업데이트 처리
   useEffect(() => {
     const latestData = getStockData(symbol);
 
@@ -23,7 +22,12 @@ export const useStockCardData = (symbol: string): StockCardDataResult => {
         const newClass =
           latestData.price > stockData.price ? "blink-up" : "blink-down";
         setBlinkClass(newClass);
-        setTimeout(() => setBlinkClass(""), ANIMATIONS.BLINK_DURATION);
+
+        const timeoutId = setTimeout(() => {
+          setBlinkClass("");
+        }, ANIMATIONS.BLINK_DURATION);
+
+        return () => clearTimeout(timeoutId);
       }
 
       setStockData(latestData);

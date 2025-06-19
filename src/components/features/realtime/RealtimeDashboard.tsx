@@ -1,17 +1,22 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
+
 import LoadingIndicator from "../../ui/LoadingIndicator";
 import EmptySubscriptionState from "./EmptySubscriptionState";
 import DashboardHeader from "./DashboardHeader";
-import styles from "./RealtimeDashboard.module.css";
 import StockGrid from "../stock/realtime/StockGrid";
-import { useRealtimeDashboardState } from "@/hooks/realtime/useRealtimeDashboardState";
-import { RealtimeDashboardProps } from "@/types";
 import SymbolSubscriptionForm from "../stock/SymbolInputForm";
+import styles from "./RealtimeDashboard.module.css";
+import { RealtimeDashboardProps } from "@/types";
+import { useRealtimeDashboard } from "@/hooks/realtime/useRealtimeDashboardState";
 
 const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(
   ({ title = "실시간 주가 모니터링" }) => {
-    const { showLoading, showEmptyState, hasSubscriptions, subscribedSymbols } =
-      useRealtimeDashboardState();
+    const { subscribedSymbols, isLoading, hasSubscriptions, showEmptyState } =
+      useRealtimeDashboard();
+
+    useEffect(() => {
+      document.title = title;
+    }, [title]);
 
     return (
       <div className={styles.realtimeDashboard}>
@@ -22,7 +27,7 @@ const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(
         </section>
 
         <main className={styles.contentArea}>
-          {showLoading && (
+          {isLoading && (
             <LoadingIndicator message="실시간 데이터를 불러오는 중..." />
           )}
 

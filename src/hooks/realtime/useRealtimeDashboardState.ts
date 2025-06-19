@@ -1,21 +1,19 @@
 import { useMemo } from "react";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
-import { DashboardStateResult } from "@/types/domains/realtime/entities";
+import { RealtimeDashboardState } from "@/types/domains/realtime/hooks";
 
-export const useRealtimeDashboardState = (): DashboardStateResult => {
+export const useRealtimeDashboard = (): RealtimeDashboardState => {
   const { subscribedSymbols, isLoading } = useStockOperations();
 
-  return useMemo((): DashboardStateResult => {
+  return useMemo((): RealtimeDashboardState => {
     const hasSubscriptions = subscribedSymbols.length > 0;
-    const showLoading = isLoading;
     const showEmptyState = !hasSubscriptions && !isLoading;
 
     return {
+      subscribedSymbols,
       isLoading,
       hasSubscriptions,
-      showLoading,
       showEmptyState,
-      subscribedSymbols,
     };
   }, [subscribedSymbols, isLoading]);
 };

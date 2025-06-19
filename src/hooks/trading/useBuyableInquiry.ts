@@ -5,6 +5,9 @@ import {
 } from "@/types/domains/order/entities";
 import { useCallback, useState } from "react";
 
+/**
+ * 매수가능금액 조회 훅
+ */
 export const useBuyableInquiry = () => {
   const [data, setData] = useState<BuyableInquiryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,13 +16,14 @@ export const useBuyableInquiry = () => {
     async (
       request: BuyableInquiryRequest
     ): Promise<BuyableInquiryResponse | null> => {
+      setIsLoading(true);
+
       try {
-        setIsLoading(true);
         const response = await buyableInquiryService.getBuyableInquiry(request);
+
         setData(response);
         return response;
-      } catch (err) {
-        console.error("Buyable inquiry error:", err);
+      } catch {
         setData(null);
         return null;
       } finally {

@@ -6,9 +6,8 @@ export const useAuthToken = () => {
   const getTokenStatus = useCallback((user: AuthUser): TokenStatus => {
     if (!user?.kisToken) return TokenStatus.MISSING;
 
-    if (!user.kisToken.accessToken || user.kisToken.accessToken.trim() === "") {
+    if (!user.kisToken.accessToken || user.kisToken.accessToken.trim() === "")
       return TokenStatus.INVALID;
-    }
 
     if (user.kisToken.expiresIn) {
       try {

@@ -8,7 +8,7 @@ export interface EmptySubscriptionStateProps {
 }
 
 export interface RealtimeDashboardProps {
-  title?: string;
+  readonly title?: string;
 }
 
 export interface PriceDisplayProps {
@@ -35,7 +35,7 @@ export interface StockCardSkeletonProps {
 }
 
 export interface StockGridProps {
-  symbols: string[];
+  symbols: readonly string[];
 }
 
 export interface StockPriceCardProps {

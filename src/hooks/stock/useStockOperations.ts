@@ -1,59 +1,27 @@
-import { useCallback, useMemo } from "react";
 import { useStockSubscription } from "@/contexts/StockSubscriptionContext";
 import { useChartData } from "@/contexts/ChartDataContext";
 import { useStockData } from "@/contexts/StockDataContext";
 
+/**
+ * 주식 관련 Context들을 통합하여 제공
+ */
 export const useStockOperations = () => {
-  const {
-    subscribedSymbols,
-    isLoading: subscriptionLoading,
-    subscribeSymbol,
-    unsubscribeSymbol,
-    isSubscribed,
-  } = useStockSubscription();
+  const subscription = useStockSubscription();
+  const stockData = useStockData();
+  const chartData = useChartData();
 
-  const { getStockData, isLoading: stockDataLoading } = useStockData();
-  const { getChartData } = useChartData();
+  return {
+    // 구독 상태
+    subscribedSymbols: subscription.subscribedSymbols,
+    isLoading: subscription.isLoading || stockData.isLoading,
 
-  // 구독 관련 기능 래핑
-  const handleSubscribeSymbol = useCallback(
-    async (symbol: string): Promise<boolean> => {
-      return await subscribeSymbol(symbol);
-    },
-    [subscribeSymbol]
-  );
+    // 구독 관리
+    subscribeSymbol: subscription.subscribeSymbol,
+    unsubscribeSymbol: subscription.unsubscribeSymbol,
+    isSubscribed: subscription.isSubscribed,
 
-  const handleUnsubscribeSymbol = useCallback(
-    async (symbol: string): Promise<boolean> => {
-      return await unsubscribeSymbol(symbol);
-    },
-    [unsubscribeSymbol]
-  );
-
-  return useMemo(
-    () => ({
-      // 구독 상태
-      subscribedSymbols,
-      isLoading: subscriptionLoading || stockDataLoading,
-
-      // 구독 관리
-      subscribeSymbol: handleSubscribeSymbol,
-      unsubscribeSymbol: handleUnsubscribeSymbol,
-      isSubscribed,
-
-      // 데이터 접근
-      getStockData,
-      getChartData,
-    }),
-    [
-      subscribedSymbols,
-      subscriptionLoading,
-      stockDataLoading,
-      handleSubscribeSymbol,
-      handleUnsubscribeSymbol,
-      isSubscribed,
-      getStockData,
-      getChartData,
-    ]
-  );
+    // 데이터 접근
+    getStockData: stockData.getStockData,
+    getChartData: chartData.getChartData,
+  };
 };

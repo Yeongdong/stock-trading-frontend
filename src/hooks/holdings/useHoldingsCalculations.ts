@@ -6,8 +6,23 @@ export const useHoldingsCalculations = (positions: Position[]) => {
   return useMemo(() => {
     if (!positions || positions.length === 0) return [];
 
-    const holdingsWithCalculations: HoldingItem[] = positions.map(
-      (position) => {
+    const holdingsWithCalculations: HoldingItem[] = positions
+      .filter((position) => {
+        // 유효한 데이터만 필터링
+        const currentPrice = parseFloat(position.prpr);
+        const avgPrice = parseFloat(position.pchs_avg_pric);
+        const quantity = parseFloat(position.hldg_qty);
+
+        return (
+          !isNaN(currentPrice) &&
+          !isNaN(avgPrice) &&
+          !isNaN(quantity) &&
+          currentPrice >= 0 &&
+          avgPrice >= 0 &&
+          quantity >= 0
+        );
+      })
+      .map((position) => {
         const currentPrice = parseFloat(position.prpr);
         const avgPrice = parseFloat(position.pchs_avg_pric);
         const quantity = parseFloat(position.hldg_qty);
@@ -22,14 +37,15 @@ export const useHoldingsCalculations = (positions: Position[]) => {
           profitLossRate,
           profitLossAmount,
         };
-      }
-    );
+      });
 
-    // 평가금액 기준으로 내림차순 정렬하여 TOP 5 추출
-    const topHoldings = holdingsWithCalculations
-      .sort((a, b) => parseFloat(b.evlu_amt) - parseFloat(a.evlu_amt))
+    // TOP 5 추출
+    return holdingsWithCalculations
+      .sort((a, b) => {
+        const aAmount = parseFloat(a.evlu_amt) || 0;
+        const bAmount = parseFloat(b.evlu_amt) || 0;
+        return bAmount - aAmount;
+      })
       .slice(0, 5);
-
-    return topHoldings;
   }, [positions]);
 };
