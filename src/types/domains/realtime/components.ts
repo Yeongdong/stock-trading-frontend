@@ -7,6 +7,10 @@ export interface EmptySubscriptionStateProps {
   submessage?: string;
 }
 
+export interface RealtimeDashboardProps {
+  title?: string;
+}
+
 export interface PriceDisplayProps {
   price: number;
   priceChange: number;

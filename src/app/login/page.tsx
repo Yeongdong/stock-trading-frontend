@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useError } from "@/contexts/ErrorContext";
 import { ERROR_MESSAGES } from "@/constants/errors";
 import LoginForm from "@/components/features/auth/LoginForm";
 
 export default function LoginPage() {
   const { addError } = useError();
+  const router = useRouter();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -20,5 +22,9 @@ export default function LoginPage() {
     }
   }, [addError]);
 
-  return <LoginForm />;
+  const handleLoginSuccess = (redirectTo: string) => {
+    router.push(redirectTo);
+  };
+
+  return <LoginForm onLoginSuccess={handleLoginSuccess} />;
 }

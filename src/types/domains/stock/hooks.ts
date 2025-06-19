@@ -1,5 +1,7 @@
 import { RealtimeStockData } from "@/types/domains/realtime/entities";
 import { StockCode } from "@/types/common/base";
+import { ProcessedChartData } from "@/utils/dataProcessor";
+import { SummaryData } from "@/components/features/stock/chart/PeriodPriceChartModel";
 
 export interface StockCardDataResult {
   /** 실시간 주식 데이터 */
@@ -131,4 +133,26 @@ export interface StockCardActions {
 
   /** 에러 초기화 */
   clearError: (symbol: StockCode) => void;
+}
+
+export interface UsePeriodChartDataResult {
+  processedData: ProcessedChartData | null;
+  summaryData: SummaryData | null;
+  hasValidData: boolean;
+}
+
+export interface OrderFormData {
+  stockCode: string;
+  orderType: string;
+  quantity: string;
+  price: string;
+}
+
+export interface UseStockOrderResult {
+  isLoading: boolean;
+  submitOrder: (orderData: OrderFormData) => Promise<boolean>;
+  validateOrder: (orderData: OrderFormData) => {
+    isValid: boolean;
+    error?: string;
+  };
 }

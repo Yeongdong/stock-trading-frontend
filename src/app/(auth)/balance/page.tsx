@@ -6,14 +6,14 @@ import OrderExecutionView from "@/components/features/orderExecution/OrderExecut
 import styles from "./page.module.css";
 
 export default function BalancePage() {
-  const { balanceData, isLoading, refetch } = useBalance();
+  const { balanceData, isLoading, refresh } = useBalance();
 
   return (
     <div className={styles.container}>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>주식 잔고 현황</h1>
         <button
-          onClick={refetch}
+          onClick={refresh}
           className={styles.refreshButton}
           disabled={isLoading}
         >
@@ -24,7 +24,7 @@ export default function BalancePage() {
         <AccountBalanceView
           balanceData={balanceData}
           isLoading={isLoading}
-          onRefresh={refetch}
+          onRefresh={refresh}
         />
       </div>
       <div className={styles.pageHeader}>

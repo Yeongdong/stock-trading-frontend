@@ -1,0 +1,141 @@
+.stockCard {
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.stockSymbol {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+}
+
+.skeletonName {
+  width: 80px;
+  height: 16px;
+  background-color: var(--color-bg-border);
+  border-radius: var(--border-radius);
+}
+
+.priceContainer {
+  margin-bottom: var(--spacing-lg);
+}
+
+.skeletonPrice {
+  width: 120px;
+  height: 24px;
+  background-color: var(--color-bg-border);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-sm);
+}
+
+.skeletonChange {
+  width: 80px;
+  height: 16px;
+  background-color: var(--color-bg-border);
+  border-radius: var(--border-radius);
+}
+
+.skeletonChart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+  height: 60px;
+  justify-content: space-between;
+}
+
+.skeletonLine {
+  height: 3px;
+  background-color: var(--color-bg-border);
+  border-radius: var(--border-radius);
+}
+
+.skeletonLine:nth-child(1) {
+  width: 100%;
+}
+
+.skeletonLine:nth-child(2) {
+  width: 80%;
+}
+
+.skeletonLine:nth-child(3) {
+  width: 60%;
+}
+
+.tradingInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeletonVolume {
+  width: 60px;
+  height: 14px;
+  background-color: var(--color-bg-border);
+  border-radius: var(--border-radius);
+}
+
+.skeletonTime {
+  width: 40px;
+  height: 14px;
+  background-color: var(--color-bg-border);
+  border-radius: var(--border-radius);
+}
+
+/* 스켈레톤 애니메이션 */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.skeletonName,
+.skeletonPrice,
+.skeletonChange,
+.skeletonLine,
+.skeletonVolume,
+.skeletonTime {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-border) 25%,
+    var(--color-bg-light) 50%,
+    var(--color-bg-border) 75%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .stockCard {
+    padding: var(--spacing-md);
+  }
+
+  .skeletonChart {
+    height: 50px;
+  }
+}

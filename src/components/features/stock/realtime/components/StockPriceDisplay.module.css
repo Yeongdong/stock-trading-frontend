@@ -1,0 +1,59 @@
+.priceContainer {
+  margin-bottom: var(--spacing-lg);
+  text-align: left;
+}
+
+.currentPrice {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.priceChange {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.changeAmount,
+.changeRate {
+  white-space: nowrap;
+}
+
+/* 가격 변동 색상 */
+.priceUp {
+  color: var(--color-stock-up);
+}
+
+.priceDown {
+  color: var(--color-stock-down);
+}
+
+.priceUnchanged {
+  color: var(--color-text-primary);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .currentPrice {
+    font-size: var(--font-size-xl);
+  }
+
+  .priceChange {
+    font-size: var(--font-size-xs);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .currentPrice {
+    font-size: var(--font-size-lg);
+  }
+}

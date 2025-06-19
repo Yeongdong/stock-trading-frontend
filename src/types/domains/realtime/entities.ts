@@ -45,7 +45,6 @@ export interface SubscriptionsResponse {
 
 export interface DashboardStateResult {
   isLoading: boolean;
-  error: string | null;
   hasSubscriptions: boolean;
   showLoading: boolean;
   showEmptyState: boolean;

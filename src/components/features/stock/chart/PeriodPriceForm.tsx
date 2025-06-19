@@ -6,12 +6,7 @@ import {
   PERIOD_OPTIONS,
   PeriodPriceRequest,
 } from "@/types/domains/stock/price";
-
-interface PeriodPriceFormProps {
-  initialData: PeriodPriceRequest;
-  loading: boolean;
-  onSubmit: (data: PeriodPriceRequest) => Promise<void>;
-}
+import { PeriodPriceFormProps } from "@/types";
 
 export const PeriodPriceForm: React.FC<PeriodPriceFormProps> = ({
   initialData,

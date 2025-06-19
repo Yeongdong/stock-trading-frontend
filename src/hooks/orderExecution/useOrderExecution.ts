@@ -11,13 +11,12 @@ import {
 export const useOrderExecution = () => {
   const [data, setData] = useState<OrderExecutionInquiryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { addError } = useError();
 
   const fetchOrderExecutions = useCallback(
     async (request: OrderExecutionInquiryRequest) => {
       setIsLoading(true);
-      setError(null);
+
       try {
         const response = await orderExecutionService.getOrderExecutions(
           request
@@ -26,7 +25,7 @@ export const useOrderExecution = () => {
         if (response.error || !response.data) {
           const standardError: StandardError = {
             code: ERROR_CODES.BUSINESS_ORDER_FAIL,
-            message: response.error ?? "Unknown error occurred",
+            message: response.error ?? "주문체결내역 조회에 실패했습니다.",
             severity: "error",
           };
           throw standardError;
@@ -35,13 +34,12 @@ export const useOrderExecution = () => {
         setData(response.data);
 
         addError({
-          message: `주문체결내역 조회 완료: 총 ${response.data.totalCount}건`,
+          message: `주문체결내역 조회 완료: 총 ${response.data.executions.length}건`,
           severity: "info",
         });
       } catch (err) {
         const standardError = ErrorHandler.standardize(err);
 
-        setError(standardError.message);
         addError({
           message: standardError.message,
           code: standardError.code,
@@ -56,13 +54,11 @@ export const useOrderExecution = () => {
 
   const clearData = useCallback(() => {
     setData(null);
-    setError(null);
   }, []);
 
   return {
     data,
     isLoading,
-    error,
     fetchOrderExecutions,
     clearData,
   };

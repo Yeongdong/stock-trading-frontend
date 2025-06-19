@@ -1,36 +1,39 @@
 import React, { memo } from "react";
-import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import SymbolSubscriptionManager from "../stock/SymbolSubscriptionManager";
 import LoadingIndicator from "../../ui/LoadingIndicator";
 import EmptySubscriptionState from "./EmptySubscriptionState";
 import DashboardHeader from "./DashboardHeader";
 import styles from "./RealtimeDashboard.module.css";
 import StockGrid from "../stock/realtime/StockGrid";
+import { useRealtimeDashboardState } from "@/hooks/realtime/useRealtimeDashboardState";
+import { RealtimeDashboardProps } from "@/types";
 
-const RealtimeDashboard: React.FC = memo(() => {
-  const { subscribedSymbols, isLoading } = useStockOperations();
+const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(
+  ({ title = "실시간 주가 모니터링" }) => {
+    const { showLoading, showEmptyState, hasSubscriptions, subscribedSymbols } =
+      useRealtimeDashboardState();
 
-  const hasSubscriptions = subscribedSymbols.length > 0;
-  const showEmptyState = !hasSubscriptions && !isLoading;
+    return (
+      <div className={styles.realtimeDashboard}>
+        <DashboardHeader title={title} />
 
-  return (
-    <div className={styles.realtimeDashboard}>
-      <DashboardHeader title="실시간 주가 모니터링" />
+        <section className={styles.subscriptionSection}>
+          <SymbolSubscriptionManager />
+        </section>
 
-      <div className={styles.subscriptionSection}>
-        <SymbolSubscriptionManager />
+        <main className={styles.contentArea}>
+          {showLoading && (
+            <LoadingIndicator message="실시간 데이터를 불러오는 중..." />
+          )}
+
+          {showEmptyState && <EmptySubscriptionState />}
+
+          {hasSubscriptions && <StockGrid symbols={subscribedSymbols} />}
+        </main>
       </div>
-
-      <div className={styles.contentArea}>
-        {isLoading && <LoadingIndicator />}
-
-        {showEmptyState && <EmptySubscriptionState />}
-
-        {hasSubscriptions && <StockGrid symbols={subscribedSymbols} />}
-      </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 RealtimeDashboard.displayName = "RealtimeDashboard";
 

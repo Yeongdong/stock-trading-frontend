@@ -1,0 +1,28 @@
+.dashboardHeader {
+  background-color: var(--color-bg-white);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .dashboardHeader {
+    padding: var(--spacing-lg);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+}

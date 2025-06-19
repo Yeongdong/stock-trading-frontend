@@ -1,0 +1,55 @@
+.tradingInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-width) var(--border-style) var(--color-bg-border);
+  font-size: var(--font-size-sm);
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  text-align: center;
+}
+
+.label {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .tradingInfo {
+    font-size: var(--font-size-xs);
+  }
+
+  .value {
+    font-size: var(--font-size-xs);
+  }
+
+  .label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .infoItem {
+    gap: 2px;
+  }
+
+  .tradingInfo {
+    padding-top: var(--spacing-xs);
+  }
+}

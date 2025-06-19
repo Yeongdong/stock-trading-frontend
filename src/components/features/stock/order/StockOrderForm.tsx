@@ -1,235 +1,171 @@
-import { useState, useEffect } from "react";
-import toast from "@/utils/toast";
-import { API, ERROR_MESSAGES } from "@/constants";
-import { useError } from "@/contexts/ErrorContext";
-import { apiClient } from "@/services/api/common/apiClient";
+import React, { useState, useEffect, useCallback } from "react";
+import { useStockOrder } from "@/hooks/stock/useStockOrder";
 import styles from "./StockOrderForm.module.css";
-import { StockOrder } from "@/types/domains/stock";
-
-interface StockOrderFormProps {
-  initialData?: {
-    stockCode?: string;
-    orderPrice?: number;
-    maxQuantity?: number;
-  };
-  selectedStockCode?: string;
-}
+import { ORDER_TYPES } from "@/constants/order";
+import { OrderFormState, StockOrderFormProps } from "@/types";
 
 const StockOrderForm: React.FC<StockOrderFormProps> = ({
   initialData,
   selectedStockCode,
+  onOrderSuccess,
 }) => {
-  const [acntPrdtCd] = useState<string>("01");
-  const [trId, setTrId] = useState<string>("VTTC0802U");
-  const [pdno, setPdno] = useState<string>(initialData?.stockCode || "");
-  const [ordDvsn, setOrderDvsn] = useState<string>("00: 지정가");
-  const [ordQty, setOrdQty] = useState<string>(
-    initialData?.maxQuantity?.toString() || ""
-  );
-  const [ordUnpr, setOrdUnpr] = useState<string>(
-    initialData?.orderPrice?.toString() || ""
-  );
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, submitOrder } = useStockOrder();
 
-  const { addError } = useError();
+  const [formData, setFormData] = useState<OrderFormState>({
+    stockCode: initialData?.stockCode || "",
+    orderType: "00",
+    quantity: initialData?.maxQuantity?.toString() || "",
+    price: initialData?.orderPrice?.toString() || "",
+  });
 
-  // initialData나 selectedStockCode가 변경되면 폼 업데이트
+  // 선택된 주문 타입 정보
+  const selectedOrderType = ORDER_TYPES.find(
+    (type) => type.value === formData.orderType
+  );
+  const requiresPrice = selectedOrderType?.requiresPrice ?? true;
+
+  // 외부에서 종목 코드가 변경되면 폼 업데이트
   useEffect(() => {
     if (selectedStockCode) {
-      setPdno(selectedStockCode);
+      setFormData((prev) => ({ ...prev, stockCode: selectedStockCode }));
     } else if (initialData?.stockCode) {
-      setPdno(initialData.stockCode);
+      setFormData((prev) => ({
+        ...prev,
+        stockCode: initialData.stockCode || "",
+      }));
     }
 
-    if (initialData?.orderPrice) setOrdUnpr(initialData.orderPrice.toString());
-    if (initialData?.maxQuantity) setOrdQty(initialData.maxQuantity.toString());
+    if (initialData?.orderPrice) {
+      setFormData((prev) => ({
+        ...prev,
+        price: initialData.orderPrice?.toString() || "",
+      }));
+    }
+
+    if (initialData?.maxQuantity) {
+      setFormData((prev) => ({
+        ...prev,
+        quantity: initialData.maxQuantity?.toString() || "",
+      }));
+    }
   }, [initialData, selectedStockCode]);
 
-  const validateOrder = () => {
-    if (!pdno) {
-      addError({
-        message: ERROR_MESSAGES.ORDER.INVALID_SYMBOL,
-        severity: "warning",
-      });
-      return false;
-    }
+  const handleInputChange = useCallback(
+    (field: keyof OrderFormState, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
 
-    if (!ordQty || parseInt(ordQty) <= 0) {
-      addError({
-        message: ERROR_MESSAGES.ORDER.INVALID_QUANTITY,
-        severity: "warning",
-      });
-      return false;
-    }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (ordDvsn.startsWith("00") && (!ordUnpr || parseInt(ordUnpr) <= 0)) {
-      addError({
-        message: ERROR_MESSAGES.ORDER.INVALID_PRICE,
-        severity: "warning",
-      });
-      return false;
-    }
+      const success = await submitOrder(formData);
 
-    return true;
-  };
+      if (success) {
+        // 주문 성공 시 폼 초기화
+        setFormData({
+          stockCode: selectedStockCode || "",
+          orderType: "00",
+          quantity: "",
+          price: "",
+        });
 
-  const handleOrder = () => {
-    if (!validateOrder()) return;
-
-    const processedOrderDvsn = ordDvsn.substring(0, 2);
-    const orderData: StockOrder = {
-      acntPrdtCd,
-      trId,
-      pdno,
-      ordDvsn: processedOrderDvsn,
-      ordQty,
-      ordUnpr,
-    };
-
-    toast.confirm(toast.createOrderConfirmMsg(orderData), {
-      onConfirm: async () => {
-        try {
-          setIsLoading(true);
-
-          const response = await apiClient.post(API.STOCK.ORDER, orderData, {
-            requiresAuth: true,
-            handleError: true,
-          });
-
-          if (response.error) {
-            throw new Error(response.error);
-          }
-
-          addError({
-            message: ERROR_MESSAGES.ORDER.ORDER_SUCCESS,
-            severity: "info",
-          });
-
-          setTrId("VTTC0802U");
-          setPdno("");
-          setOrderDvsn("00: 지정가");
-          setOrdQty("");
-          setOrdUnpr("");
-        } catch (error) {
-          console.error("Error submitting order: ", error);
-          if (error instanceof Error) {
-            addError({
-              message: error.message || ERROR_MESSAGES.ORDER.ORDER_FAILED,
-              severity: "error",
-            });
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      },
-    });
-  };
+        onOrderSuccess?.();
+      }
+    },
+    [formData, submitOrder, selectedStockCode, onOrderSuccess]
+  );
 
   return (
-    <div className={styles.StockOrderForm}>
+    <div className={styles.stockOrderForm}>
       <div className={styles.formHeader}>
         <h2>주식 주문</h2>
       </div>
 
-      {/* 주문 폼 */}
-      <fieldset className={styles.fieldset}>
-        <legend>주문 정보</legend>
+      <form onSubmit={handleSubmit}>
+        <fieldset className={styles.fieldset}>
+          <legend>주문 정보</legend>
 
-        <div className={styles.formGroup}>
-          <label>거래 구분</label>
-          <div className={styles.radioGroup}>
+          <div className={styles.formGroup}>
+            <label htmlFor="stockCode">종목 코드</label>
             <input
-              type="radio"
-              name="trId"
-              value="VTTC0802U"
-              id="buy"
-              checked={trId === "VTTC0802U"}
-              onChange={(e) => setTrId(e.target.value)}
+              id="stockCode"
+              type="text"
+              value={formData.stockCode}
+              onChange={(e) => handleInputChange("stockCode", e.target.value)}
+              placeholder="6자리 종목 코드 (예: 005930)"
+              maxLength={6}
+              pattern="[0-9]*"
+              className={styles.input}
+              disabled={isLoading}
+              required
             />
-            <label htmlFor="buy">매수</label>
-            <input
-              type="radio"
-              name="trId"
-              value="VTTC0801U"
-              id="sell"
-              checked={trId === "VTTC0801U"}
-              onChange={(e) => setTrId(e.target.value)}
-            />
-            <label htmlFor="sell">매도</label>
+            <div className={styles.helperText}>
+              삼성전자: 005930, SK하이닉스: 000660
+            </div>
           </div>
-        </div>
 
-        <div className={styles.formGroup}>
-          <label>주문 종목</label>
-          <input
-            type="text"
-            value={pdno}
-            onChange={(e) => setPdno(e.target.value)}
-            placeholder="종목코드 (6자리)"
-            maxLength={6}
-            className={styles.input}
-          />
-        </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="orderType">주문 구분</label>
+            <select
+              id="orderType"
+              value={formData.orderType}
+              onChange={(e) => handleInputChange("orderType", e.target.value)}
+              className={styles.select}
+              disabled={isLoading}
+            >
+              {ORDER_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className={styles.formGroup}>
-          <label>주문 수량</label>
-          <input
-            type="number"
-            min="1"
-            value={ordQty}
-            onChange={(e) => setOrdQty(e.target.value)}
-            placeholder="주문 수량"
-            className={styles.input}
-          />
-        </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="quantity">주문 수량</label>
+            <input
+              id="quantity"
+              type="number"
+              min="1"
+              value={formData.quantity}
+              onChange={(e) => handleInputChange("quantity", e.target.value)}
+              placeholder="주문 수량"
+              className={styles.input}
+              disabled={isLoading}
+              required
+            />
+          </div>
 
-        <div className={styles.formGroup}>
-          <label>주문 구분</label>
-          <select
-            value={ordDvsn}
-            onChange={(e) => setOrderDvsn(e.target.value)}
-            className={styles.select}
+          {requiresPrice && (
+            <div className={styles.formGroup}>
+              <label htmlFor="price">주문 단가</label>
+              <input
+                id="price"
+                type="number"
+                min="1"
+                value={formData.price}
+                onChange={(e) => handleInputChange("price", e.target.value)}
+                placeholder="주문 단가"
+                className={styles.input}
+                disabled={isLoading}
+                required={requiresPrice}
+              />
+              <div className={styles.helperText}>원 단위로 입력해주세요</div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading || !formData.stockCode || !formData.quantity}
+            className={styles.orderButton}
           >
-            <option>00: 지정가</option>
-            <option>01: 시장가</option>
-            <option>02: 조건부지정가</option>
-            <option>03: 최유리지정가</option>
-            <option>04: 최우선지정가</option>
-            <option>05: 장전 시간외 (08:20~08:40)</option>
-            <option>06: 장후 시간외 (15:30~16:00)</option>
-            <option>07: 시간외 단일가(16:00~18:00)</option>
-            <option>08: 자기주식</option>
-            <option>09: 자기주식S-Option</option>
-            <option>10: 자기주식금전신탁</option>
-            <option>11: IOC지정가 (즉시체결,잔량취소)</option>
-            <option>12: FOK지정가 (즉시체결,전량취소)</option>
-            <option>13: IOC시장가 (즉시체결,잔량취소)</option>
-            <option>14: FOK시장가 (즉시체결,전량취소)</option>
-            <option>15: IOC최유리 (즉시체결,잔량취소)</option>
-            <option>16: FOK최유리 (즉시체결,전량취소)</option>
-          </select>
-        </div>
-
-        <div className={styles.formGroup}>
-          <label>주문 단가</label>
-          <input
-            type="number"
-            min="0"
-            value={ordUnpr}
-            onChange={(e) => setOrdUnpr(e.target.value)}
-            placeholder="주문 단가"
-            className={styles.input}
-          />
-        </div>
-
-        <button
-          onClick={handleOrder}
-          disabled={isLoading}
-          className={styles.orderButton}
-        >
-          {isLoading ? "주문 중..." : "주문"}
-        </button>
-      </fieldset>
+            {isLoading ? "주문 처리 중..." : "주문 실행"}
+          </button>
+        </fieldset>
+      </form>
     </div>
   );
 };

@@ -1,25 +1,20 @@
-import React, { memo, useMemo } from "react";
-import styles from "./StockPriceCard.module.css";
+import React, { memo } from "react";
 import { TradingInfoProps } from "@/types";
+import styles from "./StockTradingInfo.module.css";
 
 const TradingInfo: React.FC<TradingInfoProps> = memo(({ volume, time }) => {
-  // 거래량 포맷팅
-  const formattedVolume = useMemo(
-    () => Number(volume).toLocaleString(),
-    [volume]
-  );
-
   return (
-    <div className={styles.tradingInfo}>
-      <div>
-        <span className={styles.label}>거래량:</span>
-        <span className={styles.value}>{formattedVolume}</span>
+    <footer className={styles.tradingInfo}>
+      <div className={styles.infoItem}>
+        <span className={styles.label}>거래량</span>
+        <span className={styles.value}>{volume.toLocaleString()}</span>
       </div>
-      <div>
-        <span className={styles.label}>업데이트:</span>
+
+      <div className={styles.infoItem}>
+        <span className={styles.label}>업데이트</span>
         <span className={styles.value}>{time}</span>
       </div>
-    </div>
+    </footer>
   );
 });
 

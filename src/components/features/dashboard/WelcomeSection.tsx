@@ -1,40 +1,35 @@
 import React, { memo, useMemo } from "react";
-
 import styles from "./WelcomeSection.module.css";
 import { MarketStatus } from "@/types";
 import { useAuthContext } from "@/contexts/AuthContext";
 
-const WelcomeSection: React.FC = memo(() => {
-  const { user } = useAuthContext();
-
-  // 현재 시간과 장 상태 계산
-  const { currentTime, marketStatus } = useMemo(() => {
+const useMarketStatus = (): {
+  currentTime: string;
+  marketStatus: MarketStatus;
+} => {
+  return useMemo(() => {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
 
-    // 장 시간: 09:00 ~ 15:30 (평일)
     const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+
     const isMarketHours =
       hours >= 9 && (hours < 15 || (hours === 15 && minutes <= 30));
     const isOpen = isWeekday && isMarketHours;
 
-    let statusText: string;
-    let statusIcon: string;
+    const getMarketStatusInfo = (): {
+      statusText: string;
+      statusIcon: string;
+    } => {
+      if (!isWeekday) return { statusText: "휴장", statusIcon: "🏢" };
+      if (isOpen) return { statusText: "장중", statusIcon: "📈" };
+      if (hours < 9) return { statusText: "장전", statusIcon: "⏰" };
 
-    if (!isWeekday) {
-      statusText = "휴장";
-      statusIcon = "🏢";
-    } else if (isOpen) {
-      statusText = "장중";
-      statusIcon = "📈";
-    } else if (hours < 9) {
-      statusText = "장전";
-      statusIcon = "⏰";
-    } else {
-      statusText = "장후";
-      statusIcon = "🌙";
-    }
+      return { statusText: "장후", statusIcon: "🌙" };
+    };
+
+    const { statusText, statusIcon } = getMarketStatusInfo();
 
     const marketStatus: MarketStatus = {
       isOpen,
@@ -42,21 +37,23 @@ const WelcomeSection: React.FC = memo(() => {
       statusIcon,
     };
 
-    const currentTime =
-      now.toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        weekday: "short",
-      }) +
-      " " +
-      now.toLocaleTimeString("ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    const currentTime = `${now.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+    })} ${now.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
 
     return { currentTime, marketStatus };
   }, []);
+};
+
+const WelcomeSection: React.FC = memo(() => {
+  const { user } = useAuthContext();
+  const { currentTime, marketStatus } = useMarketStatus();
 
   const userName = user?.name || "사용자";
 

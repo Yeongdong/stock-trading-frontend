@@ -1,0 +1,94 @@
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  position: relative;
+}
+
+.stockInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.stockSymbol {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  line-height: 1.2;
+}
+
+.stockName {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.unsubscribeBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unsubscribeBtn:hover:not(:disabled) {
+  color: var(--color-danger);
+  background-color: var(--color-bg-light);
+  transform: scale(1.1);
+}
+
+.unsubscribeBtn:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.unsubscribeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loadingDots {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .stockSymbol {
+    font-size: var(--font-size-base);
+  }
+
+  .stockName {
+    font-size: var(--font-size-xs);
+  }
+
+  .unsubscribeBtn {
+    font-size: var(--font-size-lg);
+    min-width: 24px;
+    min-height: 24px;
+  }
+}

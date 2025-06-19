@@ -4,6 +4,7 @@ import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import styles from "./KisTokenForm.module.css";
 import { KisTokenFormProps, UserInfoRequest } from "@/types";
+import { useRouter } from "next/router";
 
 const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   const [appKey, setAppKey] = useState("");
@@ -13,6 +14,7 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   const [showAppSecret, SetShowAppSecret] = useState<boolean>(false);
   const appSecretRef = useRef<HTMLInputElement>(null);
   const { addError } = useError();
+  const router = useRouter();
 
   const toggleAppSecretVisibility = () => {
     SetShowAppSecret((prev) => !prev);
@@ -85,7 +87,7 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
         severity: "info",
       });
       setTimeout(() => {
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
       }, 1000);
     } catch (error) {
       console.error("Error getting KIS token:", error);

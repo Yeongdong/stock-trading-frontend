@@ -1,35 +1,39 @@
+import React, { memo } from "react";
 import { StockCardSkeletonProps } from "@/types";
-import React from "react";
+import styles from "./StockCardSkeleton.module.css";
 
 /**
  * 주식 데이터 로딩 중 표시되는 스켈레톤 컴포넌트
- * 실제 컨텐츠와 동일한 크기와 구조를 유지하여 UI 깜빡임을 방지
  */
-const StockCardSkeleton: React.FC<StockCardSkeletonProps> = ({ symbol }) => {
-  return (
-    <div className="stock-card skeleton">
-      <div className="card-header skeleton-header">
-        <div className="stock-symbol">{symbol}</div>
-        <div className="skeleton-name"></div>
-      </div>
+const StockCardSkeleton: React.FC<StockCardSkeletonProps> = memo(
+  ({ symbol }) => {
+    return (
+      <div className={styles.stockCard}>
+        <div className={styles.cardHeader}>
+          <div className={styles.stockSymbol}>{symbol}</div>
+          <div className={styles.skeletonName}></div>
+        </div>
 
-      <div className="price-container">
-        <div className="skeleton-price"></div>
-        <div className="skeleton-change"></div>
-      </div>
+        <div className={styles.priceContainer}>
+          <div className={styles.skeletonPrice}></div>
+          <div className={styles.skeletonChange}></div>
+        </div>
 
-      <div className="skeleton-chart">
-        <div className="skeleton-line"></div>
-        <div className="skeleton-line"></div>
-        <div className="skeleton-line"></div>
-      </div>
+        <div className={styles.skeletonChart}>
+          <div className={styles.skeletonLine}></div>
+          <div className={styles.skeletonLine}></div>
+          <div className={styles.skeletonLine}></div>
+        </div>
 
-      <div className="trading-info skeleton-trading">
-        <div className="skeleton-volume"></div>
-        <div className="skeleton-time"></div>
+        <div className={styles.tradingInfo}>
+          <div className={styles.skeletonVolume}></div>
+          <div className={styles.skeletonTime}></div>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+StockCardSkeleton.displayName = "StockCardSkeleton";
 
 export default StockCardSkeleton;

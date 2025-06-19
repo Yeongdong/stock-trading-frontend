@@ -9,7 +9,7 @@
   border-radius: var(--border-radius-large);
   border: 2px dashed var(--color-bg-border);
   margin: var(--spacing-xl) 0;
-  min-height: 200px;
+  min-height: 250px;
 }
 
 .emptyIcon {
@@ -31,7 +31,29 @@
   font-size: var(--font-size-base);
   line-height: 1.6;
   max-width: 500px;
-  margin: 0 auto;
+  margin: 0 auto var(--spacing-lg) auto;
+}
+
+.actionHint {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  max-width: 600px;
+}
+
+.hintIcon {
+  font-size: var(--font-size-lg);
+  flex-shrink: 0;
+}
+
+.hintText {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 /* 반응형 디자인 */
@@ -39,6 +61,7 @@
   .emptyState {
     padding: var(--spacing-xl);
     margin: var(--spacing-lg) 0;
+    min-height: 200px;
   }
 
   .emptyIcon {
@@ -53,6 +76,17 @@
   .emptySubmessage {
     font-size: var(--font-size-sm);
   }
+
+  .actionHint {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+  }
+
+  .hintText {
+    font-size: var(--font-size-xs);
+  }
 }
 
 @media (max-width: 480px) {
@@ -63,5 +97,9 @@
 
   .emptyIcon {
     font-size: 32px;
+  }
+
+  .actionHint {
+    padding: var(--spacing-sm);
   }
 }

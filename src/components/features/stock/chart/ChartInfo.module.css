@@ -1,0 +1,58 @@
+.chartInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.chartLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.labelText {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.chartValue {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.changeIndicator {
+  font-weight: var(--font-weight-medium);
+}
+
+/* 가격 변동 색상 */
+.positive {
+  color: var(--color-stock-up);
+}
+
+.negative {
+  color: var(--color-stock-down);
+}
+
+.neutral {
+  color: var(--color-text-secondary);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+  .chartInfo {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: flex-start;
+  }
+
+  .chartLabel {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

@@ -1,5 +1,4 @@
-import React, { memo } from "react";
-
+import React, { memo, useMemo } from "react";
 import { useStockCardData } from "@/hooks/stock/useStockCardData";
 import StockPriceHeader from "./components/StockPriceHeader";
 import PriceDisplay from "./components/StockPriceDisplay";
@@ -19,32 +18,39 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
     handleUnsubscribe,
   } = useStockCardData(symbol);
 
+  const blinkClassName = useMemo(() => {
+    const classMap = {
+      "blink-up": styles.blinkUp,
+      "blink-down": styles.blinkDown,
+    } as const;
+
+    return classMap[blinkClass as keyof typeof classMap] || "";
+  }, [blinkClass]);
+
   if (isLoading || !stockData) return <StockCardSkeleton symbol={symbol} />;
 
-  const getBlinkClassName = () => {
-    switch (blinkClass) {
-      case "blink-up":
-        return styles.blinkUp;
-      case "blink-down":
-        return styles.blinkDown;
-      default:
-        return "";
-    }
-  };
+  const {
+    name = symbol,
+    price,
+    priceChange,
+    changeRate,
+    volume,
+    timestamp,
+  } = stockData;
 
   return (
-    <div className={`${styles.stockCard} ${getBlinkClassName()}`}>
+    <div className={`${styles.stockCard} ${blinkClassName}`}>
       <StockPriceHeader
         symbol={symbol}
-        name={stockData.stockName}
+        name={name !== symbol ? name : undefined}
         isUnsubscribing={isUnsubscribing}
         onUnsubscribe={handleUnsubscribe}
       />
 
       <PriceDisplay
-        price={stockData.price}
-        priceChange={stockData.priceChange}
-        changeRate={stockData.changeRate}
+        price={price}
+        priceChange={priceChange}
+        changeRate={changeRate}
       />
 
       <div className={styles.chartContainer}>
@@ -52,8 +58,12 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
       </div>
 
       <TradingInfo
-        volume={stockData.volume}
-        time={new Date(stockData.transactionTime).toLocaleTimeString()}
+        volume={volume}
+        time={new Date(timestamp).toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })}
       />
     </div>
   );

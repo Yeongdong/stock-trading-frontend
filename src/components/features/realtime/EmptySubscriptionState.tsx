@@ -11,8 +11,14 @@ const EmptySubscriptionState: React.FC<EmptySubscriptionStateProps> = memo(
       <div className={styles.emptyIcon} aria-hidden="true">
         📈
       </div>
-      <p className={styles.emptyMessage}>{message}</p>
+      <h3 className={styles.emptyMessage}>{message}</h3>
       <p className={styles.emptySubmessage}>{submessage}</p>
+      <div className={styles.actionHint}>
+        <span className={styles.hintIcon}>💡</span>
+        <span className={styles.hintText}>
+          종목 코드 예시: 005930 (삼성전자), 000660 (SK하이닉스)
+        </span>
+      </div>
     </div>
   )
 );

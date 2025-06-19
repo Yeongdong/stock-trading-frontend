@@ -1,0 +1,60 @@
+.helpText {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.helpIcon {
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.helpContent {
+  color: var(--color-text-secondary);
+  flex: 1;
+}
+
+.exampleItem {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.stockCode {
+  background-color: var(--color-bg-white);
+  color: var(--color-primary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-family: "Courier New", monospace;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .helpText {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .helpIcon {
+    align-self: flex-start;
+  }
+
+  .helpContent {
+    font-size: var(--font-size-xs);
+  }
+
+  .stockCode {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+}

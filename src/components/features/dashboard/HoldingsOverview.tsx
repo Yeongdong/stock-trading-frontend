@@ -1,30 +1,17 @@
-import React, { memo, useMemo } from "react";
+import React, { memo } from "react";
 import { formatKRW } from "@/utils/formatters";
 import Link from "next/link";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import styles from "./HoldingsOverview.module.css";
 import { useRouter } from "next/navigation";
-import { HoldingItem, HoldingsOverviewProps } from "@/types";
+import { HoldingsOverviewProps } from "@/types";
+import { useHoldingsCalculations } from "@/hooks/holdings/useHoldingsCalculations";
 
 const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
   ({ positions = [], isLoading }) => {
     const router = useRouter();
 
-    const topHoldings = useMemo(() => {
-      if (!positions) return [];
-
-      const holdings: HoldingItem[] = positions
-        .map((position) => ({
-          ...position,
-          profitLossRate: parseFloat(position.evlu_pfls_rt),
-          profitLossAmount: parseInt(position.evlu_pfls_amt),
-        }))
-        .filter((holding) => parseInt(holding.hldg_qty) > 0)
-        .sort((a, b) => b.profitLossRate - a.profitLossRate)
-        .slice(0, 5);
-
-      return holdings;
-    }, [positions]);
+    const topHoldings = useHoldingsCalculations(positions);
 
     const getChangeClass = (value: number): string => {
       if (value > 0) return "positive";
@@ -37,26 +24,40 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
       return num.toLocaleString();
     };
 
-    const handleStockAction = (action: string, holding: HoldingItem) => {
-      if (action === "매수") {
-        const orderParams = new URLSearchParams({
-          stockCode: holding.pdno,
-          stockName: encodeURIComponent(holding.prdt_name),
-          currentPrice: holding.prpr,
-          orderType: "buy",
-        });
-        router.push(`/order?${orderParams.toString()}`);
-      } else if (action === "매도") {
-        const orderParams = new URLSearchParams({
-          stockCode: holding.pdno,
-          stockName: encodeURIComponent(holding.prdt_name),
-          currentPrice: holding.prpr,
-          holdingQty: holding.hldg_qty,
-          orderType: "sell",
-        });
-        router.push(`/order?${orderParams.toString()}`);
-      } else if (action === "차트보기") {
-        router.push(`/realtime?symbol=${holding.pdno}&autoSubscribe=true`);
+    const handleStockAction = (
+      action: string,
+      stockCode: string,
+      stockName: string,
+      currentPrice: string,
+      holdingQty?: string
+    ) => {
+      const baseParams = {
+        stockCode,
+        stockName: encodeURIComponent(stockName),
+        currentPrice,
+      };
+
+      switch (action) {
+        case "매수":
+          const buyParams = new URLSearchParams({
+            ...baseParams,
+            orderType: "buy",
+          });
+          router.push(`/order?${buyParams.toString()}`);
+          break;
+
+        case "매도":
+          const sellParams = new URLSearchParams({
+            ...baseParams,
+            holdingQty: holdingQty || "0",
+            orderType: "sell",
+          });
+          router.push(`/order?${sellParams.toString()}`);
+          break;
+
+        case "차트보기":
+          router.push(`/realtime?symbol=${stockCode}&autoSubscribe=true`);
+          break;
       }
     };
 
@@ -69,7 +70,7 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
       );
     }
 
-    if (!positions || topHoldings.length === 0) {
+    if (!positions || topHoldings.length === 0)
       return (
         <section className={styles.holdingsOverview}>
           <h2 className={styles.sectionTitle}>📋 내 보유종목 현황 (TOP 5)</h2>
@@ -81,7 +82,6 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
           </div>
         </section>
       );
-    }
 
     return (
       <section className={styles.holdingsOverview}>
@@ -143,21 +143,43 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
                       <div className={styles.actionButtons}>
                         <button
                           className={`${styles.actionButton} ${styles.buyButton}`}
-                          onClick={() => handleStockAction("매수", holding)}
+                          onClick={() =>
+                            handleStockAction(
+                              "매수",
+                              holding.pdno,
+                              holding.prdt_name,
+                              holding.prpr
+                            )
+                          }
                           title="매수 주문"
                         >
                           매수
                         </button>
                         <button
                           className={`${styles.actionButton} ${styles.sellButton}`}
-                          onClick={() => handleStockAction("매도", holding)}
+                          onClick={() =>
+                            handleStockAction(
+                              "매도",
+                              holding.pdno,
+                              holding.prdt_name,
+                              holding.prpr,
+                              holding.hldg_qty
+                            )
+                          }
                           title="매도 주문"
                         >
                           매도
                         </button>
                         <button
                           className={`${styles.actionButton} ${styles.chartButton}`}
-                          onClick={() => handleStockAction("차트보기", holding)}
+                          onClick={() =>
+                            handleStockAction(
+                              "차트보기",
+                              holding.pdno,
+                              holding.prdt_name,
+                              holding.prpr
+                            )
+                          }
                           title="실시간 차트 보기"
                         >
                           차트

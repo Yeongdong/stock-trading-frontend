@@ -1,5 +1,4 @@
 import React from "react";
-
 import { SummaryCard } from "@/components/features/account/SummaryCard";
 import { PositionsTable } from "@/components/features/account/PositionsTable";
 import { ERROR_MESSAGES } from "@/constants/errors";

@@ -7,12 +7,10 @@ import { ErrorHandler } from "@/utils/errorHandler";
 export const useBalance = () => {
   const [balanceData, setBalanceData] = useState<Balance | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { addError } = useError();
 
-  const refetch = useCallback(async () => {
+  const refresh = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
 
     try {
       const data = await balanceService.getBalance();
@@ -25,7 +23,6 @@ export const useBalance = () => {
     } catch (error) {
       const standardError = ErrorHandler.standardize(error);
 
-      setError(standardError.message);
       addError({
         message: standardError.message,
         code: standardError.code,
@@ -36,16 +33,9 @@ export const useBalance = () => {
     }
   }, [addError]);
 
-  const clearBalance = useCallback(() => {
-    setBalanceData(null);
-    setError(null);
-  }, []);
-
   return {
     balanceData,
     isLoading,
-    error,
-    refetch,
-    clearBalance,
+    refresh,
   };
 };

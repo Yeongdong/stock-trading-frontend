@@ -1,27 +1,32 @@
 import React, { memo } from "react";
-import styles from "./StockPriceCard.module.css";
 import { StockPriceHeaderProps } from "@/types";
+import styles from "./StockPriceHeader.module.css";
 
 const StockPriceHeader: React.FC<StockPriceHeaderProps> = memo(
   ({ symbol, name, isUnsubscribing, onUnsubscribe }) => {
     return (
-      <div className={styles.cardHeader}>
-        <div>
-          <div className={styles.stockSymbol}>{symbol}</div>
-          {name && name !== symbol && (
-            <div className={styles.stockName}>{name}</div>
-          )}
+      <header className={styles.cardHeader}>
+        <div className={styles.stockInfo}>
+          <h3 className={styles.stockSymbol}>{symbol}</h3>
+          {name && <p className={styles.stockName}>{name}</p>}
         </div>
+
         <button
           className={styles.unsubscribeBtn}
           onClick={onUnsubscribe}
-          title="구독 취소"
           disabled={isUnsubscribing}
-          aria-label="구독 취소"
+          aria-label={`${symbol} 구독 취소`}
+          title="구독 취소"
         >
-          {isUnsubscribing ? "..." : "×"}
+          {isUnsubscribing ? (
+            <span className={styles.loadingDots} aria-hidden="true">
+              ⋯
+            </span>
+          ) : (
+            <span aria-hidden="true">×</span>
+          )}
         </button>
-      </div>
+      </header>
     );
   }
 );

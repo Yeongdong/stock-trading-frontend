@@ -3,7 +3,7 @@ import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import { ANIMATIONS } from "@/constants";
 
 import { RealtimeStockData } from "@/types";
-import { StockCardDataResult } from "@/types/domains/stock/hook";
+import { StockCardDataResult } from "@/types/domains/stock/hooks";
 
 export const useStockCardData = (symbol: string): StockCardDataResult => {
   const { getStockData, getChartData, unsubscribeSymbol } =

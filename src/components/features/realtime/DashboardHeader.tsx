@@ -1,9 +1,10 @@
-import { DashboardHeaderProps } from "@/types";
 import React, { memo } from "react";
+import { DashboardHeaderProps } from "@/types";
+import styles from "./DashboardHeader.module.css";
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = memo(({ title }) => (
-  <header className="dashboard-header">
-    <h1>{title}</h1>
+  <header className={styles.dashboardHeader}>
+    <h1 className={styles.title}>{title}</h1>
   </header>
 ));
 

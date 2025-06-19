@@ -4,44 +4,70 @@ import {
   OrderExecutionInquiryRequest,
   OrderExecutionSearchFormProps,
 } from "@/types";
-
-const getTodayString = () => {
-  const today = new Date();
-  return today.toISOString().split("T")[0];
-};
-
-const get30DaysAgoString = () => {
-  const date = new Date();
-  date.setDate(date.getDate() - 30);
-  return date.toISOString().split("T")[0];
-};
+import { useDateUtils } from "@/hooks/common/useDateUtils";
+import { useOrderExecutionDefaults } from "@/hooks/orderExecution/useOrderExecutionDefaults";
+import { useError } from "@/contexts/ErrorContext";
 
 const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
   onSearch,
   isLoading,
 }) => {
-  const [startDate, setStartDate] = useState(get30DaysAgoString());
-  const [endDate, setEndDate] = useState(getTodayString());
+  const { getTodayString, formatDateForApi } = useDateUtils();
+  const { getDefaultDateRange } = useOrderExecutionDefaults();
+  const { addError } = useError();
+
+  const [startDate, setStartDate] = useState(getDefaultDateRange.startDate);
+  const [endDate, setEndDate] = useState(getDefaultDateRange.endDate);
   const [stockCode, setStockCode] = useState("");
   const [orderType, setOrderType] = useState("00");
+
+  const validateForm = (): string | null => {
+    if (!startDate || !endDate) return "조회 기간을 입력해주세요.";
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) return "시작일은 종료일보다 이전이어야 합니다.";
+
+    // 1년 이상 조회 제한
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 365) return "조회 기간은 1년 이내로 제한됩니다.";
+
+    return null;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!startDate || !endDate) {
-      alert("조회 기간을 입력해주세요.");
+    const validationError = validateForm();
+    if (validationError) {
+      addError({
+        message: validationError,
+        severity: "warning",
+      });
       return;
     }
 
-    const formatDate = (date: string) => date.replace(/-/g, "");
     const request: OrderExecutionInquiryRequest = {
-      startDate: formatDate(startDate),
-      endDate: formatDate(endDate),
+      startDate: formatDateForApi(startDate),
+      endDate: formatDateForApi(endDate),
       stockCode: stockCode.trim() || undefined,
       orderType,
     };
 
     onSearch(request);
+  };
+
+  const handlePresetPeriod = (days: number) => {
+    const today = getTodayString();
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - days);
+    const startDateString = pastDate.toISOString().split("T")[0];
+
+    setStartDate(startDateString);
+    setEndDate(today);
   };
 
   return (
@@ -111,6 +137,30 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
         </div>
 
         <div className={styles.formActions}>
+          <button
+            type="button"
+            onClick={() => handlePresetPeriod(7)}
+            disabled={isLoading}
+            className={styles.presetButton}
+          >
+            최근 1주일
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePresetPeriod(30)}
+            disabled={isLoading}
+            className={styles.presetButton}
+          >
+            최근 1개월
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePresetPeriod(90)}
+            disabled={isLoading}
+            className={styles.presetButton}
+          >
+            최근 3개월
+          </button>
           <button
             type="submit"
             disabled={isLoading}

@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { formatKRW } from "@/utils/formatters";
 import styles from "./PositionsTable.module.css";
 import { Position } from "@/types/domains/stock";

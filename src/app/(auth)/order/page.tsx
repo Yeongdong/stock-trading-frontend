@@ -2,17 +2,13 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import EnhancedStockOrderForm from "@/components/features/stock/order/StockOrderForm";
+import StockOrderForm from "@/components/features/stock/order/StockOrderForm";
 import StockSearchView from "@/components/features/stock/search/StockSearchView";
 import BuyableInquiryView from "@/components/features/trading/BuyableInquiryView";
 import { StockSearchResult } from "@/types/domains/stock/search";
 import styles from "./page.module.css";
 import PeriodPriceChart from "@/components/features/stock/chart/PeriodPriceChart";
-
-interface StockInfo {
-  code: string;
-  name: string;
-}
+import { StockInfo } from "@/types/domains/stock";
 
 function OrderPageContent() {
   const searchParams = useSearchParams();
@@ -44,7 +40,7 @@ function OrderPageContent() {
 
       <div className={styles.twoColumnLayout}>
         <div className={styles.orderSection}>
-          <EnhancedStockOrderForm
+          <StockOrderForm
             initialData={initialData}
             selectedStockCode={selectedStock.code}
           />

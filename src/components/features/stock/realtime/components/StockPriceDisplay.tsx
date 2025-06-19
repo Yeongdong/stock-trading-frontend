@@ -1,37 +1,43 @@
-import React, { memo, useMemo } from "react";
-import styles from "./StockPriceCard.module.css";
+import React, { memo } from "react";
 import { PriceDisplayProps } from "@/types";
+import styles from "./StockPriceDisplay.module.css";
 
 const PriceDisplay: React.FC<PriceDisplayProps> = memo(
   ({ price, priceChange, changeRate, className = "" }) => {
-    // 가격 변화에 따른 스타일 클래스
-    const priceChangeClass = useMemo(() => {
+    // 가격 변화 방향 결정
+    const getPriceChangeClass = () => {
       if (priceChange > 0) return styles.priceUp;
       if (priceChange < 0) return styles.priceDown;
       return styles.priceUnchanged;
-    }, [priceChange]);
+    };
 
-    // 숫자 포맷팅
-    const formattedPrice = useMemo(
-      () => Number(price).toLocaleString(),
-      [price]
-    );
+    const priceChangeClass = getPriceChangeClass();
 
-    const formattedChange = useMemo(() => {
-      const prefix = priceChange > 0 ? "+" : "";
-      return `${prefix}${Number(priceChange).toLocaleString()}`;
-    }, [priceChange]);
+    // 변화율 포맷팅
+    const formatChangeRate = (rate: number): string => {
+      const sign = rate > 0 ? "+" : "";
+      return `${sign}${rate.toFixed(2)}%`;
+    };
 
-    const formattedRate = useMemo(() => changeRate.toFixed(2), [changeRate]);
+    // 가격 변화 포맷팅
+    const formatPriceChange = (change: number): string => {
+      const sign = change > 0 ? "+" : "";
+      return `${sign}${change.toLocaleString()}`;
+    };
 
     return (
       <div className={`${styles.priceContainer} ${className}`}>
         <div className={`${styles.currentPrice} ${priceChangeClass}`}>
-          {formattedPrice} 원
+          {price.toLocaleString()}원
         </div>
 
         <div className={`${styles.priceChange} ${priceChangeClass}`}>
-          {formattedChange} 원 ({formattedRate}%)
+          <span className={styles.changeAmount}>
+            {formatPriceChange(priceChange)}원
+          </span>
+          <span className={styles.changeRate}>
+            ({formatChangeRate(changeRate)})
+          </span>
         </div>
       </div>
     );

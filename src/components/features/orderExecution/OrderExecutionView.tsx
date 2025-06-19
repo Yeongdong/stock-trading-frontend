@@ -2,51 +2,26 @@ import React, { useEffect } from "react";
 import { useOrderExecution } from "@/hooks/orderExecution/useOrderExecution";
 import OrderExecutionSearchForm from "./OrderExecutionSearchForm";
 import OrderExecutionTable from "./OrderExecutionTable";
-import { OrderExecutionInquiryRequest, OrderExecutionViewProps } from "@/types";
+import { useOrderExecutionDefaults } from "@/hooks/orderExecution/useOrderExecutionDefaults";
+import styles from "./OrderExecutionView.module.css";
 
-const createDefaultSearchRequest = (): OrderExecutionInquiryRequest => {
-  const getTodayString = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  };
-
-  const get30DaysAgoString = () => {
-    const date = new Date();
-    date.setDate(date.getDate() - 30);
-    return date.toISOString().split("T")[0];
-  };
-
-  const formatDate = (date: string) => date.replace(/-/g, "");
-
-  return {
-    startDate: formatDate(get30DaysAgoString()),
-    endDate: formatDate(getTodayString()),
-    orderType: "00",
-  };
-};
-
-const OrderExecutionView: React.FC<OrderExecutionViewProps> = ({
-  className = "",
-}) => {
+const OrderExecutionView: React.FC = () => {
   const { data, isLoading, fetchOrderExecutions } = useOrderExecution();
+  const { defaultSearchRequest } = useOrderExecutionDefaults();
 
   useEffect(() => {
-    const defaultRequest = createDefaultSearchRequest();
-    fetchOrderExecutions(defaultRequest);
-  }, [fetchOrderExecutions]);
+    fetchOrderExecutions(defaultSearchRequest);
+  }, [fetchOrderExecutions, defaultSearchRequest]);
 
   return (
-    <div className={`order-execution-view ${className}`}>
+    <div className={styles.orderExecutionView}>
       <OrderExecutionSearchForm
         onSearch={fetchOrderExecutions}
         isLoading={isLoading}
       />
 
       {data && (
-        <OrderExecutionTable
-          items={data.executionItems}
-          isLoading={isLoading}
-        />
+        <OrderExecutionTable items={data.executions} isLoading={isLoading} />
       )}
     </div>
   );

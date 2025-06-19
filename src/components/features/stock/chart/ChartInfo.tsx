@@ -1,19 +1,25 @@
-import { ChartInfoProps } from "@/types";
 import React, { memo } from "react";
+import { ChartInfoProps } from "@/types";
+import styles from "./ChartInfo.module.css";
 
 const ChartInfo: React.FC<ChartInfoProps> = memo(
   ({ startPrice, currentPrice, priceChangePercentage, priceChangeClass }) => (
-    <div className="chart-info">
-      <div className="chart-label">
-        <span>시작:</span>
-        <span className="chart-value">{startPrice.toLocaleString()} 원</span>
+    <div className={styles.chartInfo}>
+      <div className={styles.chartLabel}>
+        <span className={styles.labelText}>시작:</span>
+        <span className={styles.chartValue}>
+          {startPrice.toLocaleString()}원
+        </span>
       </div>
-      <div className="chart-label">
-        <span>현재:</span>
-        <span className="chart-value">
-          {currentPrice.toLocaleString()} 원{" "}
-          <span className={priceChangeClass}>
-            ({priceChangePercentage.toFixed(2)}%)
+      <div className={styles.chartLabel}>
+        <span className={styles.labelText}>현재:</span>
+        <span className={styles.chartValue}>
+          {currentPrice.toLocaleString()}원{" "}
+          <span
+            className={`${styles.changeIndicator} ${styles[priceChangeClass]}`}
+          >
+            ({priceChangePercentage > 0 ? "+" : ""}
+            {priceChangePercentage.toFixed(2)}%)
           </span>
         </span>
       </div>

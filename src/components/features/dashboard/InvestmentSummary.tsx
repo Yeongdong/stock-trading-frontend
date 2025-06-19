@@ -1,113 +1,114 @@
-import React, { memo, useState, useEffect } from "react";
+import React, { memo, useMemo } from "react";
 import { formatKRW } from "@/utils/formatters";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import styles from "./InvestmentSummary.module.css";
 import { Position, Summary } from "@/types/domains/stock/balance";
 import Link from "next/link";
+import { InvestmentSummaryProps, SummaryCardData } from "@/types";
 
-interface SummaryCardData {
-  icon: string;
-  title: string;
-  value: string;
-  subValue?: string;
-  changeClass?: string;
-}
+const useInvestmentCalculations = (
+  summary?: Summary,
+  positions: Position[] = []
+) => {
+  return useMemo(() => {
+    if (!summary) return null;
 
-interface InvestmentSummaryProps {
-  summary?: Summary;
-  positions?: Position[];
-  isLoading: boolean;
-}
+    const totalValue = parseInt(summary.tot_evlu_amt);
+    const stockValue = parseInt(summary.scts_evlu_amt);
+    const purchaseAmount = parseInt(summary.pchs_amt_smtl_amt);
+
+    // 총손익 계산
+    const totalProfitLoss = stockValue - purchaseAmount;
+    const totalProfitRate =
+      purchaseAmount > 0 ? (totalProfitLoss / purchaseAmount) * 100 : 0;
+
+    // 임시 당일 수익률 (실제로는 API에서 받아와야 함)
+    const dailyChangeRate = 2.1; // TODO: API에서 받아오기
+    const dailyChangeAmount = Math.floor(totalValue * (dailyChangeRate / 100));
+
+    return {
+      totalValue,
+      stockValue,
+      purchaseAmount,
+      totalProfitLoss,
+      totalProfitRate,
+      dailyChangeRate,
+      dailyChangeAmount,
+      positionCount: positions.length,
+    };
+  }, [summary, positions.length]);
+};
+
+const createSummaryCards = (
+  calculations: ReturnType<typeof useInvestmentCalculations>,
+  summary: Summary
+): SummaryCardData[] => {
+  if (!calculations) return [];
+
+  const {
+    totalProfitLoss,
+    totalProfitRate,
+    dailyChangeRate,
+    dailyChangeAmount,
+    positionCount,
+  } = calculations;
+
+  const getChangeClass = (value: number) => {
+    if (value > 0) return "positive";
+    if (value < 0) return "negative";
+    return "neutral";
+  };
+
+  return [
+    {
+      icon: "💰",
+      title: "총평가금액",
+      value: formatKRW(summary.tot_evlu_amt),
+      subValue: `전일대비 ${
+        dailyChangeRate > 0 ? "+" : ""
+      }${dailyChangeRate.toFixed(1)}%`,
+      changeClass: getChangeClass(dailyChangeRate),
+    },
+    {
+      icon: "📈",
+      title: "총손익률",
+      value: `${totalProfitRate > 0 ? "+" : ""}${totalProfitRate.toFixed(1)}%`,
+      subValue: `(${totalProfitLoss > 0 ? "+" : ""}${formatKRW(
+        totalProfitLoss.toString()
+      )})`,
+      changeClass: getChangeClass(totalProfitRate),
+    },
+    {
+      icon: "📊",
+      title: "당일손익",
+      value: `${dailyChangeAmount > 0 ? "+" : ""}${formatKRW(
+        dailyChangeAmount.toString()
+      )}`,
+      subValue: `(${dailyChangeRate > 0 ? "+" : ""}${dailyChangeRate.toFixed(
+        1
+      )}%)`,
+      changeClass: getChangeClass(dailyChangeRate),
+    },
+    {
+      icon: "📋",
+      title: "보유종목",
+      value: `${positionCount}종목`,
+      subValue:
+        positionCount > 0
+          ? `평균 수익률 ${totalProfitRate.toFixed(1)}%`
+          : "보유종목 없음",
+      changeClass: "neutral",
+    },
+  ];
+};
 
 const InvestmentSummary: React.FC<InvestmentSummaryProps> = memo(
   ({ summary, positions = [], isLoading }) => {
-    const [summaryCards, setSummaryCards] = useState<SummaryCardData[]>([]);
-
-    useEffect(() => {
-      if (!summary) return;
-
-      // 총평가금액
-      const totalValue = parseInt(summary.tot_evlu_amt);
-      // const totalDeposit = parseInt(summary.dnca_tot_amt);
-      const stockValue = parseInt(summary.scts_evlu_amt);
-
-      // 전일대비 계산 (임시로 2.1% 고정값 - 실제론 API에서 받아와야 함)
-      const dailyChangeRate = 2.1;
-      const dailyChangeAmount = Math.floor(
-        totalValue * (dailyChangeRate / 100)
-      );
-
-      // 총손익 계산
-      const purchaseAmount = parseInt(summary.pchs_amt_smtl_amt);
-      const totalProfitLoss = stockValue - purchaseAmount;
-      const totalProfitRate =
-        purchaseAmount > 0 ? (totalProfitLoss / purchaseAmount) * 100 : 0;
-
-      // 당일손익 (임시 계산)
-      const dailyProfitLoss = dailyChangeAmount;
-      const dailyProfitRate = dailyChangeRate;
-
-      const cards: SummaryCardData[] = [
-        {
-          icon: "💰",
-          title: "총평가금액",
-          value: formatKRW(summary.tot_evlu_amt),
-          subValue: `전일대비 ${
-            dailyChangeRate > 0 ? "+" : ""
-          }${dailyChangeRate.toFixed(1)}%`,
-          changeClass:
-            dailyChangeRate > 0
-              ? "positive"
-              : dailyChangeRate < 0
-              ? "negative"
-              : "neutral",
-        },
-        {
-          icon: "📈",
-          title: "총손익률",
-          value: `${totalProfitRate > 0 ? "+" : ""}${totalProfitRate.toFixed(
-            1
-          )}%`,
-          subValue: `(${totalProfitLoss > 0 ? "+" : ""}${formatKRW(
-            totalProfitLoss.toString()
-          )})`,
-          changeClass:
-            totalProfitRate > 0
-              ? "positive"
-              : totalProfitRate < 0
-              ? "negative"
-              : "neutral",
-        },
-        {
-          icon: "📊",
-          title: "당일손익",
-          value: `${dailyProfitLoss > 0 ? "+" : ""}${formatKRW(
-            dailyProfitLoss.toString()
-          )}`,
-          subValue: `(${
-            dailyProfitRate > 0 ? "+" : ""
-          }${dailyProfitRate.toFixed(1)}%)`,
-          changeClass:
-            dailyProfitRate > 0
-              ? "positive"
-              : dailyProfitRate < 0
-              ? "negative"
-              : "neutral",
-        },
-        {
-          icon: "📋",
-          title: "보유종목",
-          value: `${positions.length}종목`,
-          subValue:
-            positions.length > 0
-              ? `평균 수익률 ${totalProfitRate.toFixed(1)}%`
-              : "보유종목 없음",
-          changeClass: "neutral",
-        },
-      ];
-
-      setSummaryCards(cards);
-    }, [summary, positions]);
+    const calculations = useInvestmentCalculations(summary, positions);
+    const summaryCards = useMemo(
+      () => (summary ? createSummaryCards(calculations, summary) : []),
+      [calculations, summary]
+    );
 
     if (isLoading) {
       return (

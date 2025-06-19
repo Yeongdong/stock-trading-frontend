@@ -1,140 +1,88 @@
-/* 메인 카드 컨테이너 */
 .stockCard {
   background-color: var(--color-bg-white);
   border-radius: var(--border-radius-large);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   padding: var(--spacing-lg);
-  position: relative;
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
   border-left: 4px solid var(--color-bg-border);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stockCard:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 /* 가격 변동 애니메이션 */
 .stockCard.blinkUp {
-  background-color: rgba(229, 57, 53, 0.1);
+  border-left-color: var(--color-stock-up);
+  background-color: rgba(229, 57, 53, 0.05);
+  animation: priceUpGlow 0.5s ease-out;
 }
 
 .stockCard.blinkDown {
-  background-color: rgba(33, 150, 243, 0.1);
+  border-left-color: var(--color-stock-down);
+  background-color: rgba(33, 150, 243, 0.05);
+  animation: priceDownGlow 0.5s ease-out;
 }
 
-/* 카드 헤더 */
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-md);
+@keyframes priceUpGlow {
+  0% {
+    background-color: rgba(229, 57, 53, 0.2);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: rgba(229, 57, 53, 0.05);
+    transform: scale(1);
+  }
 }
 
-.stockSymbol {
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-lg);
-  color: var(--color-text-primary);
-}
-
-.stockName {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
-}
-
-/* 구독 취소 버튼 */
-.unsubscribeBtn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  font-size: var(--font-size-xl);
-  line-height: 1;
-  padding: 0 var(--spacing-xs);
-  position: absolute;
-  right: var(--spacing-sm);
-  top: var(--spacing-sm);
-  transition: color 0.2s ease;
-}
-
-.unsubscribeBtn:hover:not(:disabled) {
-  color: var(--color-text-secondary);
-}
-
-.unsubscribeBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* 가격 표시 영역 */
-.priceContainer {
-  margin-bottom: var(--spacing-md);
-}
-
-.currentPrice {
-  font-size: var(--font-size-xxl);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-xs);
-}
-
-.priceChange {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
-}
-
-/* 가격 변동 색상 */
-.priceUp {
-  color: var(--color-stock-up);
-  border-color: var(--color-stock-up);
-}
-
-.priceDown {
-  color: var(--color-stock-down);
-  border-color: var(--color-stock-down);
-}
-
-.priceUnchanged {
-  color: var(--color-stock-unchanged);
-  border-color: var(--color-bg-border);
+@keyframes priceDownGlow {
+  0% {
+    background-color: rgba(33, 150, 243, 0.2);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: rgba(33, 150, 243, 0.05);
+    transform: scale(1);
+  }
 }
 
 /* 차트 컨테이너 */
 .chartContainer {
-  height: 150px;
+  height: 120px;
   margin: var(--spacing-md) 0;
+  padding: var(--spacing-sm) 0;
   border-top: var(--border-width) var(--border-style) var(--color-bg-border);
   border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
-  padding: var(--spacing-sm) 0;
-}
-
-/* 거래 정보 영역 */
-.tradingInfo {
-  display: flex;
-  justify-content: space-between;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-}
-
-.tradingInfo .label {
-  font-weight: var(--font-weight-medium);
-  margin-right: var(--spacing-xs);
-}
-
-.tradingInfo .value {
-  color: var(--color-text-primary);
-}
-
-/* 로딩 상태 */
-.loadingState {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
-}
-
-/* 에러 상태 */
-.errorState {
-  padding: var(--spacing-lg);
-  text-align: center;
-  color: var(--color-error);
-  background-color: var(--color-error-bg);
+  background-color: var(--color-bg-lighter);
   border-radius: var(--border-radius);
-  border: var(--border-width) solid #f5c6cb;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .stockCard {
+    padding: var(--spacing-md);
+  }
+
+  .chartContainer {
+    height: 100px;
+    margin: var(--spacing-sm) 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .stockCard {
+    padding: var(--spacing-sm);
+  }
+
+  .stockCard:hover {
+    transform: none;
+  }
+
+  .chartContainer {
+    height: 80px;
+  }
 }

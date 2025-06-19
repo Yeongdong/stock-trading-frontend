@@ -1,10 +1,6 @@
 import React from "react";
 import styles from "./PeriodPriceSummary.module.css";
-import { SummaryData } from "./PeriodPriceChartModel";
-
-interface PeriodPriceSummaryProps {
-  summaryData: SummaryData;
-}
+import { PeriodPriceSummaryProps } from "@/types";
 
 export const PeriodPriceSummary: React.FC<PeriodPriceSummaryProps> = ({
   summaryData,

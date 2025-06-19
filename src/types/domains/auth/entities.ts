@@ -35,3 +35,9 @@ export enum TokenStatus {
   EXPIRED = "expired",
   INVALID = "invalid",
 }
+
+export interface LoginResult {
+  success: boolean;
+  redirectTo?: string;
+  user?: AuthUser;
+}

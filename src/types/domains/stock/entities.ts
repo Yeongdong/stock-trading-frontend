@@ -1,3 +1,4 @@
+import { Position, Summary } from "./balance";
 // export interface StockBalance {
 //   summary: BalanceSummary;
 //   positions: StockPosition[];
@@ -46,4 +47,18 @@ export interface StockData {
   readonly changeRate: number;
   readonly changeDirection: "UP" | "DOWN" | "FLAT";
   readonly timestamp: string;
+}
+
+export interface SummaryCardData {
+  icon: string;
+  title: string;
+  value: string;
+  subValue?: string;
+  changeClass?: string;
+}
+
+export interface InvestmentSummaryProps {
+  summary?: Summary;
+  positions?: Position[];
+  isLoading: boolean;
 }

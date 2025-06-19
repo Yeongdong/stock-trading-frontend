@@ -6,3 +6,8 @@ export interface StockOrder {
   ordQty: string; // 주문수량
   ordUnpr: string; // 주문단가
 }
+
+export interface StockInfo {
+  code: string;
+  name: string;
+}
