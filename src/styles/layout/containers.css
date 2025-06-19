@@ -1,0 +1,33 @@
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+}
+
+/* 반응형 컨테이너 */
+@media (max-width: var(--breakpoint-lg)) {
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .main-content {
+    padding: var(--spacing-md);
+  }
+}

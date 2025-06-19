@@ -1,0 +1,21 @@
+.not-found-container {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.not-found-container a {
+  display: inline-block;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  font-weight: var(--font-weight-medium);
+}
+
+.not-found-container a:hover {
+  background-color: var(--color-primary-hover);
+  text-decoration: none;
+}

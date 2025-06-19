@@ -1,0 +1,29 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg-white);
+}
+
+th {
+  background-color: var(--color-bg-light);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  cursor: pointer;
+}
+
+th:hover {
+  background-color: var(--color-bg-border);
+}
+
+td {
+  padding: var(--spacing-md);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+td.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
