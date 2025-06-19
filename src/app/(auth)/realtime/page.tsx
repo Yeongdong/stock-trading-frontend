@@ -21,13 +21,25 @@ function RealtimeProviderConnector({
 
   return (
     <RealtimePriceProvider
-      contextUpdaters={{
-        updateStockData,
-        updateChartData,
+      callbacks={{
+        onStockDataUpdate: updateStockData,
+        onChartDataUpdate: updateChartData,
       }}
     >
       {children}
     </RealtimePriceProvider>
+  );
+}
+
+function RealtimeProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <ChartDataProvider>
+      <StockDataProvider>
+        <RealtimeProviderConnector>
+          <StockSubscriptionProvider>{children}</StockSubscriptionProvider>
+        </RealtimeProviderConnector>
+      </StockDataProvider>
+    </ChartDataProvider>
   );
 }
 
@@ -60,15 +72,9 @@ export default function RealtimePage() {
 
   return (
     <div className={styles.container}>
-      <ChartDataProvider>
-        <StockDataProvider>
-          <StockSubscriptionProvider>
-            <RealtimeProviderConnector>
-              <RealtimeDashboard />
-            </RealtimeProviderConnector>
-          </StockSubscriptionProvider>
-        </StockDataProvider>
-      </ChartDataProvider>
+      <RealtimeProviders>
+        <RealtimeDashboard />
+      </RealtimeProviders>
     </div>
   );
 }
@@ -80,31 +86,28 @@ function getNextOpenTime(marketInfo: {
 }): string | undefined {
   const now = new Date();
 
-  // 장이 열려있으면 다음 개장 시간 표시하지 않음
   if (marketInfo.isOpen) return undefined;
 
   const nextOpen = new Date(now);
 
-  // 현재 평일이면서 장 시간 전이면 오늘 9시
   if (now.getDay() >= 1 && now.getDay() <= 5 && now.getHours() < 9) {
     nextOpen.setHours(9, 0, 0, 0);
   } else {
-    // 다음 평일 9시 찾기
     const daysUntilNextWeekday =
       now.getDay() === 0
         ? 1 // 일요일이면 1일 후 (월요일)
         : now.getDay() === 6
         ? 2 // 토요일이면 2일 후 (월요일)
-        : 1; // 평일이면 1일 후
+        : 7 - now.getDay() + 1; // 평일이면 다음 주 월요일
 
     nextOpen.setDate(now.getDate() + daysUntilNextWeekday);
     nextOpen.setHours(9, 0, 0, 0);
   }
 
   return nextOpen.toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
   });

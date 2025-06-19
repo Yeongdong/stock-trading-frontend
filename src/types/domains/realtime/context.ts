@@ -3,23 +3,31 @@ import { RealtimeStockData } from "./entities";
 import { StockCode } from "@/types/common/base";
 
 export interface ChartDataState {
-  [symbol: string]: PriceDataPoint[];
+  readonly [symbol: string]: PriceDataPoint[];
 }
 
 export type ChartDataAction =
   | {
-      type: "UPDATE_CHART_DATA";
-      payload: { symbol: string; dataPoint: PriceDataPoint };
+      readonly type: "UPDATE_CHART_DATA";
+      readonly payload: {
+        readonly symbol: string;
+        readonly dataPoint: PriceDataPoint;
+      };
     }
-  | { type: "REMOVE_CHART_DATA"; payload: string }
-  | { type: "CLEAR_ALL_CHART_DATA" };
+  | {
+      readonly type: "REMOVE_CHART_DATA";
+      readonly payload: string;
+    }
+  | {
+      readonly type: "CLEAR_ALL_CHART_DATA";
+    };
 
 export interface ChartDataContextType {
-  chartData: ChartDataState;
-  updateChartData: (stockData: RealtimeStockData) => void;
-  removeChartData: (symbol: string) => void;
-  clearAllChartData: () => void;
-  getChartData: (symbol: string) => PriceDataPoint[];
+  readonly chartData: ChartDataState;
+  readonly updateChartData: (stockData: RealtimeStockData) => void;
+  readonly removeChartData: (symbol: string) => void;
+  readonly clearAllChartData: () => void;
+  readonly getChartData: (symbol: string) => PriceDataPoint[];
 }
 
 export interface ChartCalculationResult {
@@ -47,32 +55,45 @@ export type RealtimeAction =
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "REMOVE_STOCK_DATA"; payload: StockCode };
 
+// 구독 상태
 export interface SubscriptionState {
-  subscribedSymbols: string[];
-  isLoading: boolean;
-  error: string | null;
+  readonly subscribedSymbols: ReadonlyArray<string>;
+  readonly isLoading: boolean;
+  readonly error: string | null;
 }
 
+// 구독 액션
 export type SubscriptionAction =
-  | { type: "SET_SUBSCRIPTIONS"; payload: string[] }
-  | { type: "ADD_SUBSCRIPTION"; payload: string }
-  | { type: "REMOVE_SUBSCRIPTION"; payload: string }
-  | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_ERROR"; payload: string | null };
+  | {
+      readonly type: "SET_SUBSCRIPTIONS";
+      readonly payload: ReadonlyArray<string>;
+    }
+  | {
+      readonly type: "ADD_SUBSCRIPTION";
+      readonly payload: string;
+    }
+  | {
+      readonly type: "REMOVE_SUBSCRIPTION";
+      readonly payload: string;
+    }
+  | {
+      readonly type: "SET_LOADING";
+      readonly payload: boolean;
+    }
+  | {
+      readonly type: "SET_ERROR";
+      readonly payload: string | null;
+    };
 
+// 구독 컨텍스트 타입
 export interface SubscriptionContextType {
-  subscribedSymbols: string[];
-  isLoading: boolean;
-  error: string | null;
-  subscribeSymbol: (symbol: string) => Promise<boolean>;
-  unsubscribeSymbol: (symbol: string) => Promise<boolean>;
-  isSubscribed: (symbol: string) => boolean;
-}
-
-export interface StockDataState {
-  stockData: Record<string, RealtimeStockData>;
-  isLoading: boolean;
-  error: string | null;
+  readonly subscribedSymbols: ReadonlyArray<string>;
+  readonly isLoading: boolean;
+  readonly error: string | null;
+  readonly subscribeSymbol: (symbol: string) => Promise<boolean>;
+  readonly unsubscribeSymbol: (symbol: string) => Promise<boolean>;
+  readonly isSubscribed: (symbol: string) => boolean;
+  readonly clearAllSubscriptions: () => Promise<boolean>;
 }
 
 export interface SymbolSubscriptionResult {
@@ -83,4 +104,17 @@ export interface SymbolSubscriptionResult {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubscribe: (e: React.FormEvent) => Promise<void>;
   validateSymbol: (symbol: string) => boolean;
+}
+
+export interface RealtimePriceContextType {
+  readonly stockData: Record<StockCode, RealtimeStockData>;
+  readonly isConnected: boolean;
+  readonly error: string | null;
+  readonly getStockData: (symbol: StockCode) => RealtimeStockData | null;
+  readonly removeStockData: (symbol: StockCode) => void;
+}
+
+export interface RealtimeCallbacks {
+  readonly onStockDataUpdate?: (data: RealtimeStockData) => void;
+  readonly onChartDataUpdate?: (data: RealtimeStockData) => void;
 }

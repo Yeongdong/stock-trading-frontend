@@ -3,10 +3,10 @@ export type ErrorSeverity = "info" | "warning" | "error";
 
 // 표준 에러 구조
 export interface StandardError {
-  code: string;
-  message: string;
-  severity: ErrorSeverity;
-  context?: Record<string, string | number | boolean>;
+  readonly code: string;
+  readonly message: string;
+  readonly severity: ErrorSeverity;
+  readonly context?: Record<string, string | number | boolean>;
 }
 
 // 에러 코드들
@@ -37,36 +37,50 @@ export const ERROR_CODES = {
   REALTIME_SUBSCRIBE_FAIL: "REALTIME_SUBSCRIBE_FAIL",
 } as const;
 
+// HTTP 에러 응답
 export interface HttpErrorResponse {
-  status: number;
-  message?: string;
+  readonly status: number;
+  readonly message?: string;
 }
 
+// 앱 에러
 export interface AppError {
-  id: string;
-  message: string;
-  code?: string;
-  severity: "info" | "warning" | "error";
-  timestamp: Date;
+  readonly id: string;
+  readonly message: string;
+  readonly code?: string;
+  readonly severity: ErrorSeverity;
+  readonly timestamp: Date;
 }
 
+// 에러 아이템 Props
 export interface ErrorItemProps {
-  error: AppError;
-  onDismiss: (id: string) => void;
+  readonly error: AppError;
+  readonly onDismiss: (id: string) => void;
 }
 
+// 에러 상태
 export interface ErrorState {
-  errors: AppError[];
+  readonly errors: ReadonlyArray<AppError>;
 }
 
+// 에러 액션
 export type ErrorAction =
-  | { type: "ADD_ERROR"; payload: Omit<AppError, "id" | "timestamp"> }
-  | { type: "REMOVE_ERROR"; payload: string }
-  | { type: "CLEAR_ERRORS" };
+  | {
+      readonly type: "ADD_ERROR";
+      readonly payload: Omit<AppError, "id" | "timestamp">;
+    }
+  | {
+      readonly type: "REMOVE_ERROR";
+      readonly payload: string;
+    }
+  | {
+      readonly type: "CLEAR_ERRORS";
+    };
 
+// 에러 컨텍스트 타입
 export interface ErrorContextType {
-  errors: AppError[];
-  addError: (error: Omit<AppError, "id" | "timestamp">) => void;
-  removeError: (id: string) => void;
-  clearErrors: () => void;
+  readonly errors: ReadonlyArray<AppError>;
+  readonly addError: (error: Omit<AppError, "id" | "timestamp">) => void;
+  readonly removeError: (id: string) => void;
+  readonly clearErrors: () => void;
 }

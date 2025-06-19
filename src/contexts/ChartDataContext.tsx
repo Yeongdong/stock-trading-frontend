@@ -22,37 +22,57 @@ function chartDataReducer(
   state: ChartDataState,
   action: ChartDataAction
 ): ChartDataState {
-  switch (action.type) {
-    case "UPDATE_CHART_DATA": {
-      const { symbol, dataPoint } = action.payload;
-      const currentData = state[symbol] || [];
+  try {
+    switch (action.type) {
+      case "UPDATE_CHART_DATA": {
+        const { symbol, dataPoint } = action.payload;
 
-      // 마지막 데이터와 같으면 상태 변경 없음
-      const lastPoint = currentData[currentData.length - 1];
-      if (lastPoint && lastPoint.price === dataPoint.price) return state;
+        if (!symbol || !dataPoint || typeof dataPoint.price !== "number") {
+          console.warn("Invalid chart data:", { symbol, dataPoint });
+          return state;
+        }
 
-      // 최대 데이터 포인트 수 제한
-      const updatedData = [...currentData, dataPoint].slice(
-        -LIMITS.MAX_CHART_DATA_POINTS
-      );
+        const currentData = state[symbol] || [];
 
-      return {
-        ...state,
-        chartData: {
-          ...state.chartData,
+        // 마지막 데이터와 같으면 상태 변경 없음 (성능 최적화)
+        const lastPoint = currentData[currentData.length - 1];
+        if (
+          lastPoint &&
+          lastPoint.price === dataPoint.price &&
+          lastPoint.time === dataPoint.time
+        ) {
+          return state;
+        }
+
+        // 최대 데이터 포인트 수 제한으로 메모리 관리
+        const updatedData = [...currentData, dataPoint].slice(
+          -LIMITS.MAX_CHART_DATA_POINTS
+        );
+
+        return {
+          ...state,
           [symbol]: updatedData,
-        },
-      };
+        };
+      }
+
+      case "REMOVE_CHART_DATA": {
+        const symbol = action.payload;
+        if (!symbol || !state[symbol]) return state;
+
+        const newState = { ...state };
+        delete newState[symbol];
+        return newState;
+      }
+
+      case "CLEAR_ALL_CHART_DATA":
+        return {};
+
+      default:
+        return state;
     }
-    case "REMOVE_CHART_DATA": {
-      const newChartData = { ...state };
-      delete newChartData[action.payload];
-      return newChartData;
-    }
-    case "CLEAR_ALL_CHART_DATA":
-      return {};
-    default:
-      return state;
+  } catch (error) {
+    console.error("Chart data reducer error:", error);
+    return state;
   }
 }
 
@@ -65,34 +85,67 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [chartData, dispatch] = useReducer(chartDataReducer, initialState);
 
-  // 차트 데이터 업데이트 함수
   const updateChartData = useCallback((stockData: RealtimeStockData) => {
-    const symbol = stockData.symbol;
-    const dataPoint: PriceDataPoint = {
-      time: new Date().toLocaleTimeString(),
-      price: stockData.price,
-    };
+    try {
+      if (
+        !stockData ||
+        !stockData.symbol ||
+        typeof stockData.price !== "number"
+      ) {
+        console.warn("Invalid stock data for chart update:", stockData);
+        return;
+      }
 
-    dispatch({
-      type: "UPDATE_CHART_DATA",
-      payload: { symbol, dataPoint },
-    });
+      const symbol = stockData.symbol;
+      const dataPoint: PriceDataPoint = {
+        time: new Date().toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),
+        price: stockData.price,
+      };
+
+      dispatch({
+        type: "UPDATE_CHART_DATA",
+        payload: { symbol, dataPoint },
+      });
+    } catch (error) {
+      console.error("Chart data update error:", error);
+    }
   }, []);
 
-  // 차트 데이터 제거 함수
   const removeChartData = useCallback((symbol: string) => {
-    dispatch({ type: "REMOVE_CHART_DATA", payload: symbol });
+    try {
+      if (!symbol || typeof symbol !== "string") {
+        console.warn("Invalid symbol for chart data removal:", symbol);
+        return;
+      }
+
+      dispatch({ type: "REMOVE_CHART_DATA", payload: symbol });
+    } catch (error) {
+      console.error("Chart data removal error:", error);
+    }
   }, []);
 
-  // 모든 차트 데이터 초기화
   const clearAllChartData = useCallback(() => {
-    dispatch({ type: "CLEAR_ALL_CHART_DATA" });
+    try {
+      dispatch({ type: "CLEAR_ALL_CHART_DATA" });
+    } catch (error) {
+      console.error("Chart data clear error:", error);
+    }
   }, []);
 
-  // 특정 종목의 차트 데이터 조회
   const getChartData = useCallback(
     (symbol: string): PriceDataPoint[] => {
-      return chartData[symbol] || [];
+      try {
+        if (!symbol || typeof symbol !== "string") return [];
+
+        return chartData[symbol] || [];
+      } catch (error) {
+        console.error("Error getting chart data:", error);
+        return [];
+      }
     },
     [chartData]
   );
@@ -121,10 +174,10 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-export const useChartData = () => {
+export const useChartData = (): ChartDataContextType => {
   const context = useContext(ChartDataContext);
-  if (context === undefined) {
+  if (context === undefined)
     throw new Error("useChartData must be used within a ChartDataProvider");
-  }
+
   return context;
 };

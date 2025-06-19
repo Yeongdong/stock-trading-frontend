@@ -6,11 +6,10 @@ import React, {
   useCallback,
   useEffect,
   useReducer,
+  useMemo,
   ReactNode,
 } from "react";
 import { useError } from "./ErrorContext";
-import { ERROR_MESSAGES } from "@/constants";
-
 import { realtimeApiService } from "@/services/api/realtime/realtimeApiService";
 import {
   SubscriptionAction,
@@ -24,38 +23,80 @@ const initialState: SubscriptionState = {
   error: null,
 };
 
+// 최대 구독 종목 수 제한
+const MAX_SUBSCRIPTION_COUNT = 30;
+
 function subscriptionReducer(
   state: SubscriptionState,
   action: SubscriptionAction
 ): SubscriptionState {
-  switch (action.type) {
-    case "SET_SUBSCRIPTIONS":
-      return { ...state, subscribedSymbols: action.payload };
+  try {
+    switch (action.type) {
+      case "SET_SUBSCRIPTIONS": {
+        const symbols = Array.isArray(action.payload) ? action.payload : [];
+        const validSymbols = symbols.filter(
+          (symbol) => typeof symbol === "string" && symbol.trim().length > 0
+        );
 
-    case "ADD_SUBSCRIPTION":
-      return {
-        ...state,
-        subscribedSymbols: state.subscribedSymbols.includes(action.payload)
-          ? state.subscribedSymbols
-          : [...state.subscribedSymbols, action.payload],
-      };
+        return {
+          ...state,
+          subscribedSymbols: validSymbols.slice(0, MAX_SUBSCRIPTION_COUNT),
+        };
+      }
 
-    case "REMOVE_SUBSCRIPTION":
-      return {
-        ...state,
-        subscribedSymbols: state.subscribedSymbols.filter(
-          (s) => s !== action.payload
-        ),
-      };
+      case "ADD_SUBSCRIPTION": {
+        const symbol = action.payload;
 
-    case "SET_LOADING":
-      return { ...state, isLoading: action.payload };
+        if (
+          !symbol ||
+          typeof symbol !== "string" ||
+          symbol.trim().length === 0
+        ) {
+          console.warn("Invalid symbol for subscription:", symbol);
+          return state;
+        }
 
-    case "SET_ERROR":
-      return { ...state, error: action.payload };
+        if (state.subscribedSymbols.includes(symbol)) return state;
 
-    default:
-      return state;
+        // 최대 구독 수 체크
+        if (state.subscribedSymbols.length >= MAX_SUBSCRIPTION_COUNT) {
+          console.warn(
+            `Maximum subscription limit (${MAX_SUBSCRIPTION_COUNT}) reached`
+          );
+          return state;
+        }
+
+        return {
+          ...state,
+          subscribedSymbols: [...state.subscribedSymbols, symbol],
+        };
+      }
+
+      case "REMOVE_SUBSCRIPTION": {
+        const symbol = action.payload;
+
+        if (!symbol || !state.subscribedSymbols.includes(symbol)) return state;
+
+        return {
+          ...state,
+          subscribedSymbols: state.subscribedSymbols.filter(
+            (s) => s !== symbol
+          ),
+        };
+      }
+
+      case "SET_LOADING":
+        return { ...state, isLoading: action.payload };
+
+      case "SET_ERROR":
+        return { ...state, error: action.payload };
+
+      default:
+        return state;
+    }
+  } catch (error) {
+    console.error("Subscription reducer error:", error);
+    return state;
   }
 }
 
@@ -74,16 +115,16 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
     const loadSubscriptions = async () => {
       try {
         const response = await realtimeApiService.getSubscriptions();
-        if (response.data?.symbols) {
-          dispatch({
-            type: "SET_SUBSCRIPTIONS",
-            payload: response.data.symbols,
-          });
-        } else {
+
+        if (response.error) {
           dispatch({ type: "SET_SUBSCRIPTIONS", payload: [] });
+          return;
         }
+
+        const symbols = response.data?.symbols || [];
+        dispatch({ type: "SET_SUBSCRIPTIONS", payload: symbols });
       } catch (error) {
-        console.error("구독 목록 로드 실패:", error);
+        console.error("Load subscriptions error:", error);
         dispatch({ type: "SET_SUBSCRIPTIONS", payload: [] });
       }
     };
@@ -94,31 +135,43 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
   // 종목 구독
   const subscribeSymbol = useCallback(
     async (symbol: string): Promise<boolean> => {
-      if (state.subscribedSymbols.includes(symbol)) return true;
-
       try {
+        if (
+          !symbol ||
+          typeof symbol !== "string" ||
+          symbol.trim().length === 0
+        ) {
+          console.warn("Invalid symbol for subscription:", symbol);
+          return false;
+        }
+
+        const trimmedSymbol = symbol.trim();
+
+        // 이미 구독중인지 확인
+        if (state.subscribedSymbols.includes(trimmedSymbol)) return true;
+
+        // 최대 구독 수 체크
+        if (state.subscribedSymbols.length >= MAX_SUBSCRIPTION_COUNT) {
+          addError({
+            message: `최대 ${MAX_SUBSCRIPTION_COUNT}개 종목까지만 구독 가능합니다.`,
+            severity: "warning",
+          });
+          return false;
+        }
+
         dispatch({ type: "SET_LOADING", payload: true });
-        console.log(`🔄 [SubscriptionContext] ${symbol} 구독 요청`);
 
-        const response = await realtimeApiService.subscribeSymbol(symbol);
-        if (response.error) throw new Error(response.error);
+        const response = await realtimeApiService.subscribeSymbol(
+          trimmedSymbol
+        );
 
-        dispatch({ type: "ADD_SUBSCRIPTION", payload: symbol });
+        if (response.error) return false;
 
-        addError({
-          message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_SUCCESS(symbol),
-          severity: "info",
-        });
+        dispatch({ type: "ADD_SUBSCRIPTION", payload: trimmedSymbol });
+
         return true;
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        console.error(`종목 구독 실패 (${symbol}):`, msg);
-
-        dispatch({ type: "SET_ERROR", payload: `종목 구독 실패: ${msg}` });
-        addError({
-          message: ERROR_MESSAGES.REALTIME.SUBSCRIBE_FAIL(symbol),
-          severity: "error",
-        });
+        console.error("Subscribe symbol error:", error);
         return false;
       } finally {
         dispatch({ type: "SET_LOADING", payload: false });
@@ -127,69 +180,110 @@ export const StockSubscriptionProvider: React.FC<{ children: ReactNode }> = ({
     [state.subscribedSymbols, addError]
   );
 
-  // 종목 구독 취소
   const unsubscribeSymbol = useCallback(
     async (symbol: string): Promise<boolean> => {
-      if (!state.subscribedSymbols.includes(symbol)) return true;
-
       try {
+        if (
+          !symbol ||
+          typeof symbol !== "string" ||
+          symbol.trim().length === 0
+        ) {
+          console.warn("Invalid symbol for unsubscription:", symbol);
+          return false;
+        }
+
+        const trimmedSymbol = symbol.trim();
+
+        if (!state.subscribedSymbols.includes(trimmedSymbol)) return true;
+
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await realtimeApiService.unsubscribeSymbol(symbol);
-        if (response.error) throw new Error(response.error);
+        const response = await realtimeApiService.unsubscribeSymbol(
+          trimmedSymbol
+        );
 
-        dispatch({ type: "REMOVE_SUBSCRIPTION", payload: symbol });
+        if (response.error) return false;
 
-        addError({
-          message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_SUCCESS(symbol),
-          severity: "info",
-        });
+        dispatch({ type: "REMOVE_SUBSCRIPTION", payload: trimmedSymbol });
+
         return true;
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        console.error(`종목 구독 취소 실패 (${symbol}):`, msg);
-
-        dispatch({ type: "SET_ERROR", payload: `종목 구독 취소 실패: ${msg}` });
-        addError({
-          message: ERROR_MESSAGES.REALTIME.UNSUBSCRIBE_FAIL(symbol),
-          severity: "error",
-        });
+        console.error("Unsubscribe symbol error:", error);
         return false;
       } finally {
         dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [state.subscribedSymbols, addError]
+    [state.subscribedSymbols]
   );
 
   // 구독 여부 확인
   const isSubscribed = useCallback(
     (symbol: string): boolean => {
-      return state.subscribedSymbols.includes(symbol);
+      try {
+        if (!symbol || typeof symbol !== "string") return false;
+
+        return state.subscribedSymbols.includes(symbol.trim());
+      } catch (error) {
+        console.error("Check subscription error:", error);
+        return false;
+      }
     },
     [state.subscribedSymbols]
   );
 
-  const value = {
-    ...state,
-    subscribeSymbol,
-    unsubscribeSymbol,
-    isSubscribed,
-  };
+  // 모든 구독 취소
+  const clearAllSubscriptions = useCallback(async (): Promise<boolean> => {
+    try {
+      const symbols = [...state.subscribedSymbols];
+      let allSuccess = true;
+
+      for (const symbol of symbols) {
+        const success = await unsubscribeSymbol(symbol);
+        if (!success) allSuccess = false;
+      }
+
+      return allSuccess;
+    } catch (error) {
+      console.error("Clear all subscriptions error:", error);
+      return false;
+    }
+  }, [state.subscribedSymbols, unsubscribeSymbol]);
+
+  const contextValue = useMemo(
+    () => ({
+      subscribedSymbols: state.subscribedSymbols,
+      isLoading: state.isLoading,
+      error: state.error,
+      subscribeSymbol,
+      unsubscribeSymbol,
+      isSubscribed,
+      clearAllSubscriptions,
+    }),
+    [
+      state.subscribedSymbols,
+      state.isLoading,
+      state.error,
+      subscribeSymbol,
+      unsubscribeSymbol,
+      isSubscribed,
+      clearAllSubscriptions,
+    ]
+  );
 
   return (
-    <SubscriptionContext.Provider value={value}>
+    <SubscriptionContext.Provider value={contextValue}>
       {children}
     </SubscriptionContext.Provider>
   );
 };
 
-export const useStockSubscription = () => {
+export const useStockSubscription = (): SubscriptionContextType => {
   const context = useContext(SubscriptionContext);
-  if (context === undefined) {
+  if (context === undefined)
     throw new Error(
       "useStockSubscription must be used within a StockSubscriptionProvider"
     );
-  }
+
   return context;
 };

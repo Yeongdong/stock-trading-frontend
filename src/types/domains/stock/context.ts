@@ -1,18 +1,56 @@
 import { StockCode } from "@/types/common/base";
-import { StockData } from "./entities";
+import { RealtimeStockData } from "../realtime/entities";
 
+// 주식 데이터 상태
 export interface StockDataState {
-  readonly stockData: Record<StockCode, StockData>;
+  readonly stockData: Record<StockCode, RealtimeStockData>;
   readonly isLoading: boolean;
   readonly error: string | null;
 }
 
+// 주식 데이터 액션
 export type StockDataAction =
-  | { type: "SET_STOCK_DATA"; payload: Record<StockCode, StockData> }
   | {
-      type: "UPDATE_STOCK_DATA";
-      payload: { symbol: StockCode; data: StockData };
+      readonly type: "SET_STOCK_DATA";
+      readonly payload: Record<StockCode, RealtimeStockData>;
     }
-  | { type: "REMOVE_STOCK_DATA"; payload: StockCode }
-  | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_ERROR"; payload: string | null };
+  | {
+      readonly type: "UPDATE_STOCK_DATA";
+      readonly payload: {
+        readonly symbol: StockCode;
+        readonly data: RealtimeStockData;
+      };
+    }
+  | {
+      readonly type: "REMOVE_STOCK_DATA";
+      readonly payload: StockCode;
+    }
+  | {
+      readonly type: "SET_LOADING";
+      readonly payload: boolean;
+    }
+  | {
+      readonly type: "SET_ERROR";
+      readonly payload: string | null;
+    };
+
+// 주식 데이터 Context 타입
+export interface StockDataContextType {
+  readonly stockData: Record<StockCode, RealtimeStockData>;
+  readonly isLoading: boolean;
+  readonly error: string | null;
+  readonly updateStockData: (stockData: RealtimeStockData) => void;
+  readonly removeStockData: (symbol: StockCode) => void;
+  readonly getStockData: (symbol: StockCode) => RealtimeStockData | null;
+  readonly clearAllStockData: () => void;
+}
+
+export interface StockDataContextValue {
+  readonly stockData: Record<StockCode, RealtimeStockData>;
+  readonly isLoading: boolean;
+  readonly error: string | null;
+  readonly updateStockData: (stockData: RealtimeStockData) => void;
+  readonly removeStockData: (symbol: StockCode) => void;
+  readonly getStockData: (symbol: StockCode) => RealtimeStockData | null;
+  readonly clearAllStockData: () => void;
+}

@@ -13,8 +13,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
 import { authService } from "@/services/api/auth/authService";
-import { ErrorHandler } from "@/utils/errorHandler";
-import { ERROR_CODES } from "@/types/common/error";
 import { AuthUser } from "@/types";
 import { AuthContextType } from "@/types/domains/auth/context";
 
@@ -35,26 +33,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const response = await authService.checkAuth();
 
       if (response.error) {
-        const standardError = ErrorHandler.fromHttpStatus(
-          response.status,
-          response.error
-        );
-
-        if (
-          standardError.code === ERROR_CODES.AUTH_EXPIRED ||
-          standardError.code === ERROR_CODES.AUTH_INVALID
-        ) {
-          setIsAuthenticated(false);
-          setUser(null);
-          return false;
-        }
-
-        addError({
-          message: standardError.message,
-          code: standardError.code,
-          severity: standardError.severity,
-        });
-
         setIsAuthenticated(false);
         setUser(null);
         return false;
@@ -63,37 +41,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsAuthenticated(true);
       setUser(response.data?.user || null);
       return true;
-    } catch (error) {
-      const standardError = ErrorHandler.standardize(error);
-
-      // 네트워크 에러 등은 사용자에게 표시
-      if (
-        standardError.code !== ERROR_CODES.AUTH_EXPIRED &&
-        standardError.code !== ERROR_CODES.AUTH_INVALID
-      )
-        addError({
-          message: standardError.message,
-          code: standardError.code,
-          severity: standardError.severity,
-        });
-
+    } catch {
       setIsAuthenticated(false);
       setUser(null);
       return false;
     }
-  }, [addError]);
+  }, []);
 
   const handleLogout = useCallback(async (): Promise<void> => {
     try {
-      const response = await authService.logout();
-
-      if (response.error) {
-        const standardError = ErrorHandler.fromHttpStatus(
-          response.status,
-          response.error
-        );
-        throw standardError;
-      }
+      await authService.logout();
 
       setIsAuthenticated(false);
       setUser(null);
@@ -104,15 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       });
 
       router.push("/login");
-    } catch (error) {
-      const standardError = ErrorHandler.standardize(error);
-
-      addError({
-        message: standardError.message,
-        code: standardError.code,
-        severity: standardError.severity,
-      });
-
+    } catch {
       setIsAuthenticated(false);
       setUser(null);
       router.push("/login");

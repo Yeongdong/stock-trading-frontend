@@ -1,6 +1,11 @@
 "use client";
 
 import { StockCode, RealtimeStockData } from "@/types";
+import {
+  StockDataAction,
+  StockDataContextValue,
+  StockDataState,
+} from "@/types/domains/stock/context";
 import React, {
   createContext,
   useContext,
@@ -10,75 +15,107 @@ import React, {
   useCallback,
 } from "react";
 
-interface StockDataState {
-  readonly stockData: Record<StockCode, RealtimeStockData>;
-  readonly isLoading: boolean;
-  readonly error: string | null;
-}
-
-type StockDataAction =
-  | { type: "SET_STOCK_DATA"; payload: Record<StockCode, RealtimeStockData> }
-  | {
-      type: "UPDATE_STOCK_DATA";
-      payload: { symbol: StockCode; data: RealtimeStockData };
-    }
-  | { type: "REMOVE_STOCK_DATA"; payload: StockCode }
-  | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_ERROR"; payload: string | null };
-
 const initialState: StockDataState = {
   stockData: {},
   isLoading: false,
   error: null,
 };
 
+// 최대 종목 수 제한
+const MAX_STOCK_COUNT = 50;
+
 function stockDataReducer(
   state: StockDataState,
   action: StockDataAction
 ): StockDataState {
-  switch (action.type) {
-    case "SET_STOCK_DATA":
-      return {
-        ...state,
-        stockData: action.payload,
-      };
-    case "UPDATE_STOCK_DATA":
-      return {
-        ...state,
-        stockData: {
-          ...state.stockData,
-          [action.payload.symbol]: action.payload.data,
-        },
-      };
-    case "REMOVE_STOCK_DATA":
-      const newStockData = { ...state.stockData };
-      delete newStockData[action.payload];
-      return {
-        ...state,
-        stockData: newStockData,
-      };
-    case "SET_LOADING":
-      return {
-        ...state,
-        isLoading: action.payload,
-      };
-    case "SET_ERROR":
-      return {
-        ...state,
-        error: action.payload,
-      };
-    default:
-      return state;
-  }
-}
+  try {
+    switch (action.type) {
+      case "SET_STOCK_DATA":
+        return {
+          ...state,
+          stockData: action.payload,
+        };
 
-interface StockDataContextValue {
-  stockData: Record<StockCode, RealtimeStockData>;
-  isLoading: boolean;
-  error: string | null;
-  updateStockData: (stockData: RealtimeStockData) => void;
-  removeStockData: (symbol: StockCode) => void;
-  getStockData: (symbol: StockCode) => RealtimeStockData | null;
+      case "UPDATE_STOCK_DATA": {
+        const { symbol, data } = action.payload;
+
+        if (!symbol || !data || typeof data.price !== "number") {
+          console.warn("Invalid stock data:", { symbol, data });
+          return state;
+        }
+
+        // 동일한 데이터인지 체크 (성능 최적화)
+        const existingData = state.stockData[symbol];
+        if (
+          existingData &&
+          existingData.price === data.price &&
+          existingData.timestamp === data.timestamp
+        ) {
+          return state;
+        }
+
+        const updatedStockData = {
+          ...state.stockData,
+          [symbol]: data,
+        };
+
+        // 최대 종목 수 제한
+        const stockSymbols = Object.keys(updatedStockData);
+        if (stockSymbols.length > MAX_STOCK_COUNT) {
+          // 가장 오래된 데이터 제거
+          const sortedSymbols = stockSymbols.sort((a, b) => {
+            const timeA = new Date(updatedStockData[a].timestamp).getTime();
+            const timeB = new Date(updatedStockData[b].timestamp).getTime();
+            return timeA - timeB;
+          });
+
+          const symbolsToRemove = sortedSymbols.slice(
+            0,
+            stockSymbols.length - MAX_STOCK_COUNT
+          );
+          symbolsToRemove.forEach((symbolToRemove) => {
+            delete updatedStockData[symbolToRemove];
+          });
+        }
+
+        return {
+          ...state,
+          stockData: updatedStockData,
+        };
+      }
+
+      case "REMOVE_STOCK_DATA": {
+        const symbol = action.payload;
+        if (!symbol || !state.stockData[symbol]) return state;
+
+        const newStockData = { ...state.stockData };
+        delete newStockData[symbol];
+
+        return {
+          ...state,
+          stockData: newStockData,
+        };
+      }
+
+      case "SET_LOADING":
+        return {
+          ...state,
+          isLoading: action.payload,
+        };
+
+      case "SET_ERROR":
+        return {
+          ...state,
+          error: action.payload,
+        };
+
+      default:
+        return state;
+    }
+  } catch (error) {
+    console.error("Stock data reducer error:", error);
+    return state;
+  }
 }
 
 const StockDataContext = createContext<StockDataContextValue | undefined>(
@@ -90,24 +127,64 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(stockDataReducer, initialState);
 
-  // RealtimeStockData를 직접 받도록 수정
+  // 주식 데이터 업데이트
   const updateStockData = useCallback((stockData: RealtimeStockData) => {
-    dispatch({
-      type: "UPDATE_STOCK_DATA",
-      payload: { symbol: stockData.symbol, data: stockData },
-    });
+    try {
+      if (
+        !stockData ||
+        !stockData.symbol ||
+        typeof stockData.price !== "number"
+      ) {
+        console.warn("Invalid stock data for update:", stockData);
+        return;
+      }
+
+      dispatch({
+        type: "UPDATE_STOCK_DATA",
+        payload: { symbol: stockData.symbol, data: stockData },
+      });
+    } catch (error) {
+      console.error("Stock data update error:", error);
+    }
   }, []);
 
+  // 주식 데이터 제거
   const removeStockData = useCallback((symbol: StockCode) => {
-    dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
+    try {
+      if (!symbol || typeof symbol !== "string") {
+        console.warn("Invalid symbol for stock data removal:", symbol);
+        return;
+      }
+
+      dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
+    } catch (error) {
+      console.error("Stock data removal error:", error);
+    }
   }, []);
 
+  // 특정 종목 데이터 조회
   const getStockData = useCallback(
     (symbol: StockCode): RealtimeStockData | null => {
-      return state.stockData[symbol] || null;
+      try {
+        if (!symbol || typeof symbol !== "string") return null;
+
+        return state.stockData[symbol] || null;
+      } catch (error) {
+        console.error("Get stock data error:", error);
+        return null;
+      }
     },
     [state.stockData]
   );
+
+  // 모든 주식 데이터 제거
+  const clearAllStockData = useCallback(() => {
+    try {
+      dispatch({ type: "SET_STOCK_DATA", payload: {} });
+    } catch (error) {
+      console.error("Clear all stock data error:", error);
+    }
+  }, []);
 
   const contextValue = useMemo(
     () => ({
@@ -117,6 +194,7 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
       updateStockData,
       removeStockData,
       getStockData,
+      clearAllStockData,
     }),
     [
       state.stockData,
@@ -125,6 +203,7 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
       updateStockData,
       removeStockData,
       getStockData,
+      clearAllStockData,
     ]
   );
 
@@ -135,10 +214,10 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-export const useStockData = () => {
+export const useStockData = (): StockDataContextValue => {
   const context = useContext(StockDataContext);
-  if (context === undefined) {
+  if (context === undefined)
     throw new Error("useStockData must be used within a StockDataProvider");
-  }
+
   return context;
 };
