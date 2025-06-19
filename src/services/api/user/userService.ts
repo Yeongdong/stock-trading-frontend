@@ -1,8 +1,12 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
+import { ApiResponse } from "@/types/common/api";
 
+/**
+ * 사용자 관련 API 서비스
+ */
 export const userService = {
-  getCurrentUser: async () => {
+  getCurrentUser: async (): Promise<ApiResponse> => {
     return apiClient.get(API.USER.GET_CURRENT, { requiresAuth: true });
   },
 
@@ -10,7 +14,7 @@ export const userService = {
     appKey: string,
     appSecret: string,
     accountNumber: string
-  ) => {
+  ): Promise<ApiResponse> => {
     return apiClient.post(
       API.USER.USER_INFO,
       { appKey, appSecret, accountNumber },
@@ -22,24 +26,11 @@ export const userService = {
     appKey: string,
     appSecret: string,
     accountNumber: string
-  ) => {
-    try {
-      const response = await apiClient.post(
-        API.USER.USER_INFO,
-        {
-          appKey,
-          appSecret,
-          accountNumber,
-        },
-        { requiresAuth: true }
-      );
-
-      if (response.error) throw new Error(response.error);
-
-      return response.data;
-    } catch (error) {
-      console.error("KIS 토큰 갱신 실패:", error);
-      throw error;
-    }
+  ): Promise<ApiResponse> => {
+    return apiClient.post(
+      API.USER.USER_INFO,
+      { appKey, appSecret, accountNumber },
+      { requiresAuth: true }
+    );
   },
 };

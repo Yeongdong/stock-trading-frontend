@@ -1,22 +1,16 @@
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
-import { ErrorHandler } from "@/utils/errorHandler";
 import { Balance } from "@/types/domains/stock";
 
+/**
+ * 잔고 조회 서비스
+ */
 export const balanceService = {
-  getBalance: async (): Promise<Balance> => {
+  getBalance: async (): Promise<Balance | null> => {
     const response = await apiClient.get<Balance>(API.STOCK.BALANCE, {
       requiresAuth: true,
     });
 
-    if (response.error) {
-      const standardError = ErrorHandler.fromHttpStatus(
-        response.status,
-        response.error
-      );
-      throw standardError;
-    }
-
-    return response.data!;
+    return response.data || null;
   },
 };

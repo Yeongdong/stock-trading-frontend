@@ -6,6 +6,9 @@ import {
   OrderExecutionInquiryResponse,
 } from "@/types";
 
+/**
+ * 주문체결내역 조회 서비스
+ */
 export const orderExecutionService = {
   getOrderExecutions: async (
     request: OrderExecutionInquiryRequest
@@ -18,11 +21,9 @@ export const orderExecutionService = {
 
     if (request.stockCode) queryParams.append("stockCode", request.stockCode);
 
-    return await apiClient.get<OrderExecutionInquiryResponse>(
+    return apiClient.get<OrderExecutionInquiryResponse>(
       `${API.ORDER_EXECUTION.INQUIRY}?${queryParams.toString()}`,
-      {
-        requiresAuth: true,
-      }
+      { requiresAuth: true }
     );
   },
 };

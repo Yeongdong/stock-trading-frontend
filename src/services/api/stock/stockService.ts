@@ -10,10 +10,14 @@ import {
 } from "@/types/domains/stock/price";
 import {
   StockSearchRequest,
+  StockSearchResponse,
   StockSearchResult,
   StockSearchSummary,
 } from "@/types/domains/stock/search";
 
+/**
+ * 주식 관련 API 서비스
+ */
 export const stockService = {
   getBalance: async (): Promise<ApiResponse<Balance>> => {
     return apiClient.get<Balance>(API.STOCK.BALANCE, {
@@ -22,13 +26,17 @@ export const stockService = {
   },
 
   placeOrder: async (orderData: StockOrder): Promise<ApiResponse> => {
-    return apiClient.post(API.STOCK.ORDER, orderData, { requiresAuth: true });
+    return apiClient.post(API.STOCK.ORDER, orderData, {
+      requiresAuth: true,
+    });
   },
 
   getCurrentPrice: async (
     request: CurrentPriceRequest
   ): Promise<ApiResponse<CurrentPriceResponse>> => {
-    const queryParams = new URLSearchParams({ stockCode: request.stockCode });
+    const queryParams = new URLSearchParams({
+      stockCode: request.stockCode,
+    });
 
     return apiClient.get<CurrentPriceResponse>(
       `${API.STOCK.CURRENT_PRICE}?${queryParams.toString()}`,
@@ -36,48 +44,35 @@ export const stockService = {
     );
   },
 
-  searchStocks: async (request: StockSearchRequest) => {
+  searchStocks: async (
+    request: StockSearchRequest
+  ): Promise<ApiResponse<StockSearchResponse>> => {
     const params = new URLSearchParams({
       searchTerm: request.searchTerm,
       page: (request.page || 1).toString(),
       pageSize: (request.pageSize || 20).toString(),
     });
 
-    const response = await apiClient.get<StockSearchResult[]>(
+    return apiClient.get<StockSearchResponse>(
       `${API.STOCK.SEARCH}?${params.toString()}`,
       { requiresAuth: true }
     );
-
-    return {
-      results: response.data || [],
-      totalCount: response.data?.length || 0,
-      page: request.page || 1,
-      pageSize: request.pageSize || 20,
-      hasMore: (response.data?.length || 0) === (request.pageSize || 20),
-    };
   },
 
-  // 종목 코드로 조회
-  getStockByCode: async (code: string): Promise<StockSearchResult | null> => {
-    const response = await apiClient.get<StockSearchResult>(
-      `${API.STOCK.GET_BY_CODE(code)}`,
-      { requiresAuth: true }
-    );
-
-    return response.data || null;
+  getStockByCode: async (
+    code: string
+  ): Promise<ApiResponse<StockSearchResult>> => {
+    return apiClient.get<StockSearchResult>(API.STOCK.GET_BY_CODE(code), {
+      requiresAuth: true,
+    });
   },
 
-  // 검색 요약 정보
-  getSearchSummary: async (): Promise<StockSearchSummary> => {
-    const response = await apiClient.get<StockSearchSummary>(
-      API.STOCK.SEARCH_SUMMARY,
-      { requiresAuth: true }
-    );
-
-    return response.data!;
+  getSearchSummary: async (): Promise<ApiResponse<StockSearchSummary>> => {
+    return apiClient.get<StockSearchSummary>(API.STOCK.SEARCH_SUMMARY, {
+      requiresAuth: true,
+    });
   },
 
-  // 기간별 주가 조회
   getPeriodPrice: async (
     request: PeriodPriceRequest
   ): Promise<ApiResponse<PeriodPriceResponse>> => {
