@@ -9,6 +9,12 @@ import {
 import styles from "./BuyableInquiry.module.css";
 import { BuyableInquiryProps } from "@/types";
 import { ORDER_TYPES } from "@/constants/order";
+import {
+  formatKRW,
+  formatNumber,
+  isValidStockCode,
+  isPositiveNumber,
+} from "@/utils";
 
 const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
   selectedStockCode = "",
@@ -54,7 +60,7 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
 
   // 디바운싱된 종목코드로 자동 현재가 조회
   useEffect(() => {
-    if (debouncedStockCode && /^\d{6}$/.test(debouncedStockCode))
+    if (debouncedStockCode && isValidStockCode(debouncedStockCode))
       fetchCurrentPrice(debouncedStockCode);
   }, [debouncedStockCode, fetchCurrentPrice]);
 
@@ -62,21 +68,22 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value.replace(/\D/g, "").slice(0, 6);
       setStockCode(value);
-      if (inquiryResult) setInquiryResult(null); // 종목 변경 시 기존 결과 초기화
+
+      if (isValidStockCode(value) && autoFetchPrice) fetchCurrentPrice(value);
     },
-    [inquiryResult]
+    [autoFetchPrice, fetchCurrentPrice]
   );
 
   const handleOrderPriceChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setOrderPrice(e.target.value);
-      if (inquiryResult) setInquiryResult(null); // 가격 변경 시 기존 결과 초기화
+      const value = e.target.value.replace(/[^\d]/g, "");
+      setOrderPrice(value);
     },
-    [inquiryResult]
+    []
   );
 
   const handleManualPriceFetch = useCallback(async () => {
-    if (!stockCode || !/^\d{6}$/.test(stockCode)) return;
+    if (!stockCode || !isValidStockCode(stockCode)) return;
 
     await fetchCurrentPrice(stockCode);
   }, [stockCode, fetchCurrentPrice]);
@@ -85,8 +92,8 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!stockCode.trim() || !/^\d{6}$/.test(stockCode)) return;
-      if (!orderPrice || parseFloat(orderPrice) <= 0) return;
+      if (!isValidStockCode(stockCode)) return;
+      if (!isPositiveNumber(orderPrice)) return;
 
       const request: BuyableInquiryRequest = {
         stockCode: stockCode.trim(),
@@ -109,17 +116,6 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
       inquiryResult.buyableQuantity
     );
   }, [inquiryResult, onOrderRequest]);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ko-KR", {
-      style: "currency",
-      currency: "KRW",
-    }).format(amount);
-  };
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("ko-KR").format(num);
-  };
 
   const isSubmitDisabled =
     isLoading ||
@@ -230,7 +226,7 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
             <div className={styles.resultItem}>
               <span className={styles.label}>매수가능금액</span>
               <span className={`${styles.value} ${styles.primary}`}>
-                {formatCurrency(inquiryResult.buyableAmount)}
+                {formatKRW(inquiryResult.buyableAmount)}
               </span>
             </div>
 
@@ -244,21 +240,21 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
             <div className={styles.resultItem}>
               <span className={styles.label}>보유현금</span>
               <span className={styles.value}>
-                {formatCurrency(inquiryResult.cashBalance)}
+                {formatKRW(inquiryResult.cashBalance)}
               </span>
             </div>
 
             <div className={styles.resultItem}>
               <span className={styles.label}>주문가격</span>
               <span className={styles.value}>
-                {formatCurrency(inquiryResult.orderPrice)}
+                {formatKRW(inquiryResult.orderPrice)}
               </span>
             </div>
 
             <div className={styles.resultItem}>
               <span className={styles.label}>현재가</span>
               <span className={styles.value}>
-                {formatCurrency(inquiryResult.currentPrice)}
+                {formatKRW(inquiryResult.currentPrice)}
               </span>
             </div>
 

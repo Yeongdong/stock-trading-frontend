@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from "react";
-import { formatKRW } from "@/utils/formatters";
+import { formatKRW, formatPercent } from "@/utils";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import styles from "./InvestmentSummary.module.css";
 import { Position, Summary } from "@/types/domains/stock/balance";
@@ -64,29 +64,21 @@ const createSummaryCards = (
       icon: "💰",
       title: "총평가금액",
       value: formatKRW(summary.tot_evlu_amt),
-      subValue: `전일대비 ${
-        dailyChangeRate > 0 ? "+" : ""
-      }${dailyChangeRate.toFixed(1)}%`,
+      subValue: `전일대비 ${formatPercent(dailyChangeRate)}`,
       changeClass: getChangeClass(dailyChangeRate),
     },
     {
       icon: "📈",
       title: "총손익률",
-      value: `${totalProfitRate > 0 ? "+" : ""}${totalProfitRate.toFixed(1)}%`,
-      subValue: `(${totalProfitLoss > 0 ? "+" : ""}${formatKRW(
-        totalProfitLoss.toString()
-      )})`,
+      value: formatPercent(totalProfitRate),
+      subValue: `(${formatPercent(totalProfitLoss, 0)})`,
       changeClass: getChangeClass(totalProfitRate),
     },
     {
       icon: "📊",
       title: "당일손익",
-      value: `${dailyChangeAmount > 0 ? "+" : ""}${formatKRW(
-        dailyChangeAmount.toString()
-      )}`,
-      subValue: `(${dailyChangeRate > 0 ? "+" : ""}${dailyChangeRate.toFixed(
-        1
-      )}%)`,
+      value: formatKRW(dailyChangeAmount),
+      subValue: `(${formatPercent(dailyChangeRate)})`,
       changeClass: getChangeClass(dailyChangeRate),
     },
     {
@@ -114,7 +106,7 @@ const InvestmentSummary: React.FC<InvestmentSummaryProps> = memo(
       return (
         <section className={styles.investmentSummary}>
           <h2 className={styles.sectionTitle}>📊 내 투자 현황 요약</h2>
-          <LoadingIndicator message="투자 현황을 불러오는 중..." size="small" />
+          <LoadingIndicator message="투자 현황을 불러오는 중..." />
         </section>
       );
     }

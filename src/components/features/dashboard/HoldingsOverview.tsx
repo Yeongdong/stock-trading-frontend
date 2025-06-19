@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { formatKRW } from "@/utils/formatters";
+import { formatKRW, formatNumber, formatPercent } from "@/utils";
 import Link from "next/link";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import styles from "./HoldingsOverview.module.css";
@@ -17,11 +17,6 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
       if (value > 0) return "positive";
       if (value < 0) return "negative";
       return "neutral";
-    };
-
-    const formatNumber = (value: string | number): string => {
-      const num = typeof value === "string" ? parseInt(value) : value;
-      return num.toLocaleString();
     };
 
     const handleStockAction = (
@@ -65,7 +60,7 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
       return (
         <section className={styles.holdingsOverview}>
           <h2 className={styles.sectionTitle}>📋 내 보유종목 현황 (TOP 5)</h2>
-          <LoadingIndicator message="보유종목을 불러오는 중..." size="small" />
+          <LoadingIndicator message="보유종목을 불러오는 중..." />
         </section>
       );
     }
@@ -130,12 +125,10 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
                         }`}
                       >
                         <div className={styles.profitRate}>
-                          {holding.profitLossRate > 0 ? "+" : ""}
-                          {holding.profitLossRate.toFixed(1)}%
+                          {formatPercent(holding.profitLossRate)}
                         </div>
                         <div className={styles.profitAmount}>
-                          ({holding.profitLossAmount > 0 ? "+" : ""}
-                          {formatKRW(holding.profitLossAmount.toString())})
+                          ({formatKRW(holding.profitLossAmount)})
                         </div>
                       </div>
                     </td>
