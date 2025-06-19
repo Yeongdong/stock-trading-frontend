@@ -67,7 +67,7 @@ export const ChartDataProvider: React.FC<{ children: ReactNode }> = ({
 
   // 차트 데이터 업데이트 함수
   const updateChartData = useCallback((stockData: RealtimeStockData) => {
-    const symbol = stockData.code;
+    const symbol = stockData.symbol;
     const dataPoint: PriceDataPoint = {
       time: new Date().toLocaleTimeString(),
       price: stockData.price,

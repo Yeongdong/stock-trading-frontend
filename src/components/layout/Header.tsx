@@ -1,57 +1,37 @@
-import React, { memo } from "react";
+import React from "react";
 import Link from "next/link";
-import Navigation from "@/components/layout/Navigation";
-import styles from "./Header.module.css";
 import { useAuthContext } from "@/contexts/AuthContext";
+import styles from "./Header.module.css";
 
-const Header: React.FC = memo(() => {
+const Header: React.FC = () => {
   const { user, logout } = useAuthContext();
 
   const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-    }
+    await logout();
   };
 
   return (
-    <header className={styles.appHeader} role="banner">
-      <div className={styles.headerContent}>
-        <div className={styles.headerLeft}>
-          <Link
-            href="/dashboard"
-            className={styles.logo}
-            aria-label="홈으로 이동"
-          >
-            📈 주식거래시스템
-          </Link>
-        </div>
+    <header className={styles.header}>
+      <div className={styles.container}>
+        <Link href="/dashboard" className={styles.logo}>
+          📈 주식거래시스템
+        </Link>
 
-        <div className={styles.headerRight}>
-          {user && (
-            <div className={styles.userInfo}>
-              <span className={styles.userName}>{user.name}님</span>
-              <button
-                onClick={handleLogout}
-                className={styles.logoutButton}
-                type="button"
-                aria-label="로그아웃"
-              >
-                로그아웃
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.navigationWrapper}>
-        <Navigation />
+        {user && (
+          <div className={styles.userSection}>
+            <span className={styles.userName}>{user.name}님</span>
+            <button
+              onClick={handleLogout}
+              className={styles.logoutButton}
+              type="button"
+            >
+              로그아웃
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );
-});
-
-Header.displayName = "Header";
+};
 
 export default Header;

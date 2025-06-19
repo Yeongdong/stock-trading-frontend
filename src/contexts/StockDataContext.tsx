@@ -1,7 +1,6 @@
 "use client";
 
-import { StockCode, StockData } from "@/types";
-import { StockDataAction, StockDataState } from "@/types/domains/stock/context";
+import { StockCode, RealtimeStockData } from "@/types";
 import React, {
   createContext,
   useContext,
@@ -10,6 +9,22 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
+
+interface StockDataState {
+  readonly stockData: Record<StockCode, RealtimeStockData>;
+  readonly isLoading: boolean;
+  readonly error: string | null;
+}
+
+type StockDataAction =
+  | { type: "SET_STOCK_DATA"; payload: Record<StockCode, RealtimeStockData> }
+  | {
+      type: "UPDATE_STOCK_DATA";
+      payload: { symbol: StockCode; data: RealtimeStockData };
+    }
+  | { type: "REMOVE_STOCK_DATA"; payload: StockCode }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null };
 
 const initialState: StockDataState = {
   stockData: {},
@@ -58,12 +73,12 @@ function stockDataReducer(
 }
 
 interface StockDataContextValue {
-  stockData: Record<StockCode, StockData>;
+  stockData: Record<StockCode, RealtimeStockData>;
   isLoading: boolean;
   error: string | null;
-  updateStockData: (symbol: StockCode, data: StockData) => void;
+  updateStockData: (stockData: RealtimeStockData) => void;
   removeStockData: (symbol: StockCode) => void;
-  getStockData: (symbol: StockCode) => StockData | null;
+  getStockData: (symbol: StockCode) => RealtimeStockData | null;
 }
 
 const StockDataContext = createContext<StockDataContextValue | undefined>(
@@ -75,8 +90,12 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(stockDataReducer, initialState);
 
-  const updateStockData = useCallback((symbol: StockCode, data: StockData) => {
-    dispatch({ type: "UPDATE_STOCK_DATA", payload: { symbol, data } });
+  // RealtimeStockData를 직접 받도록 수정
+  const updateStockData = useCallback((stockData: RealtimeStockData) => {
+    dispatch({
+      type: "UPDATE_STOCK_DATA",
+      payload: { symbol: stockData.symbol, data: stockData },
+    });
   }, []);
 
   const removeStockData = useCallback((symbol: StockCode) => {
@@ -84,7 +103,7 @@ export const StockDataProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const getStockData = useCallback(
-    (symbol: StockCode): StockData | null => {
+    (symbol: StockCode): RealtimeStockData | null => {
       return state.stockData[symbol] || null;
     },
     [state.stockData]

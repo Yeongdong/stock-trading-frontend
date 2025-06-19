@@ -1,8 +1,4 @@
-import {
-  BuyableInquiryResponse,
-  OrderExecution,
-  OrderExecutionInquiryRequest,
-} from "./entities";
+import { OrderExecution, OrderExecutionInquiryRequest } from "./entities";
 
 export interface SummaryCardItem {
   title: string;
@@ -31,20 +27,4 @@ export interface OrderExecutionTableProps {
 
 export interface OrderExecutionViewProps {
   className?: string;
-}
-
-export interface BuyableInquiryFormProps {
-  onResult?: (data: BuyableInquiryResponse) => void;
-  initialStockCode?: string;
-  initialOrderPrice?: number;
-}
-
-export interface BuyableInquiryResultProps {
-  data: BuyableInquiryResponse;
-  onOrderClick?: (stockCode: string, maxQuantity: number) => void;
-}
-
-export interface BuyableInquiryViewProps {
-  className?: string;
-  selectedStockCode?: string;
 }

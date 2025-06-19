@@ -50,3 +50,10 @@ export const EXAMPLE_STOCK_INFO = [
   { name: "SK하이닉스", code: EXAMPLE_SYMBOLS.SK_HYNIX },
   { name: "카카오", code: EXAMPLE_SYMBOLS.KAKAO },
 ] as const;
+
+export const NAV_ITEMS = [
+  { href: "/dashboard", label: "대시보드" },
+  { href: "/order", label: "주식 주문" },
+  { href: "/balance", label: "잔고 확인" },
+  { href: "/realtime", label: "실시간" },
+] as const;

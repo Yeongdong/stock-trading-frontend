@@ -1,37 +1,32 @@
-.errorContainer {
+.container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  padding: var(--spacing-xxl);
+  padding: var(--spacing-xl);
   background-color: var(--color-error-bg);
-  border-radius: var(--border-radius-large);
-  border: var(--border-width) var(--border-style) #f5c6cb;
-  margin: var(--spacing-xl) 0;
-  box-shadow: var(--shadow-sm);
+  border: var(--border-width) var(--border-style) var(--color-error);
+  border-radius: var(--border-radius);
+  gap: var(--spacing-md);
 }
 
-.errorIcon {
-  font-size: 48px;
-  color: var(--color-error);
-  margin-bottom: var(--spacing-lg);
+.icon {
+  font-size: var(--font-size-xxl);
 }
 
-.errorTitle {
+.title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
-  color: #721c24;
-  margin-bottom: var(--spacing-md);
-  margin-top: 0;
+  color: var(--color-error);
+  margin: 0;
 }
 
-.errorMessage {
-  color: #721c24;
+.message {
+  color: var(--color-text-primary);
   font-size: var(--font-size-base);
-  line-height: 1.6;
-  margin-bottom: var(--spacing-lg);
-  max-width: 500px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 400px;
 }
 
 .retryButton {
@@ -42,48 +37,9 @@
   border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: var(--font-weight-medium);
-  font-size: var(--font-size-base);
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+  transition: background-color 0.2s ease;
 }
 
 .retryButton:hover {
-  background-color: #c62828;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.retryButton:active {
-  transform: translateY(0);
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .errorContainer {
-    padding: var(--spacing-xl);
-    margin: var(--spacing-lg) 0;
-  }
-
-  .errorIcon {
-    font-size: 36px;
-    margin-bottom: var(--spacing-md);
-  }
-
-  .errorTitle {
-    font-size: var(--font-size-md);
-  }
-
-  .errorMessage {
-    font-size: var(--font-size-sm);
-  }
-}
-
-@media (max-width: 480px) {
-  .errorContainer {
-    padding: var(--spacing-lg);
-  }
-
-  .errorIcon {
-    font-size: 32px;
-  }
+  background-color: var(--color-error-hover);
 }

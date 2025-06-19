@@ -3,14 +3,14 @@ import { ReactNode, MouseEvent, ChangeEvent } from "react";
 // 로딩 관련 Props
 export interface LoadingIndicatorProps {
   message?: string;
-  size?: "default" | "small";
-  variant?: "default" | "inline";
+  className?: string;
 }
 
 export interface ErrorDisplayProps {
-  error: string;
+  message: string;
   title?: string;
   onRetry?: () => void;
+  className?: string;
 }
 
 // 기본 컴포넌트 Props
@@ -51,10 +51,24 @@ export interface NavItem {
 
 export interface AuthGuardProps {
   children: React.ReactNode;
+  redirectPath?: string;
+  loadingMessage?: string;
 }
 
 export interface MarketClosedNoticeProps {
-  statusText: string;
   statusIcon: string;
+  title: string;
+  statusText: string;
+  description: string;
   nextOpenTime?: string;
+  nextOpenLabel?: string;
+}
+
+export interface NavigationProps {
+  className?: string;
+}
+
+export interface LayoutProps {
+  children: React.ReactNode;
+  showNavigation?: boolean;
 }

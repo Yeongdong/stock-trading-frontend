@@ -1,6 +1,7 @@
 import { PriceDataPoint } from "@/types/common/ui";
 import { PeriodPriceRequest } from "./price";
 import { SummaryData } from "@/components/features/stock/chart/PeriodPriceChartModel";
+import { StockSearchResult } from "./search";
 
 export interface ChartInfoProps {
   startPrice: number;
@@ -37,14 +38,6 @@ export interface StockMiniChartProps {
   height?: number;
 }
 
-export interface SymbolInputFormProps {
-  symbolInput: string;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  isLoading: boolean;
-  error: string;
-}
-
 export interface PeriodPriceFormProps {
   initialData: PeriodPriceRequest;
   loading: boolean;
@@ -60,4 +53,21 @@ export interface OrderFormState {
   orderType: string;
   quantity: string;
   price: string;
+}
+
+export interface StockSearchResultsProps {
+  onStockSelect: (stock: StockSearchResult) => void;
+}
+
+export interface StockSearchViewProps {
+  onStockSelect: (stock: StockSearchResult) => void;
+}
+
+export interface BuyableInquiryProps {
+  selectedStockCode?: string;
+  onOrderRequest?: (
+    stockCode: string,
+    orderPrice: number,
+    maxQuantity: number
+  ) => void;
 }

@@ -119,15 +119,15 @@
   border-top: 1px solid var(--color-bg-border);
 }
 
-/* 더보기 버튼 */
-.showMoreSection {
+/* 더보기 버튼 - 클래스명 변경 */
+.loadMoreSection {
   text-align: center;
   margin-top: var(--spacing-lg);
   padding-top: var(--spacing-lg);
   border-top: var(--border-width) var(--border-style) var(--color-bg-border);
 }
 
-.showMoreButton {
+.loadMoreButton {
   background-color: var(--color-bg-light);
   color: var(--color-text-primary);
   border: var(--border-width) var(--border-style) var(--color-bg-border);
@@ -139,8 +139,13 @@
   transition: all 0.2s ease;
 }
 
-.showMoreButton:hover {
+.loadMoreButton:hover:not(:disabled) {
   background-color: var(--color-primary);
   color: var(--color-text-white);
   border-color: var(--color-primary);
+}
+
+.loadMoreButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

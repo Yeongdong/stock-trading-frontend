@@ -1,5 +1,4 @@
 import React, { memo } from "react";
-import SymbolSubscriptionManager from "../stock/SymbolSubscriptionManager";
 import LoadingIndicator from "../../ui/LoadingIndicator";
 import EmptySubscriptionState from "./EmptySubscriptionState";
 import DashboardHeader from "./DashboardHeader";
@@ -7,6 +6,7 @@ import styles from "./RealtimeDashboard.module.css";
 import StockGrid from "../stock/realtime/StockGrid";
 import { useRealtimeDashboardState } from "@/hooks/realtime/useRealtimeDashboardState";
 import { RealtimeDashboardProps } from "@/types";
+import SymbolSubscriptionForm from "../stock/SymbolInputForm";
 
 const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(
   ({ title = "실시간 주가 모니터링" }) => {
@@ -18,7 +18,7 @@ const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(
         <DashboardHeader title={title} />
 
         <section className={styles.subscriptionSection}>
-          <SymbolSubscriptionManager />
+          <SymbolSubscriptionForm />
         </section>
 
         <main className={styles.contentArea}>

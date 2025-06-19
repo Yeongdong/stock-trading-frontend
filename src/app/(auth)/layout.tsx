@@ -2,7 +2,7 @@
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import AuthGuard from "@/components/ui/AuthGuard";
-import Header from "@/components/layout/Header";
+import Layout from "@/components/layout/Layout";
 
 export default function AuthLayout({
   children,
@@ -11,11 +11,11 @@ export default function AuthLayout({
 }) {
   return (
     <AuthProvider>
-      <AuthGuard>
-        <div className="auth-layout">
-          <Header />
-          <main className="main-content">{children}</main>
-        </div>
+      <AuthGuard
+        redirectPath="/login?sessionExpired=true"
+        loadingMessage="사용자 인증 중..."
+      >
+        <Layout>{children}</Layout>
       </AuthGuard>
     </AuthProvider>
   );

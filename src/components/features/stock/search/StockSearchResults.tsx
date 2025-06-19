@@ -1,38 +1,16 @@
-import React, { useState, useMemo } from "react";
-import { StockSearchResult } from "@/types/domains/stock/search";
-import styles from "./StockSearchResults.module.css";
+import React from "react";
+import { useStockSearch } from "@/hooks/stock/useStockSearch";
 
-interface StockSearchResultsProps {
-  results: StockSearchResult[];
-  isLoading: boolean;
-  onStockSelect?: (stock: StockSearchResult) => void;
-  hasSearched?: boolean;
-}
+import styles from "./StockSearchResults.module.css";
+import { StockSearchResultsProps } from "@/types";
 
 const StockSearchResults: React.FC<StockSearchResultsProps> = ({
-  results,
-  isLoading,
   onStockSelect,
-  hasSearched = false,
 }) => {
-  const [showAll, setShowAll] = useState(false);
+  const { results, searchResponse, isLoading, hasSearched, loadMore } =
+    useStockSearch();
 
-  // 2줄(8개)까지만 보여주고 나머지는 더보기로 처리
-  const ITEMS_PER_ROW = 4;
-  const INITIAL_ROWS = 2;
-  const INITIAL_SHOW_COUNT = ITEMS_PER_ROW * INITIAL_ROWS;
-
-  const { displayResults, hasMore } = useMemo(() => {
-    const shouldShowMore = results.length > INITIAL_SHOW_COUNT;
-    const display = showAll ? results : results.slice(0, INITIAL_SHOW_COUNT);
-
-    return {
-      displayResults: display,
-      hasMore: shouldShowMore && !showAll,
-    };
-  }, [results, showAll, INITIAL_SHOW_COUNT]);
-
-  if (isLoading)
+  if (isLoading && results.length === 0)
     return (
       <div className={`${styles.searchResults} ${styles.loading}`}>
         <p>검색 중...</p>
@@ -48,24 +26,25 @@ const StockSearchResults: React.FC<StockSearchResultsProps> = ({
       </div>
     );
 
-  const handleShowMore = () => {
-    setShowAll(true);
+  const handleLoadMore = async () => {
+    await loadMore();
   };
 
   return (
     <div className={styles.searchResults}>
       <div className={styles.resultsHeader}>
-        <h3>검색 결과 ({results.length}건)</h3>
+        <h3>
+          검색 결과 (
+          {searchResponse?.totalCount?.toLocaleString() || results.length}건)
+        </h3>
       </div>
 
       <div className={styles.resultsList}>
-        {displayResults.map((stock) => (
+        {results.map((stock) => (
           <div
             key={stock.code}
-            className={`${styles.resultItem} ${
-              onStockSelect ? styles.clickable : ""
-            }`}
-            onClick={() => onStockSelect?.(stock)}
+            className={`${styles.resultItem} ${styles.clickable}`}
+            onClick={() => onStockSelect(stock)}
           >
             <div className={styles.stockMainInfo}>
               <div className={styles.stockName}>
@@ -85,10 +64,14 @@ const StockSearchResults: React.FC<StockSearchResultsProps> = ({
         ))}
       </div>
 
-      {hasMore && (
-        <div className={styles.showMoreSection}>
-          <button className={styles.showMoreButton} onClick={handleShowMore}>
-            더보기 ({results.length - INITIAL_SHOW_COUNT}개 더)
+      {searchResponse?.hasMore && (
+        <div className={styles.loadMoreSection}>
+          <button
+            className={styles.loadMoreButton}
+            onClick={handleLoadMore}
+            disabled={isLoading}
+          >
+            {isLoading ? "로딩중..." : "더보기"}
           </button>
         </div>
       )}

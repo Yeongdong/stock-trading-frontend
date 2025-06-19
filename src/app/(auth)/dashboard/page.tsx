@@ -11,7 +11,8 @@ import LoadingIndicator from "@/components/ui/LoadingIndicator";
 export default function DashboardPage() {
   const { balanceData, isLoading } = useBalance();
 
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading)
+    return <LoadingIndicator message="잔고 정보를 불러오는 중..." />;
 
   return (
     <div className={styles.container}>

@@ -1,21 +1,23 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useState, useCallback } from "react";
 import StockOrderForm from "@/components/features/stock/order/StockOrderForm";
 import StockSearchView from "@/components/features/stock/search/StockSearchView";
-import BuyableInquiryView from "@/components/features/trading/BuyableInquiryView";
+import BuyableInquiry from "@/components/features/trading/BuyableInquiry";
 import { StockSearchResult } from "@/types/domains/stock/search";
+import { StockInfo } from "@/types/domains/stock";
 import styles from "./page.module.css";
 import PeriodPriceChart from "@/components/features/stock/chart/PeriodPriceChart";
-import { StockInfo } from "@/types/domains/stock";
 
 function OrderPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [selectedStock, setSelectedStock] = useState<StockInfo>({
     code: "",
     name: "",
   });
+
   const stockCode = searchParams.get("stockCode");
   const orderPrice = searchParams.get("orderPrice");
   const maxQuantity = searchParams.get("maxQuantity");
@@ -26,9 +28,37 @@ function OrderPageContent() {
     maxQuantity: maxQuantity ? parseInt(maxQuantity) : undefined,
   };
 
-  const handleStockSelect = (stock: StockSearchResult) => {
-    setSelectedStock(stock);
-  };
+  const handleStockSelect = useCallback((stock: StockSearchResult) => {
+    setSelectedStock({
+      code: stock.code,
+      name: stock.name,
+    });
+  }, []);
+
+  const handleOrderRequest = useCallback(
+    (stockCode: string, orderPrice: number, maxQuantity: number) => {
+      // URL 파라미터로 주문 폼에 데이터 전달
+      const params = new URLSearchParams({
+        stockCode,
+        orderPrice: orderPrice.toString(),
+        maxQuantity: maxQuantity.toString(),
+      });
+
+      // 현재 페이지 URL 업데이트 (새로고침 없이)
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      router.replace(newUrl);
+
+      // 주문 폼 섹션으로 스크롤
+      const orderSection = document.querySelector(`.${styles.orderSection}`);
+      if (orderSection) {
+        orderSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    },
+    [router]
+  );
 
   return (
     <div className={styles.orderPageContainer}>
@@ -47,7 +77,10 @@ function OrderPageContent() {
         </div>
 
         <div className={styles.buyableInquirySection}>
-          <BuyableInquiryView selectedStockCode={selectedStock.code} />
+          <BuyableInquiry
+            selectedStockCode={selectedStock.code}
+            onOrderRequest={handleOrderRequest}
+          />
         </div>
       </div>
 

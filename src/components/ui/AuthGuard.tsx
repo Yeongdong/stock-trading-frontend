@@ -1,23 +1,25 @@
-"use client";
-
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/contexts/AuthContext";
 import LoadingIndicator from "./LoadingIndicator";
 import { AuthGuardProps } from "@/types";
-import { useAuthContext } from "@/contexts/AuthContext";
 
-const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
+const AuthGuard: React.FC<AuthGuardProps> = ({
+  children,
+  redirectPath = "/login",
+  loadingMessage = "인증 상태 확인 중...",
+}) => {
   const { isAuthenticated, isLoading } = useAuthContext();
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push("/login?sessionExpired=true");
+      router.push(redirectPath);
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, redirectPath]);
 
   if (isLoading) {
-    return <LoadingIndicator message="인증 상태 확인 중..." />;
+    return <LoadingIndicator message={loadingMessage} />;
   }
 
   return isAuthenticated ? <>{children}</> : null;

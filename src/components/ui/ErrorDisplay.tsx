@@ -1,24 +1,25 @@
-import React, { memo } from "react";
+import React from "react";
 import styles from "./ErrorDisplay.module.css";
 import { ErrorDisplayProps } from "@/types";
 
-const ErrorDisplay: React.FC<ErrorDisplayProps> = memo(
-  ({ error, title = "오류 발생", onRetry }) => (
-    <div className={styles.errorContainer} role="alert">
-      <div className={styles.errorIcon} aria-hidden="true">
-        ⚠️
-      </div>
-      <h3 className={styles.errorTitle}>{title}</h3>
-      <p className={styles.errorMessage}>{error}</p>
+const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
+  message,
+  title = "오류 발생",
+  onRetry,
+  className = "",
+}) => {
+  return (
+    <div className={`${styles.container} ${className}`} role="alert">
+      <div className={styles.icon}>⚠️</div>
+      <h3 className={styles.title}>{title}</h3>
+      <p className={styles.message}>{message}</p>
       {onRetry && (
         <button onClick={onRetry} className={styles.retryButton} type="button">
           다시 시도
         </button>
       )}
     </div>
-  )
-);
-
-ErrorDisplay.displayName = "ErrorDisplay";
+  );
+};
 
 export default ErrorDisplay;

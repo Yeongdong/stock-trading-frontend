@@ -1,36 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import StockSearchForm from "./StockSearchForm";
 import StockSearchResults from "./StockSearchResults";
 import { useStockSearch } from "@/hooks/stock/useStockSearch";
-import {
-  StockSearchResult,
-  StockSearchResponse,
-} from "@/types/domains/stock/search";
 import styles from "./StockSearchView.module.css";
-
-interface StockSearchViewProps {
-  onStockSelect?: (stock: StockSearchResult) => void;
-}
+import { StockSearchViewProps } from "@/types";
 
 const StockSearchView: React.FC<StockSearchViewProps> = ({ onStockSelect }) => {
-  const [searchResults, setSearchResults] = useState<StockSearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
   const { summary, getSearchSummary } = useStockSearch();
 
   useEffect(() => {
     getSearchSummary();
   }, [getSearchSummary]);
-
-  const handleSearchResults = (response: StockSearchResponse) => {
-    setSearchResults(response.results);
-    setIsSearching(false);
-    setHasSearched(true);
-  };
-
-  const handleStockSelect = (stock: StockSearchResult) => {
-    onStockSelect?.(stock);
-  };
 
   return (
     <div className={styles.stockSearchView}>
@@ -49,14 +29,8 @@ const StockSearchView: React.FC<StockSearchViewProps> = ({ onStockSelect }) => {
       </div>
 
       <div className={styles.searchContent}>
-        <StockSearchForm onSearchResults={handleSearchResults} />
-
-        <StockSearchResults
-          results={searchResults}
-          isLoading={isSearching}
-          onStockSelect={handleStockSelect}
-          hasSearched={hasSearched}
-        />
+        <StockSearchForm />
+        <StockSearchResults onStockSelect={onStockSelect} />
       </div>
     </div>
   );

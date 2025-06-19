@@ -1,35 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useStockSearch } from "@/hooks/stock/useStockSearch";
-import {
-  StockSearchRequest,
-  StockSearchResponse,
-} from "@/types/domains/stock/search";
+import useDebounce from "@/hooks/common/useDebounce";
+import { StockSearchRequest } from "@/types/domains/stock/search";
 import styles from "./StockSearchForm.module.css";
 
-interface StockSearchFormProps {
-  onSearchResults?: (results: StockSearchResponse) => void;
-}
+const MIN_SEARCH_LENGTH = 1;
+const DEBOUNCE_DELAY = 300;
 
-const StockSearchForm: React.FC<StockSearchFormProps> = ({
-  onSearchResults,
-}) => {
+const StockSearchForm: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { searchStocks, isLoading } = useStockSearch();
+  const debouncedSearchTerm = useDebounce(searchTerm, DEBOUNCE_DELAY);
+  const { searchStocks, isLoading, clearResults } = useStockSearch();
+
+  const handleSearch = useCallback(
+    async (term: string) => {
+      if (!term || term.trim().length < MIN_SEARCH_LENGTH) {
+        clearResults();
+        return;
+      }
+
+      const request: StockSearchRequest = {
+        searchTerm: term.trim(),
+        page: 1,
+        pageSize: 20,
+      };
+
+      await searchStocks(request);
+    },
+    [searchStocks, clearResults]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!searchTerm.trim()) return;
-
-    const request: StockSearchRequest = {
-      searchTerm: searchTerm.trim(),
-      page: 1,
-      pageSize: 20,
-    };
-
-    const response = await searchStocks(request);
-    if (response && onSearchResults) onSearchResults(response);
+    await handleSearch(searchTerm);
   };
+
+  // 디바운싱된 검색어로 자동 검색
+  useEffect(() => {
+    handleSearch(debouncedSearchTerm);
+  }, [debouncedSearchTerm, handleSearch]);
 
   return (
     <form onSubmit={handleSubmit} className={styles.stockSearchForm}>
@@ -41,6 +50,7 @@ const StockSearchForm: React.FC<StockSearchFormProps> = ({
           placeholder="종목명 또는 종목코드를 입력하세요 (예: 삼성전자, 005930)"
           disabled={isLoading}
           className={styles.searchInput}
+          autoComplete="off"
         />
         <button
           type="submit"

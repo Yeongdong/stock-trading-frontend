@@ -1,3 +1,21 @@
+.subscriptionContainer {
+  background-color: var(--color-bg-white);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xxl);
+  box-shadow: var(--shadow-sm);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+/* 폼 스타일 */
 .subscriptionForm {
   display: flex;
   flex-direction: column;
@@ -9,7 +27,7 @@
 .inputGroup {
   display: flex;
   gap: var(--spacing-sm);
-  align-items: center;
+  align-items: flex-start;
 }
 
 /* 입력 필드 */
@@ -20,12 +38,13 @@
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
   background-color: var(--color-bg-input);
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
 }
 
 .input:disabled {
@@ -34,8 +53,14 @@
   cursor: not-allowed;
 }
 
+.input.inputError,
 .input[aria-invalid="true"] {
   border-color: var(--color-error);
+}
+
+.input.inputError:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px rgba(var(--color-error-rgb), 0.1);
 }
 
 /* 구독 버튼 */
@@ -50,6 +75,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  min-width: 80px;
 }
 
 .submitButton:hover:not(:disabled) {
@@ -61,6 +87,7 @@
   background-color: var(--color-secondary);
   cursor: not-allowed;
   transform: none;
+  opacity: 0.6;
 }
 
 .submitButton:focus {
@@ -77,6 +104,7 @@
   background-color: var(--color-error-bg);
   border-radius: var(--border-radius);
   border-left: 3px solid var(--color-error);
+  margin-top: var(--spacing-xs);
 }
 
 /* 도움말 텍스트 */
@@ -85,4 +113,43 @@
   font-size: var(--font-size-sm);
   line-height: 1.4;
   margin-top: var(--spacing-xs);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .subscriptionContainer {
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .title {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .inputGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .submitButton {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscriptionContainer {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+  }
+
+  .input {
+    font-size: var(--font-size-sm);
+  }
+
+  .submitButton {
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+  }
 }
