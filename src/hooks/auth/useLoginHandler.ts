@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import { CredentialResponse } from "@react-oauth/google";
-import { API, ERROR_MESSAGES } from "@/constants";
+import { API } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
+import { ErrorHandler } from "@/utils/errorHandler";
 import { useAuthToken } from "./useAuthToken";
 import {
   AuthUser,
@@ -34,11 +35,14 @@ export const useLoginHandler = () => {
         );
         return { success: true, redirectTo: "/dashboard", user };
       } catch (error) {
-        console.error("토큰 갱신 실패:", error);
+        const standardError = ErrorHandler.standardize(error);
+
         addError({
-          message: "토큰 갱신에 실패했습니다. 설정을 확인해주세요.",
-          severity: "error",
+          message: standardError.message,
+          code: standardError.code,
+          severity: standardError.severity,
         });
+
         return { success: true, redirectTo: "/kis-token", user };
       }
     },
@@ -56,7 +60,13 @@ export const useLoginHandler = () => {
           { requiresAuth: false }
         );
 
-        if (response.error) throw new Error(response.error);
+        if (response.error) {
+          const standardError = ErrorHandler.fromHttpStatus(
+            response.status,
+            response.error
+          );
+          throw standardError;
+        }
 
         const data = response.data!;
         const tokenStatus = getTokenStatus(data.user);
@@ -76,11 +86,14 @@ export const useLoginHandler = () => {
             return { success: true, redirectTo: "/kis-token", user: data.user };
         }
       } catch (error) {
-        console.error("Google 로그인 실패:", error);
+        const standardError = ErrorHandler.standardize(error);
+
         addError({
-          message: ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS,
-          severity: "error",
+          message: standardError.message,
+          code: standardError.code,
+          severity: standardError.severity,
         });
+
         return { success: false };
       }
     },

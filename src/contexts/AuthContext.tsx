@@ -13,6 +13,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
 import { authService } from "@/services/api/auth/authService";
+import { ErrorHandler } from "@/utils/errorHandler";
+import { ERROR_CODES } from "@/types/common/error";
 import { AuthUser } from "@/types";
 import { AuthContextType } from "@/types/domains/auth/context";
 
@@ -28,11 +30,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const pathname = usePathname();
   const { addError } = useError();
 
-  const checkAuthStatus = async (): Promise<boolean> => {
+  const checkAuthStatus = useCallback(async (): Promise<boolean> => {
     try {
       const response = await authService.checkAuth();
 
       if (response.error) {
+        const standardError = ErrorHandler.fromHttpStatus(
+          response.status,
+          response.error
+        );
+
+        if (
+          standardError.code === ERROR_CODES.AUTH_EXPIRED ||
+          standardError.code === ERROR_CODES.AUTH_INVALID
+        ) {
+          setIsAuthenticated(false);
+          setUser(null);
+          return false;
+        }
+
+        addError({
+          message: standardError.message,
+          code: standardError.code,
+          severity: standardError.severity,
+        });
+
         setIsAuthenticated(false);
         setUser(null);
         return false;
@@ -41,25 +63,56 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsAuthenticated(true);
       setUser(response.data?.user || null);
       return true;
-    } catch {
+    } catch (error) {
+      const standardError = ErrorHandler.standardize(error);
+
+      // 네트워크 에러 등은 사용자에게 표시
+      if (
+        standardError.code !== ERROR_CODES.AUTH_EXPIRED &&
+        standardError.code !== ERROR_CODES.AUTH_INVALID
+      )
+        addError({
+          message: standardError.message,
+          code: standardError.code,
+          severity: standardError.severity,
+        });
+
       setIsAuthenticated(false);
       setUser(null);
       return false;
     }
-  };
+  }, [addError]);
 
   const handleLogout = useCallback(async (): Promise<void> => {
     try {
-      await authService.logout();
+      const response = await authService.logout();
+
+      if (response.error) {
+        const standardError = ErrorHandler.fromHttpStatus(
+          response.status,
+          response.error
+        );
+        throw standardError;
+      }
+
       setIsAuthenticated(false);
       setUser(null);
+
       addError({
         message: ERROR_MESSAGES.AUTH.LOGOUT_SUCCESS,
         severity: "info",
       });
+
       router.push("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      const standardError = ErrorHandler.standardize(error);
+
+      addError({
+        message: standardError.message,
+        code: standardError.code,
+        severity: standardError.severity,
+      });
+
       setIsAuthenticated(false);
       setUser(null);
       router.push("/login");
@@ -78,13 +131,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const isAuth = await checkAuthStatus();
       setIsLoading(false);
 
-      if (!isAuth) {
-        router.push("/login?sessionExpired=true");
-      }
+      if (!isAuth) router.push("/login?sessionExpired=true");
     };
 
     initAuth();
-  }, [pathname, router]);
+  }, [pathname, router, checkAuthStatus]);
 
   return (
     <AuthContext.Provider
@@ -103,8 +154,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useAuthContext = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (context === undefined)
     throw new Error("useAuthContext must be used within an AuthProvider");
-  }
+
   return context;
 };
