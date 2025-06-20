@@ -4,7 +4,7 @@ import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import styles from "./KisTokenForm.module.css";
 import { KisTokenFormProps, UserInfoRequest } from "@/types";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const KisTokenForm = ({ userId }: KisTokenFormProps) => {
   const [appKey, setAppKey] = useState("");
