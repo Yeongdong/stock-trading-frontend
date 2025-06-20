@@ -6,7 +6,7 @@ import { StockSubscriptionProvider } from "@/contexts/StockSubscriptionContext";
 import { StockDataProvider, useStockData } from "@/contexts/StockDataContext";
 import { ChartDataProvider, useChartData } from "@/contexts/ChartDataContext";
 import { RealtimePriceProvider } from "@/contexts/RealtimePriceContext";
-import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
+import { useRealtimeConnection } from "@/hooks/realtime/useRealtimeConnection";
 import MarketClosedNotice from "@/components/ui/MarketClosedNotice";
 import styles from "./page.module.css";
 import { useMarketStatus } from "@/hooks/realtime/useMarketStatus";
@@ -43,19 +43,27 @@ function RealtimeProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
+function RealtimeConnectionManager({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { connect, disconnect } = useRealtimeConnection();
+
+  useEffect(() => {
+    connect();
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect]);
+
+  return <>{children}</>;
+}
+
 export default function RealtimePage() {
   const { isOpen, statusText, statusIcon } = useMarketStatus();
 
-  useEffect(() => {
-    if (isOpen) {
-      realtimeSocketService.start();
-      return () => {
-        realtimeSocketService.stop();
-      };
-    }
-  }, [isOpen]);
-
-  if (!isOpen) {
+  if (!isOpen)
     return (
       <div className={styles.container}>
         <MarketClosedNotice
@@ -66,13 +74,14 @@ export default function RealtimePage() {
         />
       </div>
     );
-  }
 
   return (
     <div className={styles.container}>
-      <RealtimeProviders>
-        <RealtimeDashboard />
-      </RealtimeProviders>
+      <RealtimeConnectionManager>
+        <RealtimeProviders>
+          <RealtimeDashboard />
+        </RealtimeProviders>
+      </RealtimeConnectionManager>
     </div>
   );
 }

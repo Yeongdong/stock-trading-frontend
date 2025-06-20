@@ -11,8 +11,6 @@ import React, {
   useRef,
 } from "react";
 import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
-import { realtimeApiService } from "@/services/api/realtime/realtimeApiService";
-import { useError } from "./ErrorContext";
 import {
   RealtimeAction,
   RealtimeCallbacks,
@@ -21,7 +19,6 @@ import {
 } from "@/types/domains/realtime/context";
 import { StockCode } from "@/types";
 import { RealtimeStockData } from "@/types/domains/realtime/entities";
-import { useAuthContext } from "./AuthContext";
 
 const initialState: RealtimeState = {
   stockData: {},
@@ -33,40 +30,35 @@ function realtimePriceReducer(
   state: RealtimeState,
   action: RealtimeAction
 ): RealtimeState {
-  try {
-    switch (action.type) {
-      case "UPDATE_STOCK_DATA":
-        return {
-          ...state,
-          stockData: {
-            ...state.stockData,
-            [action.payload.symbol]: action.payload.data,
-          },
-        };
-      case "SET_CONNECTED":
-        return {
-          ...state,
-          isConnected: action.payload,
-        };
-      case "SET_ERROR":
-        return {
-          ...state,
-          error: action.payload,
-        };
-      case "REMOVE_STOCK_DATA": {
-        const newStockData = { ...state.stockData };
-        delete newStockData[action.payload];
-        return {
-          ...state,
-          stockData: newStockData,
-        };
-      }
-      default:
-        return state;
+  switch (action.type) {
+    case "UPDATE_STOCK_DATA":
+      return {
+        ...state,
+        stockData: {
+          ...state.stockData,
+          [action.payload.symbol]: action.payload.data,
+        },
+      };
+    case "SET_CONNECTED":
+      return {
+        ...state,
+        isConnected: action.payload,
+      };
+    case "SET_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+      };
+    case "REMOVE_STOCK_DATA": {
+      const newStockData = { ...state.stockData };
+      delete newStockData[action.payload];
+      return {
+        ...state,
+        stockData: newStockData,
+      };
     }
-  } catch (error) {
-    console.error("Realtime reducer error:", error);
-    return state;
+    default:
+      return state;
   }
 }
 
@@ -79,122 +71,74 @@ export const RealtimePriceProvider: React.FC<{
   callbacks?: RealtimeCallbacks;
 }> = ({ children, callbacks }) => {
   const [state, dispatch] = useReducer(realtimePriceReducer, initialState);
-  const { addError } = useError();
-  const { isAuthenticated, isLoading } = useAuthContext();
-
-  const isInitializedRef = useRef<boolean>(false);
-  const cleanupFunctionRef = useRef<(() => void) | null>(null);
+  const isSubscribedRef = useRef(false);
 
   const handleStockPrice = useCallback(
     (data: RealtimeStockData) => {
-      try {
-        if (!data || !data.symbol || typeof data.price !== "number") {
-          console.warn("Invalid realtime stock data:", data);
-          return;
-        }
-
-        dispatch({
-          type: "UPDATE_STOCK_DATA",
-          payload: { symbol: data.symbol, data },
-        });
-
-        callbacks?.onStockDataUpdate?.(data);
-        callbacks?.onChartDataUpdate?.(data);
-      } catch (error) {
-        console.error("Stock price handler error:", error);
+      if (!data || !data.symbol || typeof data.price !== "number") {
+        console.warn("Invalid realtime stock data:", data);
+        return;
       }
+
+      dispatch({
+        type: "UPDATE_STOCK_DATA",
+        payload: { symbol: data.symbol, data },
+      });
+
+      callbacks?.onStockDataUpdate?.(data);
+      callbacks?.onChartDataUpdate?.(data);
     },
     [callbacks]
   );
 
-  // 실시간 서비스 시작
-  const startRealTimeService = useCallback(async (): Promise<boolean> => {
-    try {
-      if (!isAuthenticated) return false;
-      if (state.isConnected && isInitializedRef.current) return true;
-
-      const response = await realtimeApiService.startRealTimeService();
-      if (response.error) return false;
-
-      realtimeSocketService.setErrorCallback((errorMessage) => {
-        addError({
-          message: `실시간 연결 오류: ${errorMessage}`,
-          severity: "error",
-        });
-        dispatch({ type: "SET_CONNECTED", payload: false });
-      });
-
-      const connected = await realtimeSocketService.start();
-
-      if (connected) {
-        const unsubscribe = realtimeSocketService.subscribe(
-          "stockPrice",
-          handleStockPrice
-        );
-
-        cleanupFunctionRef.current = () => {
-          unsubscribe();
-          realtimeSocketService.stop();
-        };
-
-        dispatch({ type: "SET_CONNECTED", payload: true });
-        dispatch({ type: "SET_ERROR", payload: null });
-        isInitializedRef.current = true;
-
-        return true;
-      } else {
-        dispatch({ type: "SET_CONNECTED", payload: false });
-        return false;
-      }
-    } catch (error) {
-      console.error("Realtime service start error:", error);
-      dispatch({ type: "SET_CONNECTED", payload: false });
-      return false;
-    }
-  }, [isAuthenticated, state.isConnected, handleStockPrice, addError]);
-
-  // 종목 데이터 조회
   const getStockData = useCallback(
     (symbol: StockCode): RealtimeStockData | null => {
-      try {
-        return state.stockData[symbol] || null;
-      } catch (error) {
-        console.error("Get stock data error:", error);
-        return null;
-      }
+      return state.stockData[symbol] || null;
     },
     [state.stockData]
   );
 
-  // 종목 데이터 제거
   const removeStockData = useCallback((symbol: StockCode) => {
-    try {
-      if (!symbol) return;
-      dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
-    } catch (error) {
-      console.error("Remove stock data error:", error);
-    }
+    if (!symbol) return;
+    dispatch({ type: "REMOVE_STOCK_DATA", payload: symbol });
   }, []);
 
-  // 자동 초기화 및 정리
   useEffect(() => {
-    if (!isAuthenticated || isLoading || isInitializedRef.current) return;
+    if (isSubscribedRef.current) return;
 
-    const initializeService = async () => {
-      await startRealTimeService();
+    // 주가 데이터 이벤트 구독
+    const unsubscribeStockPrice = realtimeSocketService.subscribe(
+      "stockPrice",
+      handleStockPrice
+    );
+
+    // 연결 상태 이벤트 구독
+    const unsubscribeConnected = realtimeSocketService.subscribe(
+      "connected",
+      () => {
+        dispatch({ type: "SET_CONNECTED", payload: true });
+        dispatch({ type: "SET_ERROR", payload: null });
+      }
+    );
+
+    // 연결 상태 확인
+    const checkConnection = () => {
+      const connectionState = realtimeSocketService.getConnectionState();
+      dispatch({
+        type: "SET_CONNECTED",
+        payload: connectionState === "Connected",
+      });
     };
 
-    initializeService();
+    checkConnection();
+    isSubscribedRef.current = true;
 
     return () => {
-      if (cleanupFunctionRef.current) {
-        cleanupFunctionRef.current();
-        cleanupFunctionRef.current = null;
-      }
-      isInitializedRef.current = false;
-      dispatch({ type: "SET_CONNECTED", payload: false });
+      unsubscribeStockPrice();
+      unsubscribeConnected();
+      isSubscribedRef.current = false;
     };
-  }, [isAuthenticated, isLoading, startRealTimeService]);
+  }, [handleStockPrice]);
 
   const contextValue = useMemo(
     () => ({
