@@ -10,6 +10,7 @@ export interface OrderExecutionInquiryRequest {
 export interface OrderExecutionInquiryResponse {
   totalCount: number;
   executions: OrderExecution[];
+  hasMore?: boolean;
 }
 
 export interface OrderExecution {
@@ -18,8 +19,8 @@ export interface OrderExecution {
   stockCode: string;
   stockName: string;
   orderType: string;
-  quantity: number;
-  price: number;
+  orderQuantity: number;
+  orderPrice: number;
   executedQuantity: number;
   executedPrice: number;
   executedAmount?: number;

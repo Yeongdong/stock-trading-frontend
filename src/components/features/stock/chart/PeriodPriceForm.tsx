@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import styles from "./PeriodPriceForm.module.css";
 import { DateFormatter } from "./PeriodPriceChartModel";
@@ -14,6 +14,10 @@ export const PeriodPriceForm: React.FC<PeriodPriceFormProps> = ({
   onSubmit,
 }) => {
   const [formData, setFormData] = useState<PeriodPriceRequest>(initialData);
+
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
 
   const handleInputChange = (
     field: keyof PeriodPriceRequest,

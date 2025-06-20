@@ -2,11 +2,11 @@ import React, { useState, useCallback, useEffect } from "react";
 import { useStockOperations } from "@/hooks/stock/useStockOperations";
 import useDebounce from "@/hooks/common/useDebounce";
 import { UI_MESSAGES, TIMINGS, ERROR_MESSAGES } from "@/constants";
-import styles from "./SymbolSubscriptionForm.module.css";
+import styles from "./SymbolInputForm.module.css";
 
 const SYMBOL_PATTERN = /^\d{6}$/;
 
-const SymbolSubscriptionForm: React.FC = () => {
+const SymbolInputForm: React.FC = () => {
   const { subscribeSymbol, isSubscribed } = useStockOperations();
 
   const [symbolInput, setSymbolInput] = useState("");
@@ -131,4 +131,4 @@ const SymbolSubscriptionForm: React.FC = () => {
   );
 };
 
-export default SymbolSubscriptionForm;
+export default SymbolInputForm;

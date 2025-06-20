@@ -81,10 +81,10 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = memo(
                     </span>
                   </td>
                   <td className={styles.number}>
-                    {formatNumber(item.quantity)}
+                    {formatNumber(item.orderQuantity)}
                   </td>
                   <td className={styles.number}>
-                    {formatNumber(item.price)}원
+                    {formatNumber(item.orderPrice)}원
                   </td>
                   <td className={styles.number}>
                     {formatNumber(item.executedQuantity)}

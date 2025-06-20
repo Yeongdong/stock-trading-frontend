@@ -13,7 +13,6 @@ import React, {
 import { realtimeSocketService } from "@/services/realtime/realtimeSocketService";
 import { realtimeApiService } from "@/services/api/realtime/realtimeApiService";
 import { useError } from "./ErrorContext";
-import { ERROR_MESSAGES } from "@/constants";
 import {
   RealtimeAction,
   RealtimeCallbacks,
@@ -141,11 +140,6 @@ export const RealtimePriceProvider: React.FC<{
         dispatch({ type: "SET_CONNECTED", payload: true });
         dispatch({ type: "SET_ERROR", payload: null });
         isInitializedRef.current = true;
-
-        addError({
-          message: ERROR_MESSAGES.REALTIME.SERVICE_START,
-          severity: "info",
-        });
 
         return true;
       } else {

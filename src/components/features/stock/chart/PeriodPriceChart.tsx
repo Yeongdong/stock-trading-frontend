@@ -28,8 +28,10 @@ const PeriodPriceChart: React.FC<PeriodChartProps> = ({
 
   // 차트 매니저 초기화
   useEffect(() => {
-    if (chartContainerRef.current && !chartManagerRef.current)
-      chartManagerRef.current = new ChartManager(chartContainerRef.current);
+    if (!stockCode || !chartContainerRef.current || chartManagerRef.current)
+      return;
+
+    chartManagerRef.current = new ChartManager(chartContainerRef.current);
 
     return () => {
       if (chartManagerRef.current) {
@@ -37,7 +39,7 @@ const PeriodPriceChart: React.FC<PeriodChartProps> = ({
         chartManagerRef.current = null;
       }
     };
-  }, []);
+  }, [stockCode]);
 
   // 종목 코드 변경 시 데이터 갱신
   useEffect(() => {
@@ -51,21 +53,18 @@ const PeriodPriceChart: React.FC<PeriodChartProps> = ({
 
   // 차트 데이터 업데이트
   useEffect(() => {
-    if (processedData && chartManagerRef.current)
+    if (processedData && chartManagerRef.current) {
       chartManagerRef.current.updateData(
         processedData.chartData,
         processedData.volumeData
       );
+    }
   }, [processedData]);
 
   const handleFormSubmit = useCallback(
     async (newFormData: PeriodPriceRequest) => {
       const validation = FormManager.validateRequest(newFormData);
-
-      if (!validation.isValid) {
-        console.error("폼 검증 실패:", validation.errors);
-        return;
-      }
+      if (!validation.isValid) return;
 
       setFormData(newFormData);
       await fetchPeriodPrice(newFormData);
@@ -73,24 +72,16 @@ const PeriodPriceChart: React.FC<PeriodChartProps> = ({
     [fetchPeriodPrice]
   );
 
-  const getTitle = useCallback((): string => {
-    return stockName ? `${stockName} (${stockCode})` : stockCode;
-  }, [stockCode, stockName]);
-
-  if (!stockCode) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.emptyState}>
-          <p>종목을 선택해주세요.</p>
-        </div>
-      </div>
-    );
-  }
+  const title = stockCode
+    ? stockName
+      ? `${stockName} (${stockCode})`
+      : stockCode
+    : "기간별 시세";
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h2 className={styles.title}>{getTitle()} 기간별 시세</h2>
+        <h2 className={styles.title}>{title}</h2>
       </header>
 
       <PeriodPriceForm
@@ -101,32 +92,36 @@ const PeriodPriceChart: React.FC<PeriodChartProps> = ({
 
       {error && <div className={styles.error}>{error}</div>}
 
-      {summaryData && <PeriodPriceSummary summaryData={summaryData} />}
+      {data && (
+        <>
+          {summaryData && <PeriodPriceSummary summaryData={summaryData} />}
 
-      <div className={styles.chartContainer}>
-        {loading && (
-          <div className={styles.loadingOverlay}>
-            <div className={styles.loadingSpinner}></div>
-            <p>차트 데이터를 불러오는 중...</p>
+          <div className={styles.chartContainer}>
+            {loading && (
+              <div className={styles.loadingOverlay}>
+                <div className={styles.loadingSpinner}></div>
+                <p>차트 데이터를 불러오는 중...</p>
+              </div>
+            )}
+
+            <div
+              ref={chartContainerRef}
+              className={styles.chartContent}
+              style={{
+                width: "100%",
+                height: "500px",
+                opacity: loading ? 0.5 : 1,
+              }}
+            />
+
+            {!hasValidData && !loading && (
+              <div className={styles.noDataMessage}>
+                차트 데이터를 불러올 수 없습니다.
+              </div>
+            )}
           </div>
-        )}
-
-        <div
-          ref={chartContainerRef}
-          className={styles.chartContent}
-          style={{
-            width: "100%",
-            height: "500px",
-            opacity: loading ? 0.5 : 1,
-          }}
-        />
-
-        {!hasValidData && !loading && (
-          <div className={styles.noDataMessage}>
-            차트 데이터를 불러올 수 없습니다.
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };
