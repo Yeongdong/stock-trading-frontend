@@ -5,8 +5,8 @@ import {
   PeriodPriceRequest,
   PeriodPriceResponse,
 } from "@/types/domains/stock/price";
-import { ErrorHandler } from "@/utils/errorHandler";
 import { ERROR_CODES, StandardError } from "@/types/common/error";
+import { ErrorService } from "@/services/error/errorService";
 
 export const usePeriodPrice = () => {
   const [data, setData] = useState<PeriodPriceResponse | null>(null);
@@ -48,7 +48,7 @@ export const usePeriodPrice = () => {
 
         setData(response.data || null);
       } catch (error) {
-        const standardError = ErrorHandler.standardize(error);
+        const standardError = ErrorService.standardize(error);
 
         setError(standardError.message);
         addError({

@@ -1,16 +1,18 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { useStockSearch } from "@/hooks/stock/useStockSearch";
 import useDebounce from "@/hooks/common/useDebounce";
 import { StockSearchRequest } from "@/types/domains/stock/search";
+import { StockSearchFormProps } from "@/types/domains/stock/components";
 import styles from "./StockSearchForm.module.css";
 
 const MIN_SEARCH_LENGTH = 1;
 const DEBOUNCE_DELAY = 300;
 
-const StockSearchForm: React.FC = () => {
+const StockSearchForm: React.FC<StockSearchFormProps> = ({
+  stockSearchHook,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, DEBOUNCE_DELAY);
-  const { searchStocks, isLoading, clearResults } = useStockSearch();
+  const { searchStocks, isLoading, clearResults } = stockSearchHook;
 
   const handleSearch = useCallback(
     async (term: string) => {

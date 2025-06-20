@@ -6,7 +6,8 @@ import styles from "./StockSearchView.module.css";
 import { StockSearchViewProps } from "@/types";
 
 const StockSearchView: React.FC<StockSearchViewProps> = ({ onStockSelect }) => {
-  const { summary, getSearchSummary } = useStockSearch();
+  const stockSearchHook = useStockSearch();
+  const { summary, getSearchSummary } = stockSearchHook;
 
   useEffect(() => {
     getSearchSummary();
@@ -29,8 +30,11 @@ const StockSearchView: React.FC<StockSearchViewProps> = ({ onStockSelect }) => {
       </div>
 
       <div className={styles.searchContent}>
-        <StockSearchForm />
-        <StockSearchResults onStockSelect={onStockSelect} />
+        <StockSearchForm stockSearchHook={stockSearchHook} />
+        <StockSearchResults
+          stockSearchHook={stockSearchHook}
+          onStockSelect={onStockSelect}
+        />
       </div>
     </div>
   );

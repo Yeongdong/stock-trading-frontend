@@ -16,6 +16,7 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = memo(
       return orderType === "매수" ? "buy" : "sell";
     };
 
+    // 로딩 상태
     if (isLoading)
       return (
         <div className={styles.loadingContainer}>
@@ -24,7 +25,7 @@ const OrderExecutionTable: React.FC<OrderExecutionTableProps> = memo(
         </div>
       );
 
-    if (items.length === 0)
+    if (!items || items.length === 0)
       return (
         <div className={styles.orderExecutionTableContainer}>
           <div className={styles.tableHeader}>

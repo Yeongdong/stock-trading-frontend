@@ -4,7 +4,6 @@
   padding: var(--spacing-xl);
 }
 
-/* 페이지 제목 */
 .pageTitle {
   font-size: var(--font-size-xxl);
   font-weight: var(--font-weight-bold);
@@ -13,31 +12,28 @@
   text-align: center;
 }
 
-/* 종목 검색 섹션 */
 .stockSearchSection {
   margin-bottom: var(--spacing-xxl);
 }
 
-/* 2컬럼 레이아웃 */
 .twoColumnLayout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xxl);
+  gap: var(--spacing-xl);
   align-items: start;
   margin-bottom: var(--spacing-xxl);
 }
 
-/* 왼쪽 컬럼: 주식 주문 */
 .orderSection {
-  min-height: 50%;
+  width: 100%;
+  min-height: 100%;
 }
 
-/* 오른쪽 컬럼: 매수가능조회 */
 .buyableInquirySection {
-  min-height: 50%;
+  width: 100%;
+  min-height: 100%;
 }
 
-/* 차트 섹션 */
 .chartSection {
   width: 100%;
   background-color: var(--color-bg-white);
@@ -55,7 +51,6 @@
   border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
 }
 
-/* 반응형 처리 */
 @media (max-width: 1024px) {
   .twoColumnLayout {
     grid-template-columns: 1fr;

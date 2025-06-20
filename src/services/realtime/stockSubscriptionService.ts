@@ -17,9 +17,7 @@ export class StockSubscriptionService {
       const savedSymbols = localStorage.getItem(
         STORAGE_KEYS.SUBSCRIBED_SYMBOLS
       );
-      if (savedSymbols) {
-        this.subscribedSymbols = JSON.parse(savedSymbols);
-      }
+      if (savedSymbols) this.subscribedSymbols = JSON.parse(savedSymbols);
     } catch {
       // 파싱 실패 시 빈 배열로 초기화
       this.subscribedSymbols = [];
@@ -33,6 +31,10 @@ export class StockSubscriptionService {
         JSON.stringify(this.subscribedSymbols)
       );
     } catch {}
+  }
+
+  public async initializeSubscriptions(): Promise<void> {
+    await this.syncWithServer();
   }
 
   // 모든 구독된 종목 코드 가져오기

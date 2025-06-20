@@ -42,49 +42,24 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
     }
   }, [selectedStockCode, stockCode]);
 
-  // 자동 현재가 조회
   const fetchCurrentPrice = useCallback(
     async (code: string) => {
       if (!autoFetchPrice) return;
 
-      try {
-        const response = await getCurrentPrice({ stockCode: code });
-        if (response?.data)
-          setOrderPrice(response.data.currentPrice.toString());
-      } catch (error) {
-        console.error("현재가 조회 실패:", error);
-      }
+      const response = await getCurrentPrice({ stockCode: code });
+      if (response?.data) setOrderPrice(response.data.currentPrice.toString());
     },
-    [getCurrentPrice, autoFetchPrice]
+    [autoFetchPrice, getCurrentPrice]
   );
 
-  // 디바운싱된 종목코드로 자동 현재가 조회
+  // 디바운싱된 종목 코드로 현재가 조회
   useEffect(() => {
     if (debouncedStockCode && isValidStockCode(debouncedStockCode))
       fetchCurrentPrice(debouncedStockCode);
   }, [debouncedStockCode, fetchCurrentPrice]);
 
-  const handleStockCodeChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-      setStockCode(value);
-
-      if (isValidStockCode(value) && autoFetchPrice) fetchCurrentPrice(value);
-    },
-    [autoFetchPrice, fetchCurrentPrice]
-  );
-
-  const handleOrderPriceChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.replace(/[^\d]/g, "");
-      setOrderPrice(value);
-    },
-    []
-  );
-
   const handleManualPriceFetch = useCallback(async () => {
-    if (!stockCode || !isValidStockCode(stockCode)) return;
-
+    if (!stockCode) return;
     await fetchCurrentPrice(stockCode);
   }, [stockCode, fetchCurrentPrice]);
 
@@ -92,8 +67,7 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!isValidStockCode(stockCode)) return;
-      if (!isPositiveNumber(orderPrice)) return;
+      if (!stockCode || !orderPrice) return;
 
       const request: BuyableInquiryRequest = {
         stockCode: stockCode.trim(),
@@ -105,6 +79,24 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
       if (result) setInquiryResult(result);
     },
     [stockCode, orderPrice, orderType, getBuyableInquiry]
+  );
+
+  const handleStockCodeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.replace(/[^0-9]/g, "");
+      setStockCode(value);
+    },
+    []
+  );
+
+  const handleOrderPriceChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value === "" || isPositiveNumber(value)) {
+        setOrderPrice(value);
+      }
+    },
+    []
   );
 
   const handleOrderClick = useCallback(() => {
@@ -139,20 +131,23 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formRow}>
+      <form onSubmit={handleSubmit}>
+        <fieldset className={styles.fieldset}>
+          <legend>조회 정보</legend>
+
           <div className={styles.formGroup}>
-            <label htmlFor="stockCode">종목코드</label>
+            <label htmlFor="buyable-stockCode">종목 코드</label>
             <div className={styles.inputWithIndicator}>
               <input
                 type="text"
-                id="stockCode"
+                id="buyable-stockCode"
                 value={stockCode}
                 onChange={handleStockCodeChange}
-                placeholder="예: 005930"
+                placeholder="6자리 종목 코드 (예: 005930)"
                 maxLength={6}
-                disabled={isLoading}
+                pattern="[0-9]*"
                 className={styles.input}
+                disabled={isLoading}
                 required
               />
               {isPriceLoading && (
@@ -162,18 +157,18 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="orderPrice">주문가격</label>
+            <label htmlFor="buyable-orderPrice">주문 가격</label>
             <div className={styles.inputWithAction}>
               <input
                 type="number"
-                id="orderPrice"
+                id="buyable-orderPrice"
                 value={orderPrice}
                 onChange={handleOrderPriceChange}
-                placeholder="주문가격 입력"
+                placeholder="주문 가격 입력"
                 min="1"
                 step="1"
-                disabled={isLoading}
                 className={styles.input}
+                disabled={isLoading}
                 required
               />
               <button
@@ -188,17 +183,17 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="orderType">주문구분</label>
+            <label htmlFor="buyable-orderType">주문 구분</label>
             <select
-              id="orderType"
+              id="buyable-orderType"
               value={orderType}
               onChange={(e) => setOrderType(e.target.value)}
-              disabled={isLoading}
               className={styles.select}
+              disabled={isLoading}
             >
-              {ORDER_TYPES.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+              {ORDER_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
                 </option>
               ))}
             </select>
@@ -211,7 +206,7 @@ const BuyableInquiry: React.FC<BuyableInquiryProps> = ({
           >
             {isLoading ? "조회중..." : "조회"}
           </button>
-        </div>
+        </fieldset>
       </form>
 
       {inquiryResult && (

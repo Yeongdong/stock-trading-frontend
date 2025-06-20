@@ -1,16 +1,15 @@
 import React from "react";
-import { useStockSearch } from "@/hooks/stock/useStockSearch";
-
+import { StockSearchResultsWithHookProps } from "@/types/domains/stock/components";
 import styles from "./StockSearchResults.module.css";
-import { StockSearchResultsProps } from "@/types";
 
-const StockSearchResults: React.FC<StockSearchResultsProps> = ({
+const StockSearchResults: React.FC<StockSearchResultsWithHookProps> = ({
+  stockSearchHook,
   onStockSelect,
 }) => {
   const { results, searchResponse, isLoading, hasSearched, loadMore } =
-    useStockSearch();
+    stockSearchHook;
 
-  if (isLoading && results.length === 0)
+  if (isLoading && (!results || results.length === 0))
     return (
       <div className={`${styles.searchResults} ${styles.loading}`}>
         <p>검색 중...</p>
@@ -19,7 +18,7 @@ const StockSearchResults: React.FC<StockSearchResultsProps> = ({
 
   if (!hasSearched) return null;
 
-  if (results.length === 0)
+  if (!results || results.length === 0)
     return (
       <div className={`${styles.searchResults} ${styles.empty}`}>
         <p>검색 결과가 없습니다.</p>

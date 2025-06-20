@@ -6,14 +6,12 @@ import {
 } from "@react-oauth/google";
 import { ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
-import { useAuthContext } from "@/contexts/AuthContext";
 import styles from "./LoginForm.module.css";
 import { useLoginHandler } from "@/hooks/auth/useLoginHandler";
 import { LoginFormProps } from "@/types/domains/auth/components";
 
 const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
   const { addError } = useError();
-  const { checkAuth } = useAuthContext();
   const { handleGoogleLogin } = useLoginHandler();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,7 +35,6 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
       const result = await handleGoogleLogin(credentialResponse);
 
       if (result.success && result.redirectTo) {
-        await checkAuth();
         onLoginSuccess?.(result.redirectTo);
       }
     } finally {

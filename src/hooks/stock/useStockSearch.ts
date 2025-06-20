@@ -6,8 +6,12 @@ import {
   StockSearchResult,
   StockSearchSummary,
 } from "@/types/domains/stock/search";
+import { UseStockSearchResult } from "@/types/domains/stock/hooks";
 
-export const useStockSearch = () => {
+/**
+ * 주식 검색 훅
+ */
+export const useStockSearch = (): UseStockSearchResult => {
   const [results, setResults] = useState<StockSearchResult[]>([]);
   const [searchResponse, setSearchResponse] =
     useState<StockSearchResponse | null>(null);
@@ -18,9 +22,15 @@ export const useStockSearch = () => {
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // 주식 검색
   const searchStocks = useCallback(
-    async (request: StockSearchRequest, isLoadMore = false) => {
-      if (abortControllerRef.current) abortControllerRef.current.abort();
+    async (
+      request: StockSearchRequest,
+      isLoadMore = false
+    ): Promise<StockSearchResponse | null> => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
 
       abortControllerRef.current = new AbortController();
       setIsLoading(true);
@@ -28,14 +38,12 @@ export const useStockSearch = () => {
       try {
         const response = await stockService.searchStocks(request);
 
-        if (response) {
-          const searchData = response;
+        if (response.data && !response.error) {
+          const searchData = response.data;
 
           if (isLoadMore) {
-            // 추가 로드 시 기존 결과에 추가
             setResults((prev) => [...prev, ...searchData.results]);
           } else {
-            // 새 검색 시 결과 대체
             setResults(searchData.results);
             setLastSearchTerm(request.searchTerm);
           }
@@ -43,6 +51,12 @@ export const useStockSearch = () => {
           setSearchResponse(searchData);
           setHasSearched(true);
           return searchData;
+        }
+
+        if (!isLoadMore) {
+          setResults([]);
+          setSearchResponse(null);
+          setHasSearched(true);
         }
 
         return null;
@@ -54,7 +68,8 @@ export const useStockSearch = () => {
     []
   );
 
-  const loadMore = useCallback(async () => {
+  // 더보기
+  const loadMore = useCallback(async (): Promise<void> => {
     if (!searchResponse?.hasMore || isLoading || !lastSearchTerm) return;
 
     const nextPage = (searchResponse.page || 1) + 1;
@@ -68,26 +83,38 @@ export const useStockSearch = () => {
     );
   }, [searchResponse, isLoading, lastSearchTerm, searchStocks]);
 
-  const getStockByCode = useCallback(async (code: string) => {
-    setIsLoading(true);
-    try {
-      const result = await stockService.getStockByCode(code);
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // 종목 코드로 조회
+  const getStockByCode = useCallback(
+    async (code: string): Promise<StockSearchResult | null> => {
+      setIsLoading(true);
 
-  const getSearchSummary = useCallback(async () => {
-    try {
-      const summaryData = await stockService.getSearchSummary();
-      setSummary(summaryData);
-      return summaryData;
-    } catch {
+      try {
+        const response = await stockService.getStockByCode(code);
+
+        if (response.data && !response.error) return response.data;
+
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  // 검색 요약 정보 조회
+  const getSearchSummary =
+    useCallback(async (): Promise<StockSearchSummary | null> => {
+      const response = await stockService.getSearchSummary();
+
+      if (response.data && !response.error) {
+        setSummary(response.data);
+        return response.data;
+      }
+
       return null;
-    }
-  }, []);
+    }, []);
 
+  // 결과 초기화
   const clearResults = useCallback(() => {
     setResults([]);
     setSearchResponse(null);

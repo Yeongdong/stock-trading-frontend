@@ -1,8 +1,8 @@
 import React from "react";
 import { useError } from "@/contexts/ErrorContext";
-import { ErrorHandler } from "@/utils/errorHandler";
 import { ApiOptions, ApiResponse } from "@/types/common/api";
 import { requestQueue } from "./requestQueue";
+import { ErrorService } from "@/services/error/errorService";
 
 class ApiClient {
   private errorHandler: ((message: string, code: string) => void) | null = null;
@@ -109,7 +109,7 @@ class ApiClient {
 
   private handleResponseError<T>(response: ApiResponse<T>): void {
     if (this.errorHandler) {
-      const standardError = ErrorHandler.fromHttpStatus(
+      const standardError = ErrorService.fromHttpStatus(
         response.status,
         response.error
       );
@@ -118,7 +118,7 @@ class ApiClient {
   }
 
   private handleRequestError<T>(error: Error): ApiResponse<T> {
-    const standardError = ErrorHandler.standardize(error);
+    const standardError = ErrorService.standardize(error);
 
     if (this.errorHandler)
       this.errorHandler(standardError.message, standardError.code);
@@ -140,7 +140,7 @@ export const useApiClient = () => {
       addError({
         message,
         code,
-        severity: ErrorHandler.getSeverityFromCode(code),
+        severity: ErrorService.getSeverityFromCode(code),
       });
     });
   }, [addError]);

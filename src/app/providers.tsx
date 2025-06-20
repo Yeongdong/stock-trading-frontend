@@ -2,7 +2,6 @@
 
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import { useNetworkStatus } from "@/hooks/common/useNetworkStatus";
-import ErrorDisplayContainer from "@/components/ui/ErrorDisplayContainer";
 
 function NetworkStatusMonitor() {
   useNetworkStatus();
@@ -14,7 +13,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <ErrorProvider>
       <NetworkStatusMonitor />
       {children}
-      <ErrorDisplayContainer />
     </ErrorProvider>
   );
 }

@@ -3,7 +3,6 @@ import { CredentialResponse } from "@react-oauth/google";
 import { API } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
-import { ErrorHandler } from "@/utils/errorHandler";
 import { useAuthToken } from "./useAuthToken";
 import {
   AuthUser,
@@ -11,6 +10,7 @@ import {
   LoginResult,
   TokenStatus,
 } from "@/types";
+import { ErrorService } from "@/services/error/errorService";
 
 export const useLoginHandler = () => {
   const { addError } = useError();
@@ -35,7 +35,7 @@ export const useLoginHandler = () => {
         );
         return { success: true, redirectTo: "/dashboard", user };
       } catch (error) {
-        const standardError = ErrorHandler.standardize(error);
+        const standardError = ErrorService.standardize(error);
 
         addError({
           message: standardError.message,
@@ -80,7 +80,7 @@ export const useLoginHandler = () => {
             return { success: true, redirectTo: "/kis-token", user: data.user };
         }
       } catch (error) {
-        const standardError = ErrorHandler.standardize(error);
+        const standardError = ErrorService.standardize(error);
 
         addError({
           message: standardError.message,

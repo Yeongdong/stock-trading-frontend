@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import styles from "./OrderExecutionSearchForm.module.css";
 import {
   OrderExecutionInquiryRequest,
   OrderExecutionSearchFormProps,
 } from "@/types";
 import { useDateUtils } from "@/hooks/common/useDateUtils";
-import { useOrderExecutionDefaults } from "@/hooks/orderExecution/useOrderExecutionDefaults";
+import { useOrderExecution } from "@/hooks/orderExecution/useOrderExecution";
 import { useError } from "@/contexts/ErrorContext";
 
 const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
@@ -13,13 +13,33 @@ const OrderExecutionSearchForm: React.FC<OrderExecutionSearchFormProps> = ({
   isLoading,
 }) => {
   const { getTodayString, formatDateForApi } = useDateUtils();
-  const { getDefaultDateRange } = useOrderExecutionDefaults();
+  const { createDefaultRequest } = useOrderExecution();
   const { addError } = useError();
 
-  const [startDate, setStartDate] = useState(getDefaultDateRange.startDate);
-  const [endDate, setEndDate] = useState(getDefaultDateRange.endDate);
+  // 기본 요청을 HTML input 포맷으로 변환
+  const defaultFormValues = useMemo(() => {
+    const defaultRequest = createDefaultRequest();
+
+    // API 포맷(YYYYMMDD)을 HTML input 포맷(YYYY-MM-DD)으로 변환
+    const formatForInput = (apiDate: string): string => {
+      if (apiDate.length !== 8) return "";
+      return `${apiDate.slice(0, 4)}-${apiDate.slice(4, 6)}-${apiDate.slice(
+        6,
+        8
+      )}`;
+    };
+
+    return {
+      startDate: formatForInput(defaultRequest.startDate),
+      endDate: formatForInput(defaultRequest.endDate),
+      orderType: defaultRequest.orderType,
+    };
+  }, [createDefaultRequest]);
+
+  const [startDate, setStartDate] = useState(defaultFormValues.startDate);
+  const [endDate, setEndDate] = useState(defaultFormValues.endDate);
   const [stockCode, setStockCode] = useState("");
-  const [orderType, setOrderType] = useState("00");
+  const [orderType, setOrderType] = useState(defaultFormValues.orderType);
 
   const validateForm = (): string | null => {
     if (!startDate || !endDate) return "조회 기간을 입력해주세요.";

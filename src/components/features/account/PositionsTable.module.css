@@ -20,7 +20,7 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   padding: var(--spacing-md);
-  text-align: left;
+  text-align: center;
   border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -37,11 +37,7 @@
   border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
   font-size: var(--font-size-sm);
   vertical-align: middle;
-}
-
-.positionsTable td:last-child {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 .stockName {
@@ -50,7 +46,7 @@
 }
 
 .number {
-  text-align: right;
+  text-align: center;
   font-variant-numeric: tabular-nums;
   font-family: monospace;
 }
@@ -67,7 +63,6 @@
   color: var(--color-text-secondary);
 }
 
-/* 정렬 인디케이터 */
 .positionsTable th::after {
   content: "";
   display: inline-block;

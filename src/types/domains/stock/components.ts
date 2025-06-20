@@ -2,6 +2,7 @@ import { PriceDataPoint } from "@/types/common/ui";
 import { PeriodPriceRequest } from "./price";
 import { SummaryData } from "@/components/features/stock/chart/PeriodPriceChartModel";
 import { StockSearchResult } from "./search";
+import { UseStockSearchResult } from "./hooks";
 
 export interface ChartInfoProps {
   startPrice: number;
@@ -70,4 +71,13 @@ export interface BuyableInquiryProps {
     orderPrice: number,
     maxQuantity: number
   ) => void;
+}
+
+export interface StockSearchFormProps {
+  stockSearchHook: UseStockSearchResult;
+}
+
+export interface StockSearchResultsWithHookProps
+  extends StockSearchResultsProps {
+  stockSearchHook: UseStockSearchResult;
 }

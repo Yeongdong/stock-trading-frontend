@@ -1,5 +1,13 @@
 import { RealtimeStockData } from "@/types/domains/realtime/entities";
 import { PriceDataPoint } from "@/types/common/ui";
+import {
+  StockSearchRequest,
+  StockSearchResponse,
+  StockSearchResult,
+  StockSearchSummary,
+} from "@/types/domains/stock/search";
+import { ProcessedChartData } from "@/utils/dataProcessor";
+import { SummaryData } from "@/components/features/stock/chart/PeriodPriceChartModel";
 
 /**
  * 주식 카드 데이터 결과
@@ -38,4 +46,32 @@ export interface UseStockOrderResult {
     isValid: boolean;
     error?: string;
   };
+}
+
+/**
+ * 주식 검색 훅 결과
+ */
+export interface UseStockSearchResult {
+  results: StockSearchResult[];
+  searchResponse: StockSearchResponse | null;
+  summary: StockSearchSummary | null;
+  isLoading: boolean;
+  hasSearched: boolean;
+  searchStocks: (
+    request: StockSearchRequest,
+    isLoadMore?: boolean
+  ) => Promise<StockSearchResponse | null>;
+  loadMore: () => Promise<void>;
+  getStockByCode: (code: string) => Promise<StockSearchResult | null>;
+  getSearchSummary: () => Promise<StockSearchSummary | null>;
+  clearResults: () => void;
+}
+
+/**
+ * 기간별 차트 데이터 훅 결과
+ */
+export interface UsePeriodChartDataResult {
+  processedData: ProcessedChartData | null;
+  summaryData: SummaryData | null;
+  hasValidData: boolean;
 }

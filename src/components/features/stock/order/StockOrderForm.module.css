@@ -4,8 +4,10 @@
   border: var(--border-width) var(--border-style) var(--color-bg-border);
   border-radius: var(--border-radius-large);
   padding: var(--spacing-xl);
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  height: fit-content;
 }
 
 .formHeader {

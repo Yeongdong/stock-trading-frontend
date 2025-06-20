@@ -28,9 +28,8 @@ const PeriodPriceChart: React.FC<PeriodChartProps> = ({
 
   // 차트 매니저 초기화
   useEffect(() => {
-    if (chartContainerRef.current && !chartManagerRef.current) {
+    if (chartContainerRef.current && !chartManagerRef.current)
       chartManagerRef.current = new ChartManager(chartContainerRef.current);
-    }
 
     return () => {
       if (chartManagerRef.current) {
@@ -52,12 +51,11 @@ const PeriodPriceChart: React.FC<PeriodChartProps> = ({
 
   // 차트 데이터 업데이트
   useEffect(() => {
-    if (processedData && chartManagerRef.current) {
+    if (processedData && chartManagerRef.current)
       chartManagerRef.current.updateData(
         processedData.chartData,
         processedData.volumeData
       );
-    }
   }, [processedData]);
 
   const handleFormSubmit = useCallback(

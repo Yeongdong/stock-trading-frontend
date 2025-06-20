@@ -4,6 +4,14 @@
   padding: var(--spacing-xl);
 }
 
+.summarySection {
+  margin-bottom: var(--spacing-xxl);
+}
+
+.positionsSection {
+  margin-top: var(--spacing-xl);
+}
+
 .loadingContainer {
   display: flex;
   flex-direction: column;
