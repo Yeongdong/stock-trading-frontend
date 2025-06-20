@@ -7,10 +7,10 @@ import { apiClient } from "@/services/api/common/apiClient";
 import KisTokenForm from "@/components/features/account/KisTokenForm";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import { useRouter } from "next/navigation";
-import { User } from "@/types";
+import { AuthUser } from "@/types";
 
 export default function KisTokenPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { addError } = useError();
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function KisTokenPage() {
 
     const fetchUserData = async () => {
       try {
-        const response = await apiClient.get<User>(API.USER.GET_CURRENT);
+        const response = await apiClient.get<AuthUser>(API.USER.GET_CURRENT);
 
         if (!isMounted) return;
 
