@@ -38,7 +38,7 @@ export const authService = {
    */
   checkAuth: async (): Promise<ApiResponse<AuthCheckResponse>> => {
     return apiClient.get<AuthCheckResponse>(API.AUTH.CHECK_AUTH, {
-      requiresAuth: true,
+      requiresAuth: false,
     });
   },
 };
