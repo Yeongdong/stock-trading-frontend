@@ -2,11 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  env: {
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-  },
-
   // 개발 환경에서만 오류 무시 (운영 빌드 시 품질 보장)
   ...(process.env.NODE_ENV === "development" && {
     eslint: {
