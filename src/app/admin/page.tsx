@@ -10,13 +10,9 @@ export default function AdminAutoLogin() {
 
   useEffect(() => {
     const autoLogin = async () => {
-      const response = await apiClient.post(
-        API.AUTH.MASTER,
-        {
-          secret: process.env.NEXT_PUBLIC_MASTER_SECRET,
-        },
-        { requiresAuth: false }
-      );
+      const response = await apiClient.post(API.AUTH.MASTER, {
+        requiresAuth: false,
+      });
 
       if (response.error) {
         router.push("/login");
