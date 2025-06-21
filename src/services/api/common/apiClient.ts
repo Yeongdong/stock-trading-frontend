@@ -83,8 +83,7 @@ class ApiClient {
           ...options.headers,
         },
         body: data ? JSON.stringify(data) : undefined,
-        // requiresAuth가 true일 때만 credentials 포함
-        ...(options.requiresAuth && { credentials: "include" }),
+        credentials: "include",
         signal: AbortSignal.timeout(options.timeout || 30000),
       });
 
