@@ -9,10 +9,11 @@ import React, {
   ReactNode,
 } from "react";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
 import { authService } from "@/services/api/auth/authService";
+import { tokenStorage } from "@/services/api/auth/tokenStorage";
 import { AuthUser } from "@/types";
 import { AuthContextType } from "@/types/domains/auth/context";
 
@@ -25,7 +26,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<AuthUser | null>(null);
   const router = useRouter();
-  const pathname = usePathname();
   const { addError } = useError();
 
   const checkAuthStatus = useCallback(async (): Promise<boolean> => {
@@ -51,6 +51,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const handleLogout = useCallback(async (): Promise<void> => {
     try {
       await authService.logout();
+      tokenStorage.clearAccessToken();
 
       setIsAuthenticated(false);
       setUser(null);
@@ -62,6 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
       router.push("/login");
     } catch {
+      tokenStorage.clearAccessToken();
       setIsAuthenticated(false);
       setUser(null);
       router.push("/login");
@@ -69,22 +71,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, [addError, router]);
 
   useEffect(() => {
-    const publicRoutes = ["/login", "/"];
-
     const initAuth = async () => {
-      if (publicRoutes.includes(pathname)) {
-        setIsLoading(false);
-        return;
-      }
-
       const isAuth = await checkAuthStatus();
       setIsLoading(false);
 
-      if (!isAuth) router.push("/login?sessionExpired=true");
+      if (!isAuth) router.push("/login");
     };
 
     initAuth();
-  }, [pathname, router, checkAuthStatus]);
+  }, [router, checkAuthStatus]);
 
   return (
     <AuthContext.Provider

@@ -1,7 +1,9 @@
 export interface GoogleLoginResponse {
   accessToken: string;
-  user: AuthUser;
   expiresIn: number;
+  user: AuthUser;
+  message?: string;
+  isAuthenticated: boolean;
 }
 
 export interface AuthCheckResponse {

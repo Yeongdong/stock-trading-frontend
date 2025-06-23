@@ -2,7 +2,7 @@ import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";
 import { AuthCheckResponse, GoogleLoginResponse } from "@/types";
-import { tokenStorage } from "./TokenStorage";
+import { tokenStorage } from "./tokenStorage";
 
 /**
  * 인증 관련 API 서비스
@@ -14,7 +14,7 @@ export const authService = {
   googleLogin: async (
     credential: string
   ): Promise<ApiResponse<GoogleLoginResponse>> => {
-    if (!credential || credential.trim().length === 0)
+    if (!credential?.trim())
       return {
         status: 400,
         error: "인증 정보가 필요합니다.",
@@ -86,8 +86,7 @@ export const authService = {
     try {
       const response = await authService.refreshAccessToken();
       return response.status === 200 && !!response.data;
-    } catch (error) {
-      console.error("Silent refresh 실패:", error);
+    } catch {
       tokenStorage.clearAccessToken();
       return false;
     }

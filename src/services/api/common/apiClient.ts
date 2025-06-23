@@ -4,7 +4,7 @@ import { ApiOptions, ApiResponse } from "@/types/common/api";
 import { requestQueue } from "./requestQueue";
 import { ErrorService } from "@/services/error/errorService";
 import { authService } from "@/services/api/auth/authService";
-import { tokenStorage } from "../auth/TokenStorage";
+import { tokenStorage } from "../auth/tokenStorage";
 
 class ApiClient {
   private errorHandler: ((message: string, code: string) => void) | null = null;
@@ -79,6 +79,10 @@ class ApiClient {
     let response = await this.executeRequest<T>(url, method, data, options);
 
     if (this.isAuthError(response.status) && options.requiresAuth) {
+      // 토큰이 아예 없으면 갱신 시도하지 않음
+      const currentToken = tokenStorage.getAccessToken();
+      if (!currentToken) return this.createAuthErrorResponse<T>();
+
       const tokenRefreshed = await this.ensureValidToken();
 
       if (tokenRefreshed)

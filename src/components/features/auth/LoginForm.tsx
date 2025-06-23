@@ -34,9 +34,8 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
     try {
       const result = await handleGoogleLogin(credentialResponse);
 
-      if (result.success && result.redirectTo) {
+      if (result.success && result.redirectTo)
         onLoginSuccess?.(result.redirectTo);
-      }
     } finally {
       setIsLoading(false);
     }

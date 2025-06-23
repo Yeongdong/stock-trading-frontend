@@ -4,6 +4,7 @@ import { API } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
 import { useAuthToken } from "./useAuthToken";
+import { tokenStorage } from "@/services/api/auth/tokenStorage";
 import {
   AuthUser,
   GoogleLoginResponse,
@@ -63,6 +64,11 @@ export const useLoginHandler = () => {
         if (response.error) return { success: false };
 
         const data = response.data!;
+
+        // JWT 액세스 토큰
+        if (data.accessToken)
+          tokenStorage.setAccessToken(data.accessToken, data.expiresIn);
+
         const tokenStatus = getTokenStatus(data.user);
 
         switch (tokenStatus) {
