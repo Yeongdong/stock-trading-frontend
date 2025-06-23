@@ -5,6 +5,7 @@ export const API = {
     GOOGLE_LOGIN: `${API_BASE_URL}/api/auth/google`,
     LOGOUT: `${API_BASE_URL}/api/auth/logout`,
     CHECK_AUTH: `${API_BASE_URL}/api/auth/check`,
+    REFRESH: `${API_BASE_URL}/api/auth/refresh`,
     MASTER: `${API_BASE_URL}/api/auth/master-login`,
   },
   USER: {

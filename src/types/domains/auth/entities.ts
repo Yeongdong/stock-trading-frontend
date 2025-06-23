@@ -1,5 +1,5 @@
 export interface GoogleLoginResponse {
-  token: string;
+  accessToken: string;
   user: AuthUser;
   expiresIn: number;
 }
@@ -40,4 +40,9 @@ export interface LoginResult {
   success: boolean;
   redirectTo?: string;
   user?: AuthUser;
+}
+
+export interface TokenData {
+  accessToken: string;
+  expiresAt: number;
 }

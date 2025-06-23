@@ -3,9 +3,12 @@ import { useError } from "@/contexts/ErrorContext";
 import { ApiOptions, ApiResponse } from "@/types/common/api";
 import { requestQueue } from "./requestQueue";
 import { ErrorService } from "@/services/error/errorService";
+import { authService } from "@/services/api/auth/authService";
+import { tokenStorage } from "../auth/TokenStorage";
 
 class ApiClient {
   private errorHandler: ((message: string, code: string) => void) | null = null;
+  private refreshPromise: Promise<boolean> | null = null;
 
   setErrorHandler(handler: (message: string, code: string) => void): void {
     this.errorHandler = handler;
@@ -58,15 +61,32 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const finalOptions = { ...this.getDefaultOptions(), ...options };
 
-    // 글로벌 큐를 통해 요청 실행
+    // 토큰이 곧 만료될 예정이면 미리 갱신
+    if (finalOptions.requiresAuth && tokenStorage.isAccessTokenExpiringSoon())
+      await this.ensureValidToken();
+
     return requestQueue.add(async () => {
-      return this.executeRequest<T>(
-        url,
-        method,
-        data || undefined,
-        finalOptions
-      );
+      return this.executeRequestWithRetry<T>(url, method, data, finalOptions);
     });
+  }
+
+  private async executeRequestWithRetry<T>(
+    url: string,
+    method: string,
+    data: unknown,
+    options: ApiOptions
+  ): Promise<ApiResponse<T>> {
+    let response = await this.executeRequest<T>(url, method, data, options);
+
+    if (this.isAuthError(response.status) && options.requiresAuth) {
+      const tokenRefreshed = await this.ensureValidToken();
+
+      if (tokenRefreshed)
+        response = await this.executeRequest<T>(url, method, data, options);
+      else return this.createAuthErrorResponse<T>();
+    }
+
+    return response;
   }
 
   private async executeRequest<T>(
@@ -75,36 +95,88 @@ class ApiClient {
     data: unknown,
     options: ApiOptions
   ): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          ...options.headers,
-        },
-        body: data ? JSON.stringify(data) : undefined,
-        credentials: "include",
-        signal: AbortSignal.timeout(options.timeout || 30000),
-      });
+    const headers = this.buildHeaders(options);
 
-      const responseData = await response.json().catch(() => ({}));
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+      signal: AbortSignal.timeout(options.timeout || 30000),
+    });
 
-      const apiResponse = {
-        data: response.ok ? responseData : undefined,
-        error: !response.ok
-          ? responseData.message ||
-            `HTTP ${response.status}: 요청 처리 중 오류 발생`
-          : undefined,
-        status: response.status,
-      };
+    const responseData = await response.json().catch(() => ({}));
 
-      if (apiResponse.error && options.handleError)
-        this.handleResponseError(apiResponse);
+    const apiResponse: ApiResponse<T> = {
+      data: response.ok ? responseData : undefined,
+      error: !response.ok
+        ? this.extractErrorMessage(responseData, response.status)
+        : undefined,
+      status: response.status,
+    };
 
-      return apiResponse;
-    } catch (error) {
-      return this.handleRequestError<T>(error as Error);
+    if (apiResponse.error && options.handleError)
+      this.handleResponseError(apiResponse);
+
+    return apiResponse;
+  }
+
+  private buildHeaders(options: ApiOptions): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+
+    if (options.requiresAuth) {
+      const accessToken = tokenStorage.getAccessToken();
+      if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
     }
+
+    return headers;
+  }
+
+  private async ensureValidToken(): Promise<boolean> {
+    // 이미 갱신 중이면 해당 Promise 기다림
+    if (this.refreshPromise) return this.refreshPromise;
+
+    const currentToken = tokenStorage.getAccessToken();
+    if (currentToken && !tokenStorage.isAccessTokenExpiringSoon()) return true;
+
+    this.refreshPromise = this.performTokenRefresh();
+
+    const result = await this.refreshPromise;
+    this.refreshPromise = null;
+
+    return result;
+  }
+
+  private async performTokenRefresh(): Promise<boolean> {
+    const refreshSuccess = await authService.silentRefresh();
+
+    if (!refreshSuccess) tokenStorage.clearAccessToken();
+
+    return refreshSuccess;
+  }
+
+  private isAuthError(status: number): boolean {
+    return status === 401 || status === 403;
+  }
+
+  private createAuthErrorResponse<T>(): ApiResponse<T> {
+    return {
+      error: "인증이 필요합니다. 다시 로그인해주세요.",
+      status: 401,
+    };
+  }
+
+  private extractErrorMessage(responseData: unknown, status: number): string {
+    if (responseData && typeof responseData === "object") {
+      const data = responseData as Record<string, unknown>;
+      if (typeof data.message === "string") return data.message;
+      if (typeof data.error === "string") return data.error;
+    }
+
+    return `HTTP ${status}: 요청 처리 중 오류 발생`;
   }
 
   private handleResponseError<T>(response: ApiResponse<T>): void {
@@ -115,18 +187,6 @@ class ApiClient {
       );
       this.errorHandler(standardError.message, standardError.code);
     }
-  }
-
-  private handleRequestError<T>(error: Error): ApiResponse<T> {
-    const standardError = ErrorService.standardize(error);
-
-    if (this.errorHandler)
-      this.errorHandler(standardError.message, standardError.code);
-
-    return {
-      error: standardError.message,
-      status: 0,
-    };
   }
 }
 
