@@ -20,13 +20,13 @@ import {
  */
 export const stockService = {
   getBalance: async (): Promise<ApiResponse<Balance>> => {
-    return apiClient.get<Balance>(API.STOCK.BALANCE, {
+    return apiClient.get<Balance>(API.MARKET.STOCK_SEARCH, {
       requiresAuth: true,
     });
   },
 
   placeOrder: async (orderData: StockOrder): Promise<ApiResponse> => {
-    return apiClient.post(API.STOCK.ORDER, orderData, {
+    return apiClient.post(API.TRADING.ORDER, orderData, {
       requiresAuth: true,
     });
   },
@@ -39,7 +39,7 @@ export const stockService = {
     });
 
     return apiClient.get<CurrentPriceResponse>(
-      `${API.STOCK.CURRENT_PRICE}?${queryParams.toString()}`,
+      `${API.MARKET.STOCK_CURRENT_PRICE}?${queryParams.toString()}`,
       { requiresAuth: true }
     );
   },
@@ -54,7 +54,7 @@ export const stockService = {
     });
 
     return apiClient.get<StockSearchResponse>(
-      `${API.STOCK.SEARCH}?${params.toString()}`,
+      `${API.MARKET.STOCK_SEARCH}?${params.toString()}`,
       { requiresAuth: true }
     );
   },
@@ -62,13 +62,16 @@ export const stockService = {
   getStockByCode: async (
     code: string
   ): Promise<ApiResponse<StockSearchResult>> => {
-    return apiClient.get<StockSearchResult>(API.STOCK.GET_BY_CODE(code), {
-      requiresAuth: true,
-    });
+    return apiClient.get<StockSearchResult>(
+      API.MARKET.STOCK_GET_BY_CODE(code),
+      {
+        requiresAuth: true,
+      }
+    );
   },
 
   getSearchSummary: async (): Promise<ApiResponse<StockSearchSummary>> => {
-    return apiClient.get<StockSearchSummary>(API.STOCK.SEARCH_SUMMARY, {
+    return apiClient.get<StockSearchSummary>(API.MARKET.STOCK_SEARCH_SUMMARY, {
       requiresAuth: true,
     });
   },
@@ -86,7 +89,7 @@ export const stockService = {
     });
 
     return apiClient.get<PeriodPriceResponse>(
-      `${API.STOCK.PERIOD_PRICE}?${queryParams.toString()}`,
+      `${API.MARKET.STOCK_PERIOD_PRICE}?${queryParams.toString()}`,
       { requiresAuth: true }
     );
   },

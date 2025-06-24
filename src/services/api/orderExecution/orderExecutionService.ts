@@ -22,7 +22,7 @@ export const orderExecutionService = {
     if (request.stockCode) queryParams.append("stockCode", request.stockCode);
 
     return apiClient.get<OrderExecutionInquiryResponse>(
-      `${API.ORDER_EXECUTION.INQUIRY}?${queryParams.toString()}`,
+      `${API.TRADING.EXECUTIONS}?${queryParams.toString()}`,
       { requiresAuth: true }
     );
   },

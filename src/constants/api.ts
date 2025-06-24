@@ -12,21 +12,22 @@ export const API = {
     GET_CURRENT: `${API_BASE_URL}/api/user`,
     USER_INFO: `${API_BASE_URL}/api/account/userInfo`,
   },
-  STOCK: {
-    BALANCE: `${API_BASE_URL}/api/trading/order/balance`,
+  TRADING: {
     ORDER: `${API_BASE_URL}/api/trading/order`,
-    CURRENT_PRICE: `${API_BASE_URL}/api/market/stock/current-price`,
-    SEARCH: `${API_BASE_URL}/api/market/stock/search`,
-    GET_BY_CODE: (code: string) => `${API_BASE_URL}/api/market/stock/${code}`,
-    SEARCH_SUMMARY: `${API_BASE_URL}/api/market/stock/search/summary`,
-    UPDATE_FROM_KRX: `${API_BASE_URL}/api/market/stock/update-from-krx`,
-    PERIOD_PRICE: `${API_BASE_URL}/api/market/stock/periodPrice`,
+    BALANCE: `${API_BASE_URL}/api/trading/balance`,
+    BUYABLE_INQUIRY: `${API_BASE_URL}/api/trading/buyable-inquiry`,
+    EXECUTIONS: `${API_BASE_URL}/api/trading/executions`,
   },
-  ORDER_EXECUTION: {
-    INQUIRY: `${API_BASE_URL}/api/trading/orderexecution`,
-  },
-  BUYABLE_INQUIRY: {
-    GET: `${API_BASE_URL}/api/trading/buyableinquiry`,
+  MARKET: {
+    STOCK_CURRENT_PRICE: `${API_BASE_URL}/api/market/price/domestic/current-price`,
+    STOCK_PERIOD_PRICE: `${API_BASE_URL}/api/market/price/domestic/period-price`,
+    OVERSEAS_CURRENT_PRICE: (stockCode: string, market: string) =>
+      `${API_BASE_URL}/api/market/price/overseas/current-price/${stockCode}?market=${market}`,
+    STOCK_SEARCH: `${API_BASE_URL}/api/market/stock/search`,
+    STOCK_GET_BY_CODE: (code: string) =>
+      `${API_BASE_URL}/api/market/stock/${code}`,
+    STOCK_SEARCH_SUMMARY: `${API_BASE_URL}/api/market/stock/search/summary`,
+    STOCK_UPDATE_FROM_KRX: `${API_BASE_URL}/api/market/stock/sync/domestic`,
   },
   REALTIME: {
     START: `${API_BASE_URL}/api/market/realtime/start`,

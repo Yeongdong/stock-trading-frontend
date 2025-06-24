@@ -9,7 +9,7 @@ import { ApiResponse } from "@/types/common/api";
 export const balanceService = {
   getBalance: async (): Promise<Balance | null> => {
     const response: ApiResponse<Balance> = await apiClient.get<Balance>(
-      API.STOCK.BALANCE,
+      API.TRADING.BALANCE,
       {
         requiresAuth: true,
       }
