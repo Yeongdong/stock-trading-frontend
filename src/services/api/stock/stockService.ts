@@ -1,3 +1,5 @@
+// src/services/api/stock/stockService.ts
+
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";
@@ -14,11 +16,18 @@ import {
   StockSearchResult,
   StockSearchSummary,
 } from "@/types/domains/stock/search";
+import {
+  OverseasCurrentPriceRequest,
+  OverseasCurrentPriceResponse,
+  OverseasStockSearchRequest,
+  OverseasStockSearchResponse,
+} from "@/types/domains/stock/overseas";
 
 /**
- * 주식 관련 API 서비스
+ * 주식 관련 API 서비스 (국내 + 해외)
  */
 export const stockService = {
+  // === 국내 주식 메서드 ===
   getBalance: async (): Promise<ApiResponse<Balance>> => {
     return apiClient.get<Balance>(API.MARKET.STOCK_SEARCH, {
       requiresAuth: true,
@@ -90,6 +99,32 @@ export const stockService = {
 
     return apiClient.get<PeriodPriceResponse>(
       `${API.MARKET.STOCK_PERIOD_PRICE}?${queryParams.toString()}`,
+      { requiresAuth: true }
+    );
+  },
+
+  // === 해외 주식 메서드 ===
+
+  /**
+   * 해외 주식 현재가 조회
+   */
+  getOverseasCurrentPrice: async (
+    request: OverseasCurrentPriceRequest
+  ): Promise<ApiResponse<OverseasCurrentPriceResponse>> => {
+    return apiClient.get<OverseasCurrentPriceResponse>(
+      API.MARKET.OVERSEAS_CURRENT_PRICE(request.stockCode, request.market),
+      { requiresAuth: true }
+    );
+  },
+
+  /**
+   * 시장별 해외 주식 목록 조회
+   */
+  getOverseasStocksByMarket: async (
+    request: OverseasStockSearchRequest
+  ): Promise<ApiResponse<OverseasStockSearchResponse>> => {
+    return apiClient.get<OverseasStockSearchResponse>(
+      API.MARKET.OVERSEAS_STOCKS_BY_MARKET(request.market),
       { requiresAuth: true }
     );
   },

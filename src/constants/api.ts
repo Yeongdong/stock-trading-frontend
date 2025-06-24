@@ -19,15 +19,20 @@ export const API = {
     EXECUTIONS: `${API_BASE_URL}/api/trading/executions`,
   },
   MARKET: {
+    // 국내 주식
     STOCK_CURRENT_PRICE: `${API_BASE_URL}/api/market/price/domestic/current-price`,
     STOCK_PERIOD_PRICE: `${API_BASE_URL}/api/market/price/domestic/period-price`,
-    OVERSEAS_CURRENT_PRICE: (stockCode: string, market: string) =>
-      `${API_BASE_URL}/api/market/price/overseas/current-price/${stockCode}?market=${market}`,
     STOCK_SEARCH: `${API_BASE_URL}/api/market/stock/search`,
     STOCK_GET_BY_CODE: (code: string) =>
       `${API_BASE_URL}/api/market/stock/${code}`,
     STOCK_SEARCH_SUMMARY: `${API_BASE_URL}/api/market/stock/search/summary`,
     STOCK_UPDATE_FROM_KRX: `${API_BASE_URL}/api/market/stock/sync/domestic`,
+
+    // 해외 주식
+    OVERSEAS_CURRENT_PRICE: (stockCode: string, market: string) =>
+      `${API_BASE_URL}/api/market/price/overseas/current-price/${stockCode}?market=${market}`,
+    OVERSEAS_STOCKS_BY_MARKET: (market: string) =>
+      `${API_BASE_URL}/api/market/stock/overseas/markets/${market}`,
   },
   REALTIME: {
     START: `${API_BASE_URL}/api/market/realtime/start`,

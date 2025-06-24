@@ -53,7 +53,8 @@ export const EXAMPLE_STOCK_INFO = [
 
 export const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드" },
-  { href: "/order", label: "주식 주문" },
+  { href: "/order", label: "국내 주식" },
+  { href: "/overseas", label: "해외 주식" },
   { href: "/balance", label: "잔고 확인" },
   { href: "/realtime", label: "실시간" },
 ] as const;

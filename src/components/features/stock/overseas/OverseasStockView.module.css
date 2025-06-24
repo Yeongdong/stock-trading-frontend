@@ -1,0 +1,303 @@
+.overseasStockView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* 시장 선택 섹션 */
+.marketSection {
+  background: var(--color-bg-white);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.marketGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.marketCard {
+  background: var(--color-bg-light);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.marketCard:hover {
+  background: var(--color-bg-border);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.marketCard.selected {
+  background: var(--color-primary);
+  color: var(--color-text-white);
+  border-color: var(--color-primary);
+}
+
+.marketName {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-sm);
+}
+
+.marketDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+}
+
+/* 검색 섹션 */
+.searchSection {
+  background: var(--color-bg-white);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.searchForm {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.searchInput {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.searchButton {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-primary);
+  color: var(--color-text-white);
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.searchButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.searchButton:disabled {
+  background: var(--color-bg-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* 현재가 섹션 */
+.priceSection {
+  background: var(--color-bg-white);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.stockInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.stockInfo h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.stockCode {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+}
+
+.priceInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.currentPrice {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.priceChange {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.priceChange.positive {
+  color: var(--color-stock-up);
+}
+
+.priceChange.negative {
+  color: var(--color-stock-down);
+}
+
+.priceChange.neutral {
+  color: var(--color-text-secondary);
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: var(--color-bg-light);
+  border-radius: var(--border-radius);
+}
+
+.detailItem span:first-child {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.detailItem span:last-child {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* 시장별 주식 목록 섹션 */
+.marketStocksSection {
+  background: var(--color-bg-white);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.loadButton {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-bg-border);
+  color: var(--color-text-primary);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.loadButton:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-text-white);
+  border-color: var(--color-primary);
+}
+
+.stockGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.stockCard {
+  padding: var(--spacing-lg);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  background: var(--color-bg-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stockCard:hover {
+  background: var(--color-bg-border);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.stockName {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stockCodeText {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stockSector {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+/* 에러 메시지 */
+.errorMessage {
+  background: #fee;
+  color: #c33;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) #fcc;
+  text-align: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .marketGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .searchForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .priceInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
+  }
+
+  .stockGrid {
+    grid-template-columns: 1fr;
+  }
+}
