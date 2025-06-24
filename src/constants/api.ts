@@ -13,10 +13,15 @@ export const API = {
     USER_INFO: `${API_BASE_URL}/api/account/userInfo`,
   },
   TRADING: {
+    // 국내 주식
     ORDER: `${API_BASE_URL}/api/trading/order`,
     BALANCE: `${API_BASE_URL}/api/trading/balance`,
     BUYABLE_INQUIRY: `${API_BASE_URL}/api/trading/buyable-inquiry`,
     EXECUTIONS: `${API_BASE_URL}/api/trading/executions`,
+
+    // 해외 주식
+    OVERSEAS_ORDER: `${API_BASE_URL}/api/trading/overseas/order`,
+    OVERSEAS_EXECUTIONS: `${API_BASE_URL}/api/trading/overseas/executions`,
   },
   MARKET: {
     // 국내 주식

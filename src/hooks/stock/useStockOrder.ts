@@ -65,7 +65,7 @@ export const useStockOrder = (): UseStockOrderResult => {
           ordUnpr: orderData.price,
         };
 
-        const response = await apiClient.post(API.STOCK.ORDER, stockOrder, {
+        const response = await apiClient.post(API.TRADING.ORDER, stockOrder, {
           requiresAuth: true,
           handleError: true,
         });

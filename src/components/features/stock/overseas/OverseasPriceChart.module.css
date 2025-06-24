@@ -1,0 +1,120 @@
+.overseasPriceChart {
+  width: 100%;
+}
+
+.emptyChart {
+  text-align: center;
+  padding: var(--spacing-3xl);
+  color: var(--color-text-muted);
+}
+
+.emptyChart h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.emptyChart p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+}
+
+.chartHeader h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.market {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.chartContainer {
+  background: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-xl);
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+}
+
+.placeholder p {
+  margin: var(--spacing-sm) 0;
+}
+
+.priceInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.priceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+}
+
+.priceItem span:first-child {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.priceItem span:last-child {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.positive {
+  color: var(--color-success) !important;
+}
+
+.negative {
+  color: var(--color-danger) !important;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .chartHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .priceInfo {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .chartContainer {
+    min-height: 300px;
+  }
+}

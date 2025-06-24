@@ -1,5 +1,3 @@
-// src/services/api/stock/stockService.ts
-
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";
@@ -22,6 +20,11 @@ import {
   OverseasStockSearchRequest,
   OverseasStockSearchResponse,
 } from "@/types/domains/stock/overseas";
+import {
+  OverseasOrderExecution,
+  OverseasOrderResponse,
+  OverseasStockOrder,
+} from "@/types/domains/stock/overseas-order";
 
 /**
  * 주식 관련 API 서비스 (국내 + 해외)
@@ -104,6 +107,37 @@ export const stockService = {
   },
 
   // === 해외 주식 메서드 ===
+
+  /**
+   * 해외 주식 주문
+   */
+  placeOverseasOrder: async (
+    orderData: OverseasStockOrder
+  ): Promise<ApiResponse<OverseasOrderResponse>> => {
+    return apiClient.post(API.TRADING.OVERSEAS_ORDER, orderData, {
+      requiresAuth: true,
+    });
+  },
+
+  /**
+   * 해외 주식 주문 체결 내역 조회
+   */
+  getOverseasOrderExecutions: async (
+    startDate: string,
+    endDate: string
+  ): Promise<
+    ApiResponse<{ executions: OverseasOrderExecution[]; count: number }>
+  > => {
+    const params = new URLSearchParams({
+      startDate,
+      endDate,
+    });
+
+    return apiClient.get(
+      `${API.TRADING.OVERSEAS_EXECUTIONS}?${params.toString()}`,
+      { requiresAuth: true }
+    );
+  },
 
   /**
    * 해외 주식 현재가 조회

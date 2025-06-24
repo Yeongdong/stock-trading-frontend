@@ -1,0 +1,173 @@
+.overseasOrderForm {
+  padding: var(--spacing-xl);
+}
+
+.formHeader {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.formHeader h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.marketInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.marketName {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.currency {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fieldset legend {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  padding: 0;
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-lg);
+}
+
+.formGroup label {
+  display: block;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  background: var(--color-bg-white);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.input:disabled,
+.select:disabled {
+  background: var(--color-bg-disabled);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.tradeTypeGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.tradeTypeButton {
+  padding: var(--spacing-md);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  background: var(--color-bg-white);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tradeTypeButton:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+.tradeTypeButton:disabled {
+  background: var(--color-bg-disabled);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.tradeTypeButton.buy.active {
+  background: var(--color-success);
+  color: var(--color-text-white);
+  border-color: var(--color-success);
+}
+
+.tradeTypeButton.sell.active {
+  background: var(--color-danger);
+  color: var(--color-text-white);
+  border-color: var(--color-danger);
+}
+
+.helperText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+}
+
+.orderButton {
+  width: 100%;
+  padding: var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: var(--spacing-lg);
+}
+
+.orderButton.buy {
+  background: var(--color-success);
+  color: var(--color-text-white);
+}
+
+.orderButton.sell {
+  background: var(--color-danger);
+  color: var(--color-text-white);
+}
+
+.orderButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.orderButton:disabled {
+  background: var(--color-bg-disabled);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .overseasOrderForm {
+    padding: var(--spacing-lg);
+  }
+
+  .tradeTypeGroup {
+    grid-template-columns: 1fr;
+  }
+}
