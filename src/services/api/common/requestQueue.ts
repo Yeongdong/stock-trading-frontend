@@ -1,12 +1,11 @@
 /**
- * 간단한 요청 큐
  * 한국투자증권 API의 초당 호출 제한을 해결하기 위한 큐 시스템
  */
 class RequestQueue {
   private queue: (() => Promise<void>)[] = [];
   private processing = false;
   private lastRequestTime = 0;
-  private readonly MIN_INTERVAL = 300; // 300ms 간격 (초당 3개 정도로 제한)
+  private readonly MIN_INTERVAL = 500; // 500ms 간격 (초당 2개 정도로 제한)
 
   /**
    * 요청을 큐에 추가하고 실행

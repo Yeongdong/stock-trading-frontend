@@ -18,7 +18,10 @@ import {
   RealtimeState,
 } from "@/types/domains/realtime/context";
 import { StockCode } from "@/types";
-import { RealtimeStockData } from "@/types/domains/realtime/entities";
+import {
+  RealtimeStockData,
+  ConnectionData,
+} from "@/types/domains/realtime/entities";
 
 const initialState: RealtimeState = {
   stockData: {},
@@ -76,7 +79,6 @@ export const RealtimePriceProvider: React.FC<{
   const handleStockPrice = useCallback(
     (data: RealtimeStockData) => {
       if (!data || !data.symbol || typeof data.price !== "number") {
-        console.warn("Invalid realtime stock data:", data);
         return;
       }
 
@@ -90,6 +92,12 @@ export const RealtimePriceProvider: React.FC<{
     },
     [callbacks]
   );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleConnected = useCallback((_data: ConnectionData) => {
+    dispatch({ type: "SET_CONNECTED", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
+  }, []);
 
   const getStockData = useCallback(
     (symbol: StockCode): RealtimeStockData | null => {
@@ -106,22 +114,16 @@ export const RealtimePriceProvider: React.FC<{
   useEffect(() => {
     if (isSubscribedRef.current) return;
 
-    // 주가 데이터 이벤트 구독
     const unsubscribeStockPrice = realtimeSocketService.subscribe(
       "stockPrice",
       handleStockPrice
     );
 
-    // 연결 상태 이벤트 구독
     const unsubscribeConnected = realtimeSocketService.subscribe(
       "connected",
-      () => {
-        dispatch({ type: "SET_CONNECTED", payload: true });
-        dispatch({ type: "SET_ERROR", payload: null });
-      }
+      handleConnected
     );
 
-    // 연결 상태 확인
     const checkConnection = () => {
       const connectionState = realtimeSocketService.getConnectionState();
       dispatch({
@@ -138,7 +140,7 @@ export const RealtimePriceProvider: React.FC<{
       unsubscribeConnected();
       isSubscribedRef.current = false;
     };
-  }, [handleStockPrice]);
+  }, [handleStockPrice, handleConnected]);
 
   const contextValue = useMemo(
     () => ({

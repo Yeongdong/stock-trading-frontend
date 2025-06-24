@@ -12,9 +12,7 @@ export interface RealtimeDashboardProps {
 }
 
 export interface PriceDisplayProps {
-  price: number;
-  priceChange: number;
-  changeRate: number;
+  symbol: string;
   className?: string;
 }
 

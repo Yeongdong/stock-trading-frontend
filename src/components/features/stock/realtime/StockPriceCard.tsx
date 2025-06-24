@@ -29,14 +29,7 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
 
   if (isLoading || !stockData) return <StockCardSkeleton symbol={symbol} />;
 
-  const {
-    name = symbol,
-    price,
-    priceChange,
-    changeRate,
-    volume,
-    timestamp,
-  } = stockData;
+  const { name = symbol, volume, timestamp } = stockData;
 
   return (
     <div className={`${styles.stockCard} ${blinkClassName}`}>
@@ -47,11 +40,7 @@ const StockPriceCard: React.FC<StockPriceCardProps> = memo(({ symbol }) => {
         onUnsubscribe={handleUnsubscribe}
       />
 
-      <PriceDisplay
-        price={price}
-        priceChange={priceChange}
-        changeRate={changeRate}
-      />
+      <PriceDisplay symbol={symbol} />
 
       <div className={styles.chartContainer}>
         <StockMiniChart symbol={symbol} data={chartData} />

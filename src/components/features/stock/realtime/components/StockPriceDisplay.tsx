@@ -1,9 +1,26 @@
-import React, { memo } from "react";
-import { PriceDisplayProps } from "@/types";
+import React, { memo, useMemo } from "react";
+import { useStockData } from "@/contexts/StockDataContext";
 import styles from "./StockPriceDisplay.module.css";
+import { PriceDisplayProps } from "@/types";
 
 const PriceDisplay: React.FC<PriceDisplayProps> = memo(
-  ({ price, priceChange, changeRate, className = "" }) => {
+  ({ symbol, className = "" }) => {
+    const { getStockData } = useStockData();
+
+    const stockData = useMemo(() => {
+      return getStockData(symbol);
+    }, [getStockData, symbol]);
+
+    if (!stockData) {
+      return (
+        <div className={`${styles.priceContainer} ${className}`}>
+          <div className={styles.currentPrice}>데이터 로딩 중...</div>
+        </div>
+      );
+    }
+
+    const { price, priceChange, changeRate } = stockData;
+
     // 가격 변화 방향 결정
     const getPriceChangeClass = () => {
       if (priceChange > 0) return styles.priceUp;
