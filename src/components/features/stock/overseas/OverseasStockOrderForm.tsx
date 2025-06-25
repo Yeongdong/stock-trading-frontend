@@ -1,34 +1,31 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useOverseasStockOrder } from "@/hooks/stock/useOverseasStockOrder";
+import styles from "../order/StockOrderForm.module.css";
 import {
-  OVERSEAS_MARKETS,
-  OverseasMarket,
-} from "@/types/domains/stock/overseas";
-import {
-  OverseasOrderFormData,
-  MARKET_TO_EXCHANGE_CODE,
   OVERSEAS_TRADE_TYPES,
   OVERSEAS_ORDER_DIVISIONS,
-  OVERSEAS_ORDER_CONDITIONS,
+  MARKET_TO_EXCHANGE_CODE,
+  OverseasOrderFormData,
 } from "@/types/domains/stock/overseas-order";
-import styles from "./OverseasOrderForm.module.css";
 
-interface OverseasOrderFormProps {
+interface OverseasStockOrderFormProps {
+  selectedStockCode?: string;
   initialStockCode?: string;
-  initialMarket?: OverseasMarket;
+  initialMarket?: string;
   onOrderSuccess?: () => void;
 }
 
-const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
-  initialStockCode = "",
-  initialMarket = "nasdaq",
+const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
+  selectedStockCode,
+  initialStockCode,
+  initialMarket,
   onOrderSuccess,
 }) => {
   const { isLoading, submitOrder } = useOverseasStockOrder();
 
   const [formData, setFormData] = useState<OverseasOrderFormData>({
-    pdno: initialStockCode,
-    ovsExcgCd: MARKET_TO_EXCHANGE_CODE[initialMarket],
+    pdno: selectedStockCode || initialStockCode || "",
+    ovsExcgCd: getExchangeCodeFromMarket(initialMarket) || "NASD",
     trId: "VTTT1002U",
     ordDvsn: "00",
     ordQty: "",
@@ -36,18 +33,20 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
     ordCndt: "DAY",
   });
 
+  // 선택된 주문 구분 정보
   const selectedOrderDivision = OVERSEAS_ORDER_DIVISIONS.find(
-    (div) => div.value === formData.ordDvsn
+    (division) => division.value === formData.ordDvsn
   );
   const requiresPrice = selectedOrderDivision?.requiresPrice ?? true;
 
+  // 외부에서 종목 코드가 변경되면 폼 업데이트
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      pdno: initialStockCode,
-      ovsExcgCd: MARKET_TO_EXCHANGE_CODE[initialMarket],
-    }));
-  }, [initialStockCode, initialMarket]);
+    if (selectedStockCode) {
+      setFormData((prev) => ({ ...prev, pdno: selectedStockCode }));
+    } else if (initialStockCode) {
+      setFormData((prev) => ({ ...prev, pdno: initialStockCode }));
+    }
+  }, [selectedStockCode, initialStockCode]);
 
   const handleInputChange = useCallback(
     (field: keyof OverseasOrderFormData, value: string) => {
@@ -63,51 +62,71 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
       const success = await submitOrder(formData);
 
       if (success) {
+        // 주문 성공 시 폼 초기화 (종목코드는 유지)
         setFormData((prev) => ({
           ...prev,
           ordQty: "",
           ordUnpr: "",
         }));
+
         onOrderSuccess?.();
       }
     },
     [formData, submitOrder, onOrderSuccess]
   );
 
-  const getCurrentMarket = (): OverseasMarket => {
-    const entry = Object.entries(MARKET_TO_EXCHANGE_CODE).find(
-      ([, code]) => code === formData.ovsExcgCd
-    );
-    return (entry?.[0] as OverseasMarket) || "nasdaq";
+  const getCurrencySymbol = (exchangeCode: string): string => {
+    switch (exchangeCode) {
+      case "NASD":
+      case "NYSE":
+        return "USD";
+      case "TKSE":
+        return "JPY";
+      case "LNSE":
+        return "GBP";
+      case "HKEX":
+        return "HKD";
+      default:
+        return "USD";
+    }
   };
 
-  const getStockCodePlaceholder = () => {
-    const market = getCurrentMarket();
-    const examples = {
-      nasdaq: "AAPL, MSFT, GOOGL",
-      nyse: "AAPL, MSFT, GOOGL",
-      tokyo: "7203, 6758, 9984",
-      london: "LLOY, BP, ULVR",
-      hongkong: "0700, 0941, 0388",
-    };
-    return `예: ${examples[market]}`;
+  const getStockCodePlaceholder = (): string => {
+    switch (formData.ovsExcgCd) {
+      case "NASD":
+      case "NYSE":
+        return "해외 종목 코드 (예: AAPL, TSLA)";
+      case "TKSE":
+        return "일본 종목 코드 (예: 7203, 6758)";
+      case "LNSE":
+        return "영국 종목 코드 (예: LLOY, BP)";
+      case "HKEX":
+        return "홍콩 종목 코드 (예: 0700, 0941)";
+      default:
+        return "종목 코드를 입력하세요";
+    }
   };
 
-  const selectedTradeType = OVERSEAS_TRADE_TYPES.find(
-    (type) => type.value === formData.trId
-  );
-
-  const currentMarket = getCurrentMarket();
-  const marketInfo = OVERSEAS_MARKETS[currentMarket];
+  const getHelperText = (): string => {
+    switch (formData.ovsExcgCd) {
+      case "NASD":
+      case "NYSE":
+        return "애플: AAPL, 테슬라: TSLA, 마이크로소프트: MSFT";
+      case "TKSE":
+        return "도요타: 7203, 소니: 6758, 소프트뱅크: 9984";
+      case "LNSE":
+        return "로이즈: LLOY, BP: BP, 유니레버: ULVR";
+      case "HKEX":
+        return "텐센트: 0700, 중국모바일: 0941, 중국석유: 0386";
+      default:
+        return "";
+    }
+  };
 
   return (
-    <div className={styles.overseasOrderForm}>
+    <div className={styles.stockOrderForm}>
       <div className={styles.formHeader}>
-        <h2>주식 주문</h2>
-        <div className={styles.marketInfo}>
-          <span className={styles.marketName}>{marketInfo.name}</span>
-          <span className={styles.currency}>({marketInfo.currency})</span>
-        </div>
+        <h2>해외 주식 주문</h2>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -125,10 +144,13 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
             >
               {Object.entries(MARKET_TO_EXCHANGE_CODE).map(([market, code]) => (
                 <option key={code} value={code}>
-                  {OVERSEAS_MARKETS[market as OverseasMarket].name}
+                  {getExchangeLabel(market, code)}
                 </option>
               ))}
             </select>
+            <div className={styles.helperText}>
+              거래 통화: {getCurrencySymbol(formData.ovsExcgCd)}
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -145,29 +167,28 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
               disabled={isLoading}
               required
             />
+            <div className={styles.helperText}>{getHelperText()}</div>
           </div>
 
           <div className={styles.formGroup}>
-            <label>거래 구분</label>
-            <div className={styles.tradeTypeGroup}>
+            <label htmlFor="trId">거래 구분</label>
+            <select
+              id="trId"
+              value={formData.trId}
+              onChange={(e) => handleInputChange("trId", e.target.value)}
+              className={styles.select}
+              disabled={isLoading}
+            >
               {OVERSEAS_TRADE_TYPES.map((type) => (
-                <button
-                  key={type.value}
-                  type="button"
-                  onClick={() => handleInputChange("trId", type.value)}
-                  className={`${styles.tradeTypeButton} ${styles[type.color]} ${
-                    formData.trId === type.value ? styles.active : ""
-                  }`}
-                  disabled={isLoading}
-                >
+                <option key={type.value} value={type.value}>
                   {type.label}
-                </button>
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="ordDvsn">주문 방법</label>
+            <label htmlFor="ordDvsn">주문 구분</label>
             <select
               id="ordDvsn"
               value={formData.ordDvsn}
@@ -196,9 +217,6 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
               disabled={isLoading}
               required
             />
-            {currentMarket === "tokyo" && (
-              <div className={styles.helperText}>도쿄는 100주 단위로 주문</div>
-            )}
           </div>
 
           {requiresPrice && (
@@ -207,8 +225,8 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
               <input
                 id="ordUnpr"
                 type="number"
-                min="0.01"
                 step="0.01"
+                min="0.01"
                 value={formData.ordUnpr}
                 onChange={(e) => handleInputChange("ordUnpr", e.target.value)}
                 placeholder="주문 단가"
@@ -217,27 +235,10 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
                 required={requiresPrice}
               />
               <div className={styles.helperText}>
-                {marketInfo.currency} 단위로 입력해주세요
+                {getCurrencySymbol(formData.ovsExcgCd)} 단위로 입력해주세요
               </div>
             </div>
           )}
-
-          <div className={styles.formGroup}>
-            <label htmlFor="ordCndt">주문 조건</label>
-            <select
-              id="ordCndt"
-              value={formData.ordCndt}
-              onChange={(e) => handleInputChange("ordCndt", e.target.value)}
-              className={styles.select}
-              disabled={isLoading}
-            >
-              {OVERSEAS_ORDER_CONDITIONS.map((condition) => (
-                <option key={condition.value} value={condition.value}>
-                  {condition.label}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <button
             type="submit"
@@ -247,13 +248,9 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
               !formData.ordQty ||
               (requiresPrice && !formData.ordUnpr)
             }
-            className={`${styles.orderButton} ${
-              styles[selectedTradeType?.color || "buy"]
-            }`}
+            className={styles.orderButton}
           >
-            {isLoading
-              ? "주문 처리 중..."
-              : `${selectedTradeType?.label} 주문 실행`}
+            {isLoading ? "주문 처리 중..." : "주문 실행"}
           </button>
         </fieldset>
       </form>
@@ -261,4 +258,29 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
   );
 };
 
-export default OverseasOrderForm;
+function getExchangeCodeFromMarket(market?: string): string | undefined {
+  if (!market) return undefined;
+
+  const marketToCode: Record<string, string> = {
+    nasdaq: "NASD",
+    nyse: "NYSE",
+    tokyo: "TKSE",
+    london: "LNSE",
+    hongkong: "HKEX",
+  };
+
+  return marketToCode[market.toLowerCase()];
+}
+
+function getExchangeLabel(market: string, code: string): string {
+  const labels: Record<string, string> = {
+    nasdaq: "나스닥",
+    nyse: "뉴욕증권거래소",
+    tokyo: "도쿄증권거래소",
+    london: "런던증권거래소",
+    hongkong: "홍콩증권거래소",
+  };
+  return labels[market] || code;
+}
+
+export default OverseasStockOrderForm;

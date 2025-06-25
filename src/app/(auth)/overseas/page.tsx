@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback } from "react";
-import OverseasOrderForm from "@/components/features/stock/overseas/OverseasOrderForm";
+import OverseasStockOrderForm from "@/components/features/stock/overseas/OverseasStockOrderForm";
 import { OverseasMarket } from "@/types/domains/stock/overseas";
 import { ForeignStockInfo } from "@/types/domains/stock/foreignStock";
 import styles from "./page.module.css";
@@ -98,13 +98,11 @@ function OverseasPageContent() {
       </div>
 
       <div className={styles.twoColumnLayout}>
-        <div className={styles.orderSection}>
-          <OverseasOrderForm
-            initialStockCode={initialData.stockCode}
-            initialMarket={initialData.market}
-            onOrderSuccess={handleOrderSuccess}
-          />
-        </div>
+        <OverseasStockOrderForm
+          initialStockCode={initialData.stockCode}
+          initialMarket={initialData.market}
+          onOrderSuccess={handleOrderSuccess}
+        />
 
         <div className={styles.priceInfoSection}>
           <div className={styles.marketInfoCard}>
