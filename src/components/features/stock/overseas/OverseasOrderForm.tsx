@@ -1,5 +1,3 @@
-// src/components/features/stock/overseas/OverseasOrderForm.tsx
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useOverseasStockOrder } from "@/hooks/stock/useOverseasStockOrder";
 import {
@@ -105,7 +103,7 @@ const OverseasOrderForm: React.FC<OverseasOrderFormProps> = ({
   return (
     <div className={styles.overseasOrderForm}>
       <div className={styles.formHeader}>
-        <h2>해외 주식 주문</h2>
+        <h2>주식 주문</h2>
         <div className={styles.marketInfo}>
           <span className={styles.marketName}>{marketInfo.name}</span>
           <span className={styles.currency}>({marketInfo.currency})</span>

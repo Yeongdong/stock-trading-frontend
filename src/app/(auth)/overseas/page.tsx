@@ -3,7 +3,6 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback } from "react";
 import OverseasOrderForm from "@/components/features/stock/overseas/OverseasOrderForm";
-import OverseasStockSearch from "@/components/features/stock/overseas/OverseasStockSearch";
 import { OverseasMarket } from "@/types/domains/stock/overseas";
 import { ForeignStockInfo } from "@/types/domains/stock/foreignStock";
 import styles from "./page.module.css";
@@ -25,7 +24,6 @@ function OverseasPageContent() {
     name: "",
     market: "nasdaq",
   });
-  const [selectedTab, setSelectedTab] = useState<"market" | "search">("market");
 
   const stockCode = searchParams.get("stockCode");
   const market = searchParams.get("market") as OverseasMarket;
@@ -37,14 +35,6 @@ function OverseasPageContent() {
     orderPrice: price ? parseFloat(price) : undefined,
   };
 
-  const handleStockSelect = useCallback(
-    (stock: { code: string; name: string; market: OverseasMarket }) => {
-      setSelectedStock(stock);
-    },
-    []
-  );
-
-  // Finnhub 검색 결과에서 종목 선택 시 처리
   const handleForeignStockSelect = useCallback(
     (stock: ForeignStockInfo) => {
       const marketMapping: Record<string, OverseasMarket> = {
@@ -102,33 +92,9 @@ function OverseasPageContent() {
     <div className={styles.overseasPageContainer}>
       <h1 className={styles.pageTitle}>해외 주식</h1>
 
-      {/* 탭 네비게이션 추가 */}
-      <div className={styles.tabNavigation}>
-        <button
-          className={`${styles.tabButton} ${
-            selectedTab === "market" ? styles.active : ""
-          }`}
-          onClick={() => setSelectedTab("market")}
-        >
-          시장별 조회
-        </button>
-        <button
-          className={`${styles.tabButton} ${
-            selectedTab === "search" ? styles.active : ""
-          }`}
-          onClick={() => setSelectedTab("search")}
-        >
-          종목 검색
-        </button>
-      </div>
-
-      {/* 조건부 렌더링 */}
+      {/* 검색 영역 */}
       <div className={styles.stockSearchSection}>
-        {selectedTab === "market" ? (
-          <OverseasStockSearch onStockSelect={handleStockSelect} />
-        ) : (
-          <ForeignStockSearch onStockSelect={handleForeignStockSelect} />
-        )}
+        <ForeignStockSearch onStockSelect={handleForeignStockSelect} />
       </div>
 
       <div className={styles.twoColumnLayout}>

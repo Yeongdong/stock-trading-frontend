@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForeignStockSearch } from "@/hooks/stock/useForeignStockSearch";
-import styles from "./ForeignStockSearch.module.css";
 import { ForeignStockInfo } from "@/types/domains/stock/foreignStock";
+import styles from "./ForeignStockSearch.module.css";
 
 interface ForeignStockSearchProps {
   onStockSelect?: (stock: ForeignStockInfo) => void;
@@ -22,6 +22,8 @@ const ForeignStockSearch: React.FC<ForeignStockSearchProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!query.trim()) return;
+
     searchStocks({
       query,
       exchange: exchange || undefined,
@@ -31,21 +33,10 @@ const ForeignStockSearch: React.FC<ForeignStockSearchProps> = ({
 
   return (
     <div className={styles.foreignStockSearch}>
-      <h2>해외 주식 검색</h2>
+      <h2>종목 검색</h2>
 
       <form onSubmit={handleSubmit} className={styles.searchForm}>
-        <div className={styles.formGroup}>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="종목명 또는 심볼을 입력하세요 (예: Apple, AAPL)"
-            className={styles.searchInput}
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
+        <div className={styles.inputGroup}>
           <select
             value={exchange}
             onChange={(e) => setExchange(e.target.value)}
@@ -59,79 +50,89 @@ const ForeignStockSearch: React.FC<ForeignStockSearchProps> = ({
             <option value="TSE">TSE</option>
             <option value="HKEX">HKEX</option>
           </select>
-        </div>
-
-        <div className={styles.buttonGroup}>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="종목명 또는 심볼을 입력하세요 (예: Apple, AAPL)"
+            className={styles.searchInput}
+            disabled={isLoading}
+          />
           <button
             type="submit"
             className={styles.searchButton}
-            disabled={isLoading}
+            disabled={isLoading || !query.trim()}
           >
             {isLoading ? "검색 중..." : "검색"}
           </button>
-
-          {results && (
-            <button
-              type="button"
-              onClick={clearResults}
-              className={styles.clearButton}
-              disabled={isLoading}
-            >
-              결과 지우기
-            </button>
-          )}
         </div>
       </form>
 
       {error && <div className={styles.error}>{error}</div>}
 
+      {/* 검색 결과를 그리드 형태로 표시 */}
       {results && (
-        <div className={styles.results}>
-          <h3>검색 결과 ({results.count}개)</h3>
-
-          {results.stocks.length === 0 ? (
-            <p className={styles.noResults}>검색 결과가 없습니다.</p>
+        <>
+          {isLoading ? (
+            <div className={styles.loading}>검색 중...</div>
+          ) : results.stocks.length === 0 ? (
+            <div className={styles.empty}>검색 결과가 없습니다.</div>
           ) : (
-            <div className={styles.stockList}>
-              <div className={styles.stockList}>
-                {" "}
+            <div className={styles.results}>
+              <div className={styles.resultsHeader}>
+                <h3>검색 결과 ({results.count.toLocaleString()}개)</h3>
+                <button
+                  type="button"
+                  onClick={clearResults}
+                  className={styles.clearButton}
+                  disabled={isLoading}
+                >
+                  결과 지우기
+                </button>
+              </div>
+
+              <div className={styles.stockGrid}>
                 {results.stocks.map((stock) => (
                   <div
                     key={stock.symbol}
-                    className={`${styles.stockItem} ${
+                    className={`${styles.stockCard} ${
                       onStockSelect ? styles.clickable : ""
                     }`}
                     onClick={() => handleStockClick(stock)}
                   >
-                    {" "}
-                    <div key={stock.symbol} className={styles.stockItem}>
-                      <div className={styles.stockHeader}>
-                        <span className={styles.symbol}>{stock.symbol}</span>
-                        <span className={styles.exchange}>
+                    <div className={styles.stockMainInfo}>
+                      <div className={styles.stockName}>
+                        <div className={styles.name}>{stock.description}</div>
+                        <div className={styles.code}>{stock.symbol}</div>
+                      </div>
+                    </div>
+
+                    <div className={styles.stockMetaInfo}>
+                      <div className={styles.metaRow}>
+                        <span className={styles.metaLabel}>거래소</span>
+                        <span className={styles.metaValue}>
                           {stock.exchange}
                         </span>
                       </div>
-                      <div className={styles.stockInfo}>
-                        <p className={styles.description}>
-                          {stock.description}
-                        </p>
-                        <div className={styles.metadata}>
-                          <span className={styles.type}>{stock.type}</span>
-                          <span className={styles.currency}>
-                            {stock.currency}
-                          </span>
-                          <span className={styles.country}>
-                            {stock.country}
-                          </span>
-                        </div>
+                      <div className={styles.metaRow}>
+                        <span className={styles.metaLabel}>통화</span>
+                        <span className={styles.metaValue}>
+                          {stock.currency}
+                        </span>
+                      </div>
+                      <div className={styles.metaRow}>
+                        <span className={styles.metaLabel}>국가</span>
+                        <span className={styles.metaValue}>
+                          {stock.country}
+                        </span>
                       </div>
                     </div>
                   </div>
-                ))}{" "}
+                ))}
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

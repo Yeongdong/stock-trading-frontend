@@ -37,18 +37,15 @@ function OrderPageContent() {
 
   const handleOrderRequest = useCallback(
     (stockCode: string, orderPrice: number, maxQuantity: number) => {
-      // URL 파라미터로 주문 폼에 데이터 전달
       const params = new URLSearchParams({
         stockCode,
         orderPrice: orderPrice.toString(),
         maxQuantity: maxQuantity.toString(),
       });
 
-      // 현재 페이지 URL 업데이트 (새로고침 없이)
       const newUrl = `${window.location.pathname}?${params.toString()}`;
       router.replace(newUrl);
 
-      // 주문 폼 섹션으로 스크롤
       const orderSection = document.querySelector(`.${styles.orderSection}`);
       if (orderSection) {
         orderSection.scrollIntoView({
@@ -62,7 +59,7 @@ function OrderPageContent() {
 
   return (
     <div className={styles.orderPageContainer}>
-      <h1 className={styles.pageTitle}>주식 주문</h1>
+      <h1 className={styles.pageTitle}>국내 주식</h1>
 
       <div className={styles.stockSearchSection}>
         <StockSearchView onStockSelect={handleStockSelect} />

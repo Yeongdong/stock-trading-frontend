@@ -16,7 +16,7 @@ const StockSearchView: React.FC<StockSearchViewProps> = ({ onStockSelect }) => {
   return (
     <div className={styles.stockSearchView}>
       <div className={styles.searchHeader}>
-        <h2>주식 종목 검색</h2>
+        <h2>종목 검색</h2>
         {summary && (
           <div className={styles.searchSummary}>
             <span>
