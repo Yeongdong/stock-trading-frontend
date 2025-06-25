@@ -21,6 +21,7 @@ export const API = {
 
     // 해외 주식
     OVERSEAS_ORDER: `${API_BASE_URL}/api/trading/overseas/order`,
+    OVERSEAS_BALANCE: `${API_BASE_URL}/api/trading/overseas/balance`,
     OVERSEAS_EXECUTIONS: `${API_BASE_URL}/api/trading/overseas/executions`,
   },
   MARKET: {

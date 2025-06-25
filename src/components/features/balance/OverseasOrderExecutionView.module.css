@@ -1,0 +1,15 @@
+.overseasOrderExecutionView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.errorMessage {
+  background-color: var(--color-bg-danger);
+  color: var(--color-danger);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) var(--color-danger);
+  text-align: center;
+}

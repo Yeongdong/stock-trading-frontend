@@ -1,0 +1,171 @@
+.tableContainer {
+  width: 100%;
+}
+
+.tableTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius);
+  background-color: var(--color-bg-white);
+}
+
+.positionsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  min-width: 800px;
+}
+
+.positionsTable th {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  white-space: nowrap;
+}
+
+.positionsTable td {
+  padding: var(--spacing-md);
+  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  vertical-align: top;
+}
+
+.positionsTable tbody tr:hover {
+  background-color: var(--color-bg-light);
+}
+
+.positionsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 개별 셀 스타일 */
+.stockInfo {
+  min-width: 150px;
+}
+
+.stockName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stockCode {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-family: monospace;
+}
+
+.exchange {
+  min-width: 120px;
+}
+
+.exchangeName {
+  display: block;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.currency {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.quantity {
+  text-align: right;
+  font-family: monospace;
+  min-width: 80px;
+}
+
+.price {
+  text-align: right;
+  font-family: monospace;
+  min-width: 100px;
+}
+
+.profitLoss {
+  text-align: right;
+  font-family: monospace;
+  min-width: 120px;
+}
+
+.profitLossKrw {
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-xs);
+  opacity: 0.8;
+}
+
+.profitLossRate {
+  text-align: right;
+  font-family: monospace;
+  font-weight: var(--font-weight-medium);
+  min-width: 80px;
+}
+
+.amount {
+  text-align: right;
+  font-family: monospace;
+  min-width: 120px;
+}
+
+.loanType {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  min-width: 80px;
+}
+
+/* 손익 색상 */
+.positive {
+  color: var(--color-stock-up);
+}
+
+.negative {
+  color: var(--color-stock-down);
+}
+
+.neutral {
+  color: var(--color-text-primary);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .tableTitle {
+    font-size: var(--font-size-md);
+  }
+
+  .positionsTable {
+    font-size: var(--font-size-xs);
+  }
+
+  .positionsTable th,
+  .positionsTable td {
+    padding: var(--spacing-sm);
+  }
+
+  .stockInfo {
+    min-width: 120px;
+  }
+
+  .exchange {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tableWrapper {
+    border-radius: var(--border-radius);
+  }
+
+  .positionsTable {
+    min-width: 600px;
+  }
+}

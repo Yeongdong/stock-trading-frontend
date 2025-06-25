@@ -8,60 +8,26 @@
 
 /* 페이지 헤더 */
 .pageHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: var(--spacing-xl);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: var(--border-width) var(--border-style) var(--color-bg-border);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
 }
 
-/* 페이지 제목 */
 .pageTitle {
   font-size: var(--font-size-xxl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.pageDescription {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   margin: 0;
-}
-
-/* 새로고침 버튼 */
-.refreshButton {
-  background-color: var(--color-primary);
-  color: var(--color-text-white);
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  min-width: 120px;
-  justify-content: center;
-}
-
-.refreshButton:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.refreshButton:disabled {
-  background-color: var(--color-text-secondary);
-  cursor: not-allowed;
-  transform: none;
 }
 
 /* 컨텐츠 영역 */
 .content {
-  background-color: var(--color-bg-white);
-  border-radius: var(--border-radius-large);
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
-  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  width: 100%;
 }
 
 /* 반응형 디자인 */
@@ -70,25 +36,12 @@
     padding: var(--spacing-lg);
   }
 
-  .pageHeader {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    align-items: stretch;
-    text-align: center;
-  }
-
   .pageTitle {
     font-size: var(--font-size-xl);
   }
 
-  .refreshButton {
-    width: 100%;
-    max-width: 200px;
-    margin: 0 auto;
-  }
-
-  .content {
-    padding: var(--spacing-lg);
+  .pageDescription {
+    font-size: var(--font-size-sm);
   }
 }
 
@@ -99,20 +52,13 @@
 
   .pageHeader {
     margin-bottom: var(--spacing-lg);
-    padding-bottom: var(--spacing-md);
   }
 
   .pageTitle {
     font-size: var(--font-size-lg);
   }
 
-  .refreshButton {
-    padding: var(--spacing-sm) var(--spacing-md);
+  .pageDescription {
     font-size: var(--font-size-xs);
-  }
-
-  .content {
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius);
   }
 }

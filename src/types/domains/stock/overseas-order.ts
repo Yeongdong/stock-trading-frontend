@@ -37,21 +37,38 @@ export interface OverseasOrderResponse {
 /**
  * 해외 주식 주문 체결 내역
  */
-export interface OverseasOrderExecution {
-  executionNumber: string;
-  orderNumber: string;
-  executionTime: Date;
-  stockCode: string;
-  stockName: string;
-  market: OverseasMarket;
-  tradeType: string;
-  executedQuantity: number;
-  executedPrice: number;
-  executedAmount: number;
-  currency: string;
-  commission: number;
-  tax: number;
-  exchangeRate: number;
+export interface OverseasOrderExecutionItem {
+  ord_dt: string; // 주문일자
+  ord_gno_brno: string; // 주문채번지점번호
+  odno: string; // 주문번호
+  orgn_odno: string; // 원주문번호
+  sll_buy_dvsn_cd: string; // 매도매수구분코드
+  sll_buy_dvsn_cd_name: string; // 매도매수구분코드명
+  rvse_cncl_dvsn: string; // 정정취소구분
+  rvse_cncl_dvsn_name: string; // 정정취소구분명
+  pdno: string; // 상품번호
+  prdt_name: string; // 상품명
+  ft_ord_qty: string; // FT주문수량
+  ft_ord_unpr3: string; // FT주문단가3
+  ft_ccld_qty: string; // FT체결수량
+  ft_ccld_unpr3: string; // FT체결단가3
+  ft_ccld_amt3: string; // FT체결금액3
+  nccs_qty: string; // 미체결수량
+  prcs_stat_name: string; // 처리상태명
+  rjct_rson: string; // 거부사유
+  ord_tmd: string; // 주문시각
+  tr_mket_name: string; // 거래시장명
+  tr_natn: string; // 거래국가
+  tr_natn_name: string; // 거래국가명
+  ovrs_excg_cd: string; // 해외거래소코드
+  tr_crcy_cd: string; // 거래통화코드
+  dmst_ord_dt: string; // 국내주문일자
+  thco_ord_tmd: string; // 당사주문시각
+  loan_type_cd: string; // 대출유형코드
+  loan_dt: string; // 대출일자
+  mdia_dvsn_name: string; // 매체구분명
+  usa_amk_exts_rqst_yn: string; // 미국애프터마켓연장신청여부
+  splt_buy_attr_name: string; // 분할매수/매도속성명
 }
 
 /**

@@ -1,0 +1,82 @@
+/* src/components/features/balance/BalanceTabs.module.css */
+
+.container {
+  width: 100%;
+}
+
+/* 탭 네비게이션 */
+.tabNavigation {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--color-bg-border);
+}
+
+.tabButton {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-light);
+}
+
+.tabButton.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  background-color: var(--color-bg-white);
+}
+
+/* 탭 컨텐츠 */
+.tabContent {
+  background-color: var(--color-bg-white);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  min-height: 400px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .tabNavigation {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tabNavigation::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabButton {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+  }
+
+  .tabContent {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .tabButton {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .tabContent {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+  }
+}
