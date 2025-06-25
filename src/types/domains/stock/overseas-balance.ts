@@ -26,6 +26,19 @@ export interface OverseasAccountBalance {
   positions: OverseasBalancePosition[];
   totalPositions: number;
   hasPositions: boolean;
+  depositInfo: OverseasDepositInfo;
+}
+
+/**
+ * 해외 예수금 정보
+ */
+export interface OverseasDepositInfo {
+  totalDepositAmount: number;
+  orderableAmount: number;
+  currencyCode: string;
+  exchangeRate: number;
+  totalDepositAmountKrw: number;
+  inquiryTime: string;
 }
 
 /**

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useOverseasBalance } from "@/hooks/stock/useOverseasBalance";
+import OverseasDepositSummary from "./OverseasDepositSummary";
 import OverseasBalanceView from "./OverseasBalanceView";
 import OverseasOrderExecutionView from "./OverseasOrderExecutionView";
 import styles from "./OverseasBalance.module.css";
@@ -13,10 +14,10 @@ const OverseasBalance: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* 잔고 섹션 */}
+      {/* 해외 예수금 섹션 */}
       <div className={styles.balanceSection}>
         <div className={styles.header}>
-          <h2 className={styles.title}>해외 주식 잔고</h2>
+          <h2 className={styles.title}>해외 예수금</h2>
           <button
             onClick={fetchBalance}
             className={styles.refreshButton}
@@ -25,6 +26,20 @@ const OverseasBalance: React.FC = () => {
           >
             {isLoading ? "새로고침 중..." : "새로고침"}
           </button>
+        </div>
+
+        <div className={styles.content}>
+          <OverseasDepositSummary
+            depositInfo={balance?.depositInfo}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
+
+      {/* 해외 주식 잔고 섹션 */}
+      <div className={styles.balanceSection}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>해외 주식 잔고</h2>
         </div>
 
         <div className={styles.content}>
