@@ -38,6 +38,7 @@ export const API = {
       `${API_BASE_URL}/api/market/price/overseas/current-price/${stockCode}?market=${market}`,
     OVERSEAS_STOCKS_BY_MARKET: (market: string) =>
       `${API_BASE_URL}/api/market/stock/overseas/markets/${market}`,
+    FOREIGN_STOCK_SEARCH: `${API_BASE_URL}/api/market/stock/overseas/search`,
   },
   REALTIME: {
     START: `${API_BASE_URL}/api/market/realtime/start`,

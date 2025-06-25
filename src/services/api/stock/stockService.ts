@@ -25,6 +25,10 @@ import {
   OverseasOrderResponse,
   OverseasStockOrder,
 } from "@/types/domains/stock/overseas-order";
+import {
+  ForeignStockSearchRequest,
+  ForeignStockSearchResult,
+} from "@/types/domains/stock/foreignStock";
 
 /**
  * 주식 관련 API 서비스 (국내 + 해외)
@@ -159,6 +163,22 @@ export const stockService = {
   ): Promise<ApiResponse<OverseasStockSearchResponse>> => {
     return apiClient.get<OverseasStockSearchResponse>(
       API.MARKET.OVERSEAS_STOCKS_BY_MARKET(request.market),
+      { requiresAuth: true }
+    );
+  },
+
+  searchForeignStocks: async (
+    request: ForeignStockSearchRequest
+  ): Promise<ApiResponse<ForeignStockSearchResult>> => {
+    const queryParams = new URLSearchParams({
+      query: request.query,
+      limit: (request.limit || 50).toString(),
+    });
+
+    if (request.exchange) queryParams.append("exchange", request.exchange);
+
+    return apiClient.get<ForeignStockSearchResult>(
+      `${API.MARKET.FOREIGN_STOCK_SEARCH}?${queryParams.toString()}`,
       { requiresAuth: true }
     );
   },

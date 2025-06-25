@@ -1,106 +1,139 @@
 .overseasPageContainer {
-  max-width: 1400px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
   padding: var(--spacing-xl);
+  background-color: var(--color-bg-lighter);
+  min-height: 100vh;
 }
 
+/* 페이지 제목 */
 .pageTitle {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xxl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-xl);
   text-align: center;
 }
 
-.stockSearchSection {
-  background: var(--color-bg-light);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
+/* 탭 네비게이션 */
+.tabNavigation {
+  display: flex;
+  gap: 8px;
   margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-xl);
+  border-bottom: 2px solid var(--color-bg-border);
 }
 
+.tabButton {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.tabButton:hover {
+  color: var(--color-text-primary);
+}
+
+.tabButton.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* 검색 섹션 */
+.stockSearchSection {
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 2컬럼 레이아웃 */
 .twoColumnLayout {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xl);
   margin-bottom: var(--spacing-xl);
-  align-items: start;
 }
 
+/* 주문 섹션 */
 .orderSection {
-  background: var(--color-bg-light);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
 }
 
+/* 가격 정보 섹션 */
 .priceInfoSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .marketInfoCard {
-  background: var(--color-bg-light);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-lg);
+  height: 100%;
 }
 
 .marketInfoCard h3 {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-md);
+  margin: 0 0 var(--spacing-lg) 0;
 }
 
-.marketInfoCard p {
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin-bottom: var(--spacing-md);
+/* 선택된 종목 정보 */
+.selectedStockInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.selectedStockInfo p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
 }
 
 .quickOrderButton {
-  width: 100%;
-  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
   border: none;
   border-radius: var(--border-radius);
-  background: var(--color-primary);
-  color: var(--color-text-white);
-  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  transition: background-color 0.2s ease;
 }
 
 .quickOrderButton:hover {
-  background: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  background-color: var(--color-primary-dark);
 }
 
+/* 차트 섹션 */
 .chartSection {
-  background: var(--color-bg-light);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
   padding: var(--spacing-xl);
-  min-height: 500px;
+  box-shadow: var(--shadow-sm);
 }
 
 /* 반응형 디자인 */
-@media (max-width: 1024px) {
-  .overseasPageContainer {
-    padding: var(--spacing-lg);
-  }
-
-  .twoColumnLayout {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
-  }
-}
-
 @media (max-width: 768px) {
   .overseasPageContainer {
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
   }
 
   .pageTitle {
@@ -108,12 +141,37 @@
     margin-bottom: var(--spacing-lg);
   }
 
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
   .stockSearchSection,
+  .orderSection,
+  .priceInfoSection,
   .chartSection {
     padding: var(--spacing-lg);
   }
+}
 
-  .twoColumnLayout {
-    gap: var(--spacing-md);
+@media (max-width: 480px) {
+  .overseasPageContainer {
+    padding: var(--spacing-md);
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .stockSearchSection,
+  .orderSection,
+  .priceInfoSection,
+  .chartSection {
+    padding: var(--spacing-md);
+  }
+
+  .tabButton {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
   }
 }
