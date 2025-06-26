@@ -22,6 +22,8 @@ export interface AuthUser {
   id: string;
   email: string;
   name?: string;
+  createdAt?: string;
+  webSocketToken?: string;
   kisToken?: {
     accessToken: string;
     expiresIn?: string;

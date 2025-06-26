@@ -57,4 +57,5 @@ export const NAV_ITEMS = [
   { href: "/overseas", label: "해외 주식" },
   { href: "/balance", label: "잔고 확인" },
   { href: "/realtime", label: "실시간" },
+  { href: "/user-profile", label: "사용자 정보" },
 ] as const;

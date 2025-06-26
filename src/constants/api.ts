@@ -11,6 +11,7 @@ export const API = {
   USER: {
     GET_CURRENT: `${API_BASE_URL}/api/user`,
     USER_INFO: `${API_BASE_URL}/api/account/userInfo`,
+    DELETE_ACCOUNT: `${API_BASE_URL}/api/user/account`,
   },
   TRADING: {
     // 국내 주식

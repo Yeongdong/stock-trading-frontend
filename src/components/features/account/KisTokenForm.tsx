@@ -1,23 +1,30 @@
-import { useRef, useState } from "react";
+"use client";
+
+import React, { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { API, ERROR_MESSAGES } from "@/constants";
 import { useError } from "@/contexts/ErrorContext";
 import { apiClient } from "@/services/api/common/apiClient";
+import { UserInfoRequest } from "@/types";
 import styles from "./KisTokenForm.module.css";
-import { KisTokenFormProps, UserInfoRequest } from "@/types";
-import { useRouter } from "next/navigation";
 
-const KisTokenForm = ({ userId }: KisTokenFormProps) => {
+interface KisTokenFormProps {
+  userId?: string;
+}
+
+const KisTokenForm: React.FC<KisTokenFormProps> = ({ userId }) => {
   const [appKey, setAppKey] = useState("");
   const [appSecret, setAppSecret] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showAppSecret, SetShowAppSecret] = useState<boolean>(false);
-  const appSecretRef = useRef<HTMLInputElement>(null);
+  const [showAppSecret, setShowAppSecret] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { addError } = useError();
   const router = useRouter();
+  const appSecretRef = useRef<HTMLInputElement>(null);
 
   const toggleAppSecretVisibility = () => {
-    SetShowAppSecret((prev) => !prev);
+    setShowAppSecret((prev) => !prev);
   };
 
   const copyToClipboard = (text: string) => {
@@ -64,40 +71,40 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
     return true;
   };
 
+  const handleCancel = () => {
+    router.back();
+  };
+
   const handleGetKisToken = async () => {
     if (!validateForm() || !userId) return;
 
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
-      const requestData: UserInfoRequest = {
-        appKey,
-        appSecret,
-        accountNumber,
-      };
+    const requestData: UserInfoRequest = {
+      appKey,
+      appSecret,
+      accountNumber,
+    };
 
-      const response = await apiClient.post(API.USER.USER_INFO, requestData);
+    const response = await apiClient.post(API.USER.USER_INFO, requestData);
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      addError({
-        message: ERROR_MESSAGES.KIS_TOKEN.TOKEN_SUCCESS,
-        severity: "info",
-      });
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-    } catch (error) {
-      console.error("Error getting KIS token:", error);
+    if (response.error) {
       addError({
         message: ERROR_MESSAGES.KIS_TOKEN.TOKEN_FAIL,
         severity: "error",
       });
-    } finally {
       setIsLoading(false);
+      return;
     }
+
+    addError({
+      message: ERROR_MESSAGES.KIS_TOKEN.TOKEN_SUCCESS,
+      severity: "info",
+    });
+
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 1000);
   };
 
   return (
@@ -169,13 +176,22 @@ const KisTokenForm = ({ userId }: KisTokenFormProps) => {
         </div>
       </div>
 
-      <button
-        onClick={handleGetKisToken}
-        disabled={isLoading}
-        className={styles.btn}
-      >
-        {isLoading ? "처리 중..." : "토큰 발급받기"}
-      </button>
+      <div className={styles.buttonGroup}>
+        <button
+          onClick={handleCancel}
+          className={styles.cancelBtn}
+          type="button"
+        >
+          취소
+        </button>
+        <button
+          onClick={handleGetKisToken}
+          disabled={isLoading}
+          className={styles.btn}
+        >
+          {isLoading ? "처리 중..." : "토큰 발급받기"}
+        </button>
+      </div>
 
       <div className={styles.helpText}>
         <p>
