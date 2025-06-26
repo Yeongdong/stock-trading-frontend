@@ -1,6 +1,7 @@
 import React from "react";
 import { useError } from "@/contexts/ErrorContext";
 import { ApiOptions, ApiResponse } from "@/types/common/api";
+import { ERROR_CODES } from "@/types/common/error";
 import { requestQueue } from "./requestQueue";
 import { ErrorService } from "@/services/error/errorService";
 import { authService } from "@/services/api/auth/authService";
@@ -9,6 +10,7 @@ import { tokenStorage } from "../auth/tokenStorage";
 class ApiClient {
   private errorHandler: ((message: string, code: string) => void) | null = null;
   private refreshPromise: Promise<boolean> | null = null;
+  private isRedirecting = false;
 
   setErrorHandler(handler: (message: string, code: string) => void): void {
     this.errorHandler = handler;
@@ -61,7 +63,6 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const finalOptions = { ...this.getDefaultOptions(), ...options };
 
-    // 토큰이 곧 만료될 예정이면 미리 갱신
     if (finalOptions.requiresAuth && tokenStorage.isAccessTokenExpiringSoon())
       await this.ensureValidToken();
 
@@ -79,15 +80,20 @@ class ApiClient {
     let response = await this.executeRequest<T>(url, method, data, options);
 
     if (this.isAuthError(response.status) && options.requiresAuth) {
-      // 토큰이 아예 없으면 갱신 시도하지 않음
       const currentToken = tokenStorage.getAccessToken();
-      if (!currentToken) return this.createAuthErrorResponse<T>();
+      if (!currentToken) {
+        this.handleAuthFailure();
+        return this.createAuthErrorResponse<T>();
+      }
 
       const tokenRefreshed = await this.ensureValidToken();
 
-      if (tokenRefreshed)
+      if (tokenRefreshed) {
         response = await this.executeRequest<T>(url, method, data, options);
-      else return this.createAuthErrorResponse<T>();
+      } else {
+        this.handleAuthFailure();
+        return this.createAuthErrorResponse<T>();
+      }
     }
 
     return response;
@@ -157,9 +163,25 @@ class ApiClient {
   private async performTokenRefresh(): Promise<boolean> {
     const refreshSuccess = await authService.silentRefresh();
 
-    if (!refreshSuccess) tokenStorage.clearAccessToken();
+    if (!refreshSuccess) {
+      tokenStorage.clearAccessToken();
+      this.handleAuthFailure();
+    }
 
     return refreshSuccess;
+  }
+
+  private handleAuthFailure(): void {
+    if (this.isRedirecting) return;
+    this.isRedirecting = true;
+
+    tokenStorage.clearAccessToken();
+
+    if (this.errorHandler)
+      this.errorHandler(
+        "세션이 만료되었습니다. 다시 로그인해주세요.",
+        ERROR_CODES.AUTH_EXPIRED
+      );
   }
 
   private isAuthError(status: number): boolean {

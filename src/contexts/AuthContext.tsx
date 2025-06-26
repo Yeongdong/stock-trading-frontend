@@ -12,6 +12,7 @@ import React, {
 import { useRouter } from "next/navigation";
 import { useError } from "./ErrorContext";
 import { ERROR_MESSAGES } from "@/constants";
+import { ERROR_CODES } from "@/types/common/error";
 import { authService } from "@/services/api/auth/authService";
 import { tokenStorage } from "@/services/api/auth/tokenStorage";
 import { AuthUser } from "@/types";
@@ -30,6 +31,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const checkAuthStatus = useCallback(async (): Promise<boolean> => {
     try {
+      const currentToken = tokenStorage.getAccessToken();
+
+      if (!currentToken || tokenStorage.isAccessTokenExpiringSoon()) {
+        const { success, needsLogin } = await authService.initializeAuth();
+
+        if (!success) {
+          if (needsLogin) {
+            // Refresh Token도 만료됨 -> 로그인 필요
+            setIsAuthenticated(false);
+            setUser(null);
+            return false;
+          }
+        }
+      }
+
       const response = await authService.checkAuth();
 
       if (response.error) {
@@ -41,7 +57,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsAuthenticated(true);
       setUser(response.data?.user || null);
       return true;
-    } catch {
+    } catch (error) {
+      console.error("인증 상태 확인 중 오류:", error);
       setIsAuthenticated(false);
       setUser(null);
       return false;
@@ -75,11 +92,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const isAuth = await checkAuthStatus();
       setIsLoading(false);
 
-      if (!isAuth) router.push("/login");
+      if (!isAuth) {
+        addError({
+          message: ERROR_MESSAGES.AUTH.SESSION_EXPIRED,
+          code: ERROR_CODES.AUTH_EXPIRED,
+          severity: "warning",
+        });
+
+        router.push("/login?sessionExpired=true");
+      }
     };
 
     initAuth();
-  }, [router, checkAuthStatus]);
+  }, [router, checkAuthStatus, addError]);
 
   return (
     <AuthContext.Provider

@@ -91,4 +91,41 @@ export const authService = {
       return false;
     }
   },
+
+  /**
+   * 페이지 로드 시 토큰 복구 시도
+   * Refresh Token이 쿠키에 있으면 자동으로 Access Token 발급
+   */
+  initializeAuth: async (): Promise<{
+    success: boolean;
+    needsLogin: boolean;
+  }> => {
+    // 이미 유효한 Access Token이 있으면 복구할 필요 없음
+    const currentToken = tokenStorage.getAccessToken();
+    if (currentToken && !tokenStorage.isAccessTokenExpiringSoon())
+      return { success: true, needsLogin: false };
+
+    // Refresh Token으로 새 Access Token 발급 시도
+    try {
+      const response = await authService.refreshAccessToken();
+
+      if (response.status === 200 && response.data)
+        return { success: true, needsLogin: false };
+
+      // 401/403 에러는 로그인 필요 (Refresh Token 만료)
+      if (response.status === 401 || response.status === 403) {
+        tokenStorage.clearAccessToken();
+        return { success: false, needsLogin: true };
+      }
+
+      // 기타 에러는 재시도 가능 (네트워크 에러 등)
+      tokenStorage.clearAccessToken();
+      return { success: false, needsLogin: false };
+    } catch (error) {
+      // 네트워크 에러 등은 일시적일 수 있으므로 needsLogin은 false
+      console.warn("토큰 자동 복구 실패:", error);
+      tokenStorage.clearAccessToken();
+      return { success: false, needsLogin: false };
+    }
+  },
 };
