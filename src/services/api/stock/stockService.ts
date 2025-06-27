@@ -21,7 +21,7 @@ import {
   OverseasStockSearchResponse,
 } from "@/types/domains/stock/overseas";
 import {
-  OverseasOrderExecution,
+  OverseasOrderExecutionItem,
   OverseasOrderResponse,
   OverseasStockOrder,
 } from "@/types/domains/stock/overseas-order";
@@ -130,7 +130,7 @@ export const stockService = {
     startDate: string,
     endDate: string
   ): Promise<
-    ApiResponse<{ executions: OverseasOrderExecution[]; count: number }>
+    ApiResponse<{ executions: OverseasOrderExecutionItem[]; count: number }>
   > => {
     const params = new URLSearchParams({
       startDate,
