@@ -1,12 +1,7 @@
 /**
  * 해외 주식 시장 타입
  */
-export type OverseasMarket =
-  | "nasdaq"
-  | "nyse"
-  | "tokyo"
-  | "london"
-  | "hongkong";
+export type OverseasMarket = "nas" | "nyse" | "tokyo" | "london" | "hongkong";
 
 /**
  * 해외 주식 현재가 조회 요청
@@ -118,8 +113,8 @@ export interface OverseasChartData {
  * 해외 시장 상수
  */
 export const OVERSEAS_MARKETS: Record<OverseasMarket, OverseasMarketInfo> = {
-  nasdaq: {
-    market: "nasdaq",
+  nas: {
+    market: "nas",
     name: "나스닥",
     currency: "USD",
     timezone: "America/New_York",
@@ -181,3 +176,48 @@ export interface UseOverseasStockSearchResult {
   loadMore: () => Promise<void>;
   clearResults: () => void;
 }
+
+// 해외 주식 기간별 시세 조회 요청 타입
+export interface OverseasPeriodPriceRequest {
+  stockCode: string;
+  marketDivCode: "N" | "X" | "I" | "S"; // N: 해외지수, X: 환율, I: 국채, S: 금선물
+  periodDivCode: "D" | "W" | "M" | "Y";
+  startDate: string; // YYYYMMDD
+  endDate: string; // YYYYMMDD
+}
+
+// 해외 주식 기간별 시세 조회 응답 타입
+export interface OverseasPeriodPriceResponse {
+  stockCode: string;
+  stockName: string;
+  currentPrice: number;
+  priceChange: number;
+  changeRate: number;
+  changeSign: string;
+  totalVolume: number;
+  totalTradingValue: number;
+  priceData: OverseasPeriodPriceData[];
+}
+
+// 해외 주식 기간별 시세 데이터 타입
+export interface OverseasPeriodPriceData {
+  date: string;
+  openPrice: number;
+  highPrice: number;
+  lowPrice: number;
+  closePrice: number;
+  volume: number;
+  tradingValue: number;
+  priceChange: number;
+  changeSign: string;
+  flagCode: string;
+  splitRate: number;
+}
+
+// 해외 주식 기간 구분 옵션 (국내와 동일)
+export const OVERSEAS_PERIOD_OPTIONS = [
+  { value: "D", label: "일봉" },
+  { value: "W", label: "주봉" },
+  { value: "M", label: "월봉" },
+  { value: "Y", label: "년봉" },
+] as const;

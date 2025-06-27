@@ -75,3 +75,23 @@ export interface UsePeriodChartDataResult {
   summaryData: SummaryData | null;
   hasValidData: boolean;
 }
+
+/**
+ * 차트 요약 데이터 공통 인터페이스
+ */
+export interface ChartSummaryData {
+  items: Array<{
+    label: string;
+    value: string;
+    className: string;
+  }>;
+}
+
+/**
+ * 기간별 차트 데이터 훅 결과 (제네릭)
+ */
+export interface PeriodChartDataResult<T extends ChartSummaryData> {
+  processedData: ProcessedChartData | null;
+  summaryData: T | null;
+  hasValidData: boolean;
+}

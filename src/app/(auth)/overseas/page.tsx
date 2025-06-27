@@ -22,7 +22,7 @@ function OverseasPageContent() {
   const [selectedStock, setSelectedStock] = useState<SelectedOverseasStock>({
     code: "",
     name: "",
-    market: "nasdaq",
+    market: "nas",
   });
 
   const stockCode = searchParams.get("stockCode");
@@ -31,7 +31,7 @@ function OverseasPageContent() {
 
   const initialData = {
     stockCode: selectedStock.code || stockCode || undefined,
-    market: selectedStock.market || market || "nasdaq",
+    market: selectedStock.market || market || "nas",
     orderPrice: price ? parseFloat(price) : undefined,
   };
 
@@ -39,7 +39,7 @@ function OverseasPageContent() {
     (stock: ForeignStockInfo) => {
       const marketMapping: Record<string, OverseasMarket> = {
         NYSE: "nyse",
-        NASDAQ: "nasdaq",
+        NASDAQ: "nas",
         LSE: "london",
         TSE: "tokyo",
         HKEX: "hongkong",
@@ -88,6 +88,11 @@ function OverseasPageContent() {
     console.log("해외 주식 주문 성공!");
   }, []);
 
+  // 차트에 표시할 종목 정보 (선택된 종목 또는 URL 파라미터)
+  const chartStockCode = selectedStock.code || stockCode || "";
+  const chartStockName = selectedStock.name || "";
+  const chartMarket = selectedStock.market || market || "nasdaq";
+
   return (
     <div className={styles.overseasPageContainer}>
       <h1 className={styles.pageTitle}>해외 주식</h1>
@@ -98,11 +103,13 @@ function OverseasPageContent() {
       </div>
 
       <div className={styles.twoColumnLayout}>
-        <OverseasStockOrderForm
-          initialStockCode={initialData.stockCode}
-          initialMarket={initialData.market}
-          onOrderSuccess={handleOrderSuccess}
-        />
+        <div className={styles.orderSection}>
+          <OverseasStockOrderForm
+            initialStockCode={initialData.stockCode}
+            initialMarket={initialData.market}
+            onOrderSuccess={handleOrderSuccess}
+          />
+        </div>
 
         <div className={styles.priceInfoSection}>
           <div className={styles.marketInfoCard}>
@@ -138,11 +145,12 @@ function OverseasPageContent() {
         </div>
       </div>
 
+      {/* 기간별 차트 섹션 */}
       <div className={styles.chartSection}>
         <OverseasPriceChart
-          stockName={selectedStock.name}
-          stockCode={selectedStock.code}
-          market={selectedStock.market}
+          stockName={chartStockName}
+          stockCode={chartStockCode}
+          market={chartMarket}
         />
       </div>
     </div>

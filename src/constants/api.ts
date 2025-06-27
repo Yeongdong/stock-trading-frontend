@@ -41,6 +41,7 @@ export const API = {
     OVERSEAS_STOCKS_BY_MARKET: (market: string) =>
       `${API_BASE_URL}/api/market/stock/overseas/markets/${market}`,
     FOREIGN_STOCK_SEARCH: `${API_BASE_URL}/api/market/stock/overseas/search`,
+    OVERSEAS_PERIOD_PRICE: `${API_BASE_URL}/api/market/price/overseas/period-price`,
   },
   REALTIME: {
     START: `${API_BASE_URL}/api/market/realtime/start`,

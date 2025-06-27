@@ -2,17 +2,17 @@
 
 import React, { useEffect, useRef, useCallback } from "react";
 import { OverseasPeriodPriceRequest } from "@/types/domains/stock/overseas";
-import { useOverseasPeriodPrice } from "@/hooks/stock/useOverseasPeriodPrice";
 import { OverseasPeriodPriceForm } from "./OverseasPeriodPriceForm";
 import styles from "./OverseasPriceChart.module.css";
 import { ChartManager } from "@/services/chart/chartManager";
-import { OverseasPeriodPriceSummary } from "./OverseasPeriodPriceSummary";
+import { useOverseasPeriodPrice } from "@/hooks/stock/useOverseasPeriodPrice";
 import { useOverseasPeriodChartData } from "@/hooks/stock/useOverseasPeriodChartData";
+import { OverseasPeriodPriceSummary } from "./OverseasPeriodPriceSummary";
 import { OverseasFormManager } from "@/utils/OverseasDateFormatter";
 
 interface OverseasPriceChartProps {
-  stockCode: string;
   stockName: string;
+  stockCode: string;
   market: string;
 }
 
@@ -42,7 +42,7 @@ const OverseasPriceChart: React.FC<OverseasPriceChartProps> = ({
 
   // 데이터 로드
   useEffect(() => {
-    if (!stockCode) return;
+    if (!stockCode || !market) return;
 
     clearData();
     fetchOverseasPeriodPrice(OverseasFormManager.getDefaultRequest(stockCode));
@@ -77,10 +77,19 @@ const OverseasPriceChart: React.FC<OverseasPriceChartProps> = ({
     [fetchOverseasPeriodPrice]
   );
 
+  if (!stockCode)
+    return (
+      <div className={styles.emptyChart}>
+        <h3>해외 주식 차트</h3>
+        <p>종목을 선택하면 차트가 표시됩니다.</p>
+      </div>
+    );
+
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <h2 className={styles.title}>{title}</h2>
+    <div className={styles.overseasPriceChart}>
+      <header className={styles.chartHeader}>
+        <h3 className={styles.title}>{title}</h3>
+        <span className={styles.market}>{market.toUpperCase()}</span>
       </header>
 
       <OverseasPeriodPriceForm
@@ -124,4 +133,4 @@ const OverseasPriceChart: React.FC<OverseasPriceChartProps> = ({
   );
 };
 
-export default React.memo(OverseasPriceChart);
+export default OverseasPriceChart;

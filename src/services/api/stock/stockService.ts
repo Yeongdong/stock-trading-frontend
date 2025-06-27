@@ -17,6 +17,8 @@ import {
 import {
   OverseasCurrentPriceRequest,
   OverseasCurrentPriceResponse,
+  OverseasPeriodPriceRequest,
+  OverseasPeriodPriceResponse,
   OverseasStockSearchRequest,
   OverseasStockSearchResponse,
 } from "@/types/domains/stock/overseas";
@@ -179,6 +181,24 @@ export const stockService = {
 
     return apiClient.get<ForeignStockSearchResult>(
       `${API.MARKET.FOREIGN_STOCK_SEARCH}?${queryParams.toString()}`,
+      { requiresAuth: true }
+    );
+  },
+
+  // 해외 주식 기간별 시세 조회
+  getOverseasPeriodPrice: async (
+    request: OverseasPeriodPriceRequest
+  ): Promise<ApiResponse<OverseasPeriodPriceResponse>> => {
+    const queryParams = new URLSearchParams({
+      stockCode: request.stockCode,
+      marketDivCode: request.marketDivCode,
+      periodDivCode: request.periodDivCode,
+      startDate: request.startDate,
+      endDate: request.endDate,
+    });
+
+    return apiClient.get<OverseasPeriodPriceResponse>(
+      `${API.MARKET.OVERSEAS_PERIOD_PRICE}?${queryParams.toString()}`,
       { requiresAuth: true }
     );
   },

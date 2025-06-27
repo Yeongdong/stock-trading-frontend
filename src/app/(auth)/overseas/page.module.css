@@ -126,6 +126,15 @@
   background-color: var(--color-bg-white);
   border: var(--border-width) var(--border-style) var(--color-bg-border);
   border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* 주문 섹션 래퍼 */
+.orderSection {
+  background-color: var(--color-bg-white);
+  border: var(--border-width) var(--border-style) var(--color-bg-border);
+  border-radius: var(--border-radius-large);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-sm);
 }
