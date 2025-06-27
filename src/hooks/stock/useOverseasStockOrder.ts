@@ -47,6 +47,14 @@ export const useOverseasStockOrder = (): UseOverseasStockOrderResult => {
       }
     }
 
+    // 예약주문은 지정가만 가능
+    if (orderData.orderMode === "scheduled" && orderData.ordDvsn !== "00") {
+      return {
+        isValid: false,
+        error: "예약주문은 지정가만 가능합니다.",
+      };
+    }
+
     return { isValid: true };
   }, []);
 
@@ -64,38 +72,55 @@ export const useOverseasStockOrder = (): UseOverseasStockOrderResult => {
 
       setIsLoading(true);
 
-      // 백엔드 카멜케이스 DTO에 맞춰 요청
-      const orderRequest = {
-        acntPrdtCd: "01",
-        ovrsExcgCd: orderData.ovsExcgCd,
-        pdno: orderData.pdno,
-        ordQty: orderData.ordQty,
-        ovrsOrdUnpr: orderData.ordUnpr || "0",
-        ordSvrDvsnCd: "0",
-        ordDvsn: orderData.ordDvsn,
-        ordCndt: orderData.ordCndt,
-        trId: orderData.trId,
-      };
+      try {
+        const orderRequest = {
+          acntPrdtCd: "01",
+          ovrsExcgCd: orderData.ovsExcgCd,
+          pdno: orderData.pdno,
+          ordQty: orderData.ordQty,
+          ovrsOrdUnpr: orderData.ordUnpr || "0",
+          ordSvrDvsnCd: "0",
+          ordDvsn: orderData.ordDvsn,
+          ordCndt: orderData.ordCndt,
+          trId: orderData.trId,
+          orderMode: orderData.orderMode,
+          scheduledExecutionTime: orderData.scheduledExecutionTime,
+        };
 
-      const response = await apiClient.post<OverseasOrderResponse>(
-        API.TRADING.OVERSEAS_ORDER,
-        orderRequest,
-        {
-          requiresAuth: true,
-          handleError: true,
+        const response = await apiClient.post<OverseasOrderResponse>(
+          API.TRADING.OVERSEAS_ORDER,
+          orderRequest,
+          {
+            requiresAuth: true,
+            handleError: false,
+          }
+        );
+
+        if (response.error) {
+          addError({
+            message: response.error,
+            severity: "error",
+          });
+          return false;
         }
-      );
 
-      setIsLoading(false);
+        const orderType =
+          orderData.orderMode === "immediate" ? "즉시주문" : "예약주문";
+        addError({
+          message: `해외 주식 ${orderType}이 성공했습니다. 주문번호: ${response.data?.orderNumber}`,
+          severity: "info",
+        });
 
-      if (response.error) return false;
-
-      addError({
-        message: `해외 주식 주문이 성공했습니다. 주문번호: ${response.data?.orderNumber}`,
-        severity: "info",
-      });
-
-      return true;
+        return true;
+      } catch {
+        addError({
+          message: "주문 처리 중 오류가 발생했습니다.",
+          severity: "error",
+        });
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
     },
     [validateOrder, addError]
   );

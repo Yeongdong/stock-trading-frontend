@@ -12,6 +12,8 @@ export interface OverseasStockOrder {
   ordUnpr: string; // 주문단가
   ovsExcgCd: string; // 해외거래소코드 (NASD, NYSE, TKSE, LNSE, HKEX)
   ordCndt: string; // 주문조건 (DAY, FTC)
+  orderMode?: "immediate" | "scheduled";
+  scheduledExecutionTime?: string;
 }
 
 /**
@@ -82,6 +84,8 @@ export interface OverseasOrderFormData {
   ordQty: string;
   ordUnpr: string;
   ordCndt: "DAY" | "FTC";
+  orderMode: "immediate" | "scheduled";
+  scheduledExecutionTime?: string;
 }
 
 /**
@@ -118,3 +122,63 @@ export const OVERSEAS_ORDER_CONDITIONS = [
   { value: "DAY", label: "당일" },
   { value: "FTC", label: "Fill or Kill" },
 ] as const;
+
+/**
+ * 주문 모드 옵션
+ */
+export const ORDER_MODE_OPTIONS = [
+  { value: "immediate" as const, label: "즉시 주문" },
+  { value: "scheduled" as const, label: "예약 주문" },
+] as const;
+
+/**
+ * 시장별 예약주문 안내 메시지
+ */
+export const getScheduledOrderGuide = (exchangeCode: string): string => {
+  switch (exchangeCode) {
+    case "NASD":
+    case "NYSE":
+    case "AMEX":
+      return "미국 예약주문: 10:00-23:20 접수 (서머타임 시 22:20), 23:30 정규장 전송";
+    case "SEHK":
+      return "홍콩 예약주문: 09:00-10:20, 10:40-13:50 접수";
+    case "TKSE":
+      return "일본 예약주문: 09:10-12:20 접수, 12:30 주문전송";
+    case "SHAA":
+    case "SZAA":
+      return "중국 예약주문: 09:00-10:20, 10:40-13:50 접수";
+    case "HASE":
+    case "VNSE":
+      return "베트남 예약주문: 09:00-11:00, 11:20-14:50 접수";
+    default:
+      return "예약주문은 해당 시장의 운영시간에 따라 자동 처리됩니다.";
+  }
+};
+
+/**
+ * 거래소별 시장명 반환
+ */
+export const getMarketName = (exchangeCode: string): string => {
+  switch (exchangeCode) {
+    case "NASD":
+      return "나스닥";
+    case "NYSE":
+      return "뉴욕증권거래소";
+    case "AMEX":
+      return "아멕스";
+    case "SEHK":
+      return "홍콩증권거래소";
+    case "TKSE":
+      return "도쿄증권거래소";
+    case "SHAA":
+      return "상해증권거래소";
+    case "SZAA":
+      return "심천증권거래소";
+    case "HASE":
+      return "하노이증권거래소";
+    case "VNSE":
+      return "호치민증권거래소";
+    default:
+      return "해외증권거래소";
+  }
+};

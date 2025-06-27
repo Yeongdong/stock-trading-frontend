@@ -4,8 +4,12 @@ import styles from "../order/StockOrderForm.module.css";
 import {
   OVERSEAS_TRADE_TYPES,
   OVERSEAS_ORDER_DIVISIONS,
+  OVERSEAS_ORDER_CONDITIONS,
   MARKET_TO_EXCHANGE_CODE,
   OverseasOrderFormData,
+  ORDER_MODE_OPTIONS,
+  getScheduledOrderGuide,
+  getMarketName,
 } from "@/types/domains/stock/overseas-order";
 
 interface OverseasStockOrderFormProps {
@@ -31,15 +35,14 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
     ordQty: "",
     ordUnpr: "",
     ordCndt: "DAY",
+    orderMode: "immediate", // 기본값: 즉시주문
   });
 
-  // 선택된 주문 구분 정보
   const selectedOrderDivision = OVERSEAS_ORDER_DIVISIONS.find(
     (division) => division.value === formData.ordDvsn
   );
   const requiresPrice = selectedOrderDivision?.requiresPrice ?? true;
 
-  // 외부에서 종목 코드가 변경되면 폼 업데이트
   useEffect(() => {
     if (selectedStockCode) {
       setFormData((prev) => ({ ...prev, pdno: selectedStockCode }));
@@ -62,11 +65,11 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
       const success = await submitOrder(formData);
 
       if (success) {
-        // 주문 성공 시 폼 초기화 (종목코드는 유지)
         setFormData((prev) => ({
           ...prev,
           ordQty: "",
           ordUnpr: "",
+          scheduledExecutionTime: undefined,
         }));
 
         onOrderSuccess?.();
@@ -79,12 +82,13 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
     switch (exchangeCode) {
       case "NASD":
       case "NYSE":
+      case "AMEX":
         return "USD";
       case "TKSE":
         return "JPY";
       case "LNSE":
         return "GBP";
-      case "HKEX":
+      case "SEHK":
         return "HKD";
       default:
         return "USD";
@@ -100,26 +104,10 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
         return "일본 종목 코드 (예: 7203, 6758)";
       case "LNSE":
         return "영국 종목 코드 (예: LLOY, BP)";
-      case "HKEX":
+      case "SEHK":
         return "홍콩 종목 코드 (예: 0700, 0941)";
       default:
         return "종목 코드를 입력하세요";
-    }
-  };
-
-  const getHelperText = (): string => {
-    switch (formData.ovsExcgCd) {
-      case "NASD":
-      case "NYSE":
-        return "애플: AAPL, 테슬라: TSLA, 마이크로소프트: MSFT";
-      case "TKSE":
-        return "도요타: 7203, 소니: 6758, 소프트뱅크: 9984";
-      case "LNSE":
-        return "로이즈: LLOY, BP: BP, 유니레버: ULVR";
-      case "HKEX":
-        return "텐센트: 0700, 중국모바일: 0941, 중국석유: 0386";
-      default:
-        return "";
     }
   };
 
@@ -133,6 +121,38 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
         <fieldset className={styles.fieldset}>
           <legend>주문 정보</legend>
 
+          {/* 주문 모드 선택 */}
+          <div className={styles.formGroup}>
+            <label>주문 타입</label>
+            <div className={styles.radioGroup}>
+              {ORDER_MODE_OPTIONS.map((option) => (
+                <label key={option.value} className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="orderMode"
+                    value={option.value}
+                    checked={formData.orderMode === option.value}
+                    onChange={(e) =>
+                      handleInputChange("orderMode", e.target.value)
+                    }
+                    disabled={isLoading}
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* 예약주문 안내 */}
+          {formData.orderMode === "scheduled" && (
+            <div className={styles.infoBox}>
+              <h4>📅 {getMarketName(formData.ovsExcgCd)} 예약주문 안내</h4>
+              <p>{getScheduledOrderGuide(formData.ovsExcgCd)}</p>
+              <small>※ 예약주문은 지정가만 가능하며, 당일 유효합니다.</small>
+            </div>
+          )}
+
+          {/* 거래소 선택 */}
           <div className={styles.formGroup}>
             <label htmlFor="ovsExcgCd">거래소</label>
             <select
@@ -153,6 +173,7 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
             </div>
           </div>
 
+          {/* 종목코드 */}
           <div className={styles.formGroup}>
             <label htmlFor="pdno">종목 코드</label>
             <input
@@ -167,15 +188,20 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
               disabled={isLoading}
               required
             />
-            <div className={styles.helperText}>{getHelperText()}</div>
           </div>
 
+          {/* 매매구분 */}
           <div className={styles.formGroup}>
-            <label htmlFor="trId">거래 구분</label>
+            <label htmlFor="trId">매매 구분</label>
             <select
               id="trId"
               value={formData.trId}
-              onChange={(e) => handleInputChange("trId", e.target.value)}
+              onChange={(e) =>
+                handleInputChange(
+                  "trId",
+                  e.target.value as "VTTT1002U" | "VTTT1001U"
+                )
+              }
               className={styles.select}
               disabled={isLoading}
             >
@@ -187,6 +213,7 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
             </select>
           </div>
 
+          {/* 주문구분 */}
           <div className={styles.formGroup}>
             <label htmlFor="ordDvsn">주문 구분</label>
             <select
@@ -194,16 +221,25 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
               value={formData.ordDvsn}
               onChange={(e) => handleInputChange("ordDvsn", e.target.value)}
               className={styles.select}
-              disabled={isLoading}
+              disabled={isLoading || formData.orderMode === "scheduled"} // 예약주문은 지정가만
             >
-              {OVERSEAS_ORDER_DIVISIONS.map((division) => (
+              {OVERSEAS_ORDER_DIVISIONS.filter(
+                (division) =>
+                  formData.orderMode === "immediate" || division.value === "00"
+              ).map((division) => (
                 <option key={division.value} value={division.value}>
                   {division.label}
                 </option>
               ))}
             </select>
+            {formData.orderMode === "scheduled" && (
+              <small className={styles.helperText}>
+                예약주문은 지정가만 가능합니다
+              </small>
+            )}
           </div>
 
+          {/* 주문수량 */}
           <div className={styles.formGroup}>
             <label htmlFor="ordQty">주문 수량</label>
             <input
@@ -219,6 +255,7 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
             />
           </div>
 
+          {/* 주문단가 */}
           {requiresPrice && (
             <div className={styles.formGroup}>
               <label htmlFor="ordUnpr">주문 단가</label>
@@ -240,6 +277,26 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
             </div>
           )}
 
+          {/* 주문조건 */}
+          <div className={styles.formGroup}>
+            <label htmlFor="ordCndt">주문 조건</label>
+            <select
+              id="ordCndt"
+              value={formData.ordCndt}
+              onChange={(e) =>
+                handleInputChange("ordCndt", e.target.value as "DAY" | "FTC")
+              }
+              className={styles.select}
+              disabled={isLoading}
+            >
+              {OVERSEAS_ORDER_CONDITIONS.map((condition) => (
+                <option key={condition.value} value={condition.value}>
+                  {condition.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <button
             type="submit"
             disabled={
@@ -250,7 +307,11 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
             }
             className={styles.orderButton}
           >
-            {isLoading ? "주문 처리 중..." : "주문 실행"}
+            {isLoading
+              ? "주문 처리 중..."
+              : formData.orderMode === "immediate"
+              ? "즉시 주문"
+              : "예약 주문"}
           </button>
         </fieldset>
       </form>
@@ -266,7 +327,7 @@ function getExchangeCodeFromMarket(market?: string): string | undefined {
     nyse: "NYSE",
     tokyo: "TKSE",
     london: "LNSE",
-    hongkong: "HKEX",
+    hongkong: "SEHK",
   };
 
   return marketToCode[market.toLowerCase()];
