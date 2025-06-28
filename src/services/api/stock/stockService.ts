@@ -38,7 +38,7 @@ import {
 export const stockService = {
   // === 국내 주식 메서드 ===
   getBalance: async (): Promise<ApiResponse<Balance>> => {
-    return apiClient.get<Balance>(API.MARKET.STOCK_SEARCH, {
+    return apiClient.get<Balance>(API.TRADING.BALANCE, {
       requiresAuth: true,
     });
   },

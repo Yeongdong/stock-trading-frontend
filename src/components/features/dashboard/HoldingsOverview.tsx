@@ -71,7 +71,7 @@ const HoldingsOverview: React.FC<HoldingsOverviewProps> = memo(
           <h2 className={styles.sectionTitle}>📋 내 보유종목 현황 (TOP 5)</h2>
           <div className={styles.emptyState}>
             <p>보유 중인 종목이 없습니다.</p>
-            <Link href="/stock-search" className={styles.searchButton}>
+            <Link href="/order" className={styles.searchButton}>
               종목 검색하기 →
             </Link>
           </div>
