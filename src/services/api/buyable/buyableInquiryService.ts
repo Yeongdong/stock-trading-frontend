@@ -23,7 +23,7 @@ export const buyableInquiryService = {
     });
 
     const response = await apiClient.get<BuyableInquiryResponse>(
-      `${API.BUYABLE_INQUIRY.GET}?${queryParams.toString()}`,
+      `${API.TRADING.BUYABLE_INQUIRY}?${queryParams.toString()}`,
       { requiresAuth: true }
     );
 

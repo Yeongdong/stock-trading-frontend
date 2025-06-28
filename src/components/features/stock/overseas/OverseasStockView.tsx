@@ -45,7 +45,7 @@ const OverseasStockView: React.FC = () => {
     if (!selectedMarket) return "시장을 먼저 선택해주세요";
 
     switch (selectedMarket) {
-      case "nasdaq":
+      case "nas":
       case "nyse":
         return "예: AAPL, MSFT, GOOGL";
       case "tokyo":

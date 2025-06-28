@@ -92,7 +92,7 @@ export interface OverseasOrderFormData {
  * 시장별 거래소 코드 매핑
  */
 export const MARKET_TO_EXCHANGE_CODE: Record<OverseasMarket, string> = {
-  nasdaq: "NASD",
+  nas: "NASD",
   nyse: "NYSE",
   tokyo: "TKSE",
   london: "LNSE",
