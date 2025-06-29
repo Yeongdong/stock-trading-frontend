@@ -21,6 +21,19 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
+
+  // 운영환경에서만 프록시 사용
+  ...(process.env.NODE_ENV === "production" && {
+    async rewrites() {
+      return [
+        {
+          source: "/api/:path*",
+          destination:
+            "https://stocktrading-api-f8hnhzhzbhbycsf3.koreacentral-01.azurewebsites.net/api/:path*",
+        },
+      ];
+    },
+  }),
 };
 
 module.exports = nextConfig;

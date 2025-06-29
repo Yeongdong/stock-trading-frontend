@@ -1,3 +1,4 @@
+// src/services/api/auth/authService.ts
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";
@@ -70,11 +71,12 @@ export const authService = {
       expiresIn: number;
     }>(API.AUTH.REFRESH, {}, { requiresAuth: false });
 
-    if (response.data?.accessToken && response.data?.expiresIn)
-      tokenStorage.setAccessToken(
-        response.data.accessToken,
-        response.data.expiresIn
-      );
+    if (response.data?.accessToken) {
+      // ExpiresIn이 없는 경우 기본값 3600초(1시간) 사용
+      const expiresIn = response.data.expiresIn || 3600;
+
+      tokenStorage.setAccessToken(response.data.accessToken, expiresIn);
+    }
 
     return response;
   },
@@ -83,13 +85,8 @@ export const authService = {
    * 백그라운드에서 토큰 갱신
    */
   silentRefresh: async (): Promise<boolean> => {
-    try {
-      const response = await authService.refreshAccessToken();
-      return response.status === 200 && !!response.data;
-    } catch {
-      tokenStorage.clearAccessToken();
-      return false;
-    }
+    const response = await authService.refreshAccessToken();
+    return response.status === 200 && !!response.data;
   },
 
   /**
@@ -106,26 +103,19 @@ export const authService = {
       return { success: true, needsLogin: false };
 
     // Refresh Token으로 새 Access Token 발급 시도
-    try {
-      const response = await authService.refreshAccessToken();
+    const response = await authService.refreshAccessToken();
 
-      if (response.status === 200 && response.data)
-        return { success: true, needsLogin: false };
+    if (response.status === 200 && response.data?.accessToken)
+      return { success: true, needsLogin: false };
 
-      // 401/403 에러는 로그인 필요 (Refresh Token 만료)
-      if (response.status === 401 || response.status === 403) {
-        tokenStorage.clearAccessToken();
-        return { success: false, needsLogin: true };
-      }
-
-      // 기타 에러는 재시도 가능 (네트워크 에러 등)
+    // 401/403 에러는 Refresh Token 만료 -> 로그인 필요
+    if (response.status === 401 || response.status === 403) {
       tokenStorage.clearAccessToken();
-      return { success: false, needsLogin: false };
-    } catch (error) {
-      // 네트워크 에러 등은 일시적일 수 있으므로 needsLogin은 false
-      console.warn("토큰 자동 복구 실패:", error);
-      tokenStorage.clearAccessToken();
-      return { success: false, needsLogin: false };
+      return { success: false, needsLogin: true };
     }
+
+    // 기타 에러는 네트워크 에러 등으로 재시도 가능
+    tokenStorage.clearAccessToken();
+    return { success: false, needsLogin: false };
   },
 };

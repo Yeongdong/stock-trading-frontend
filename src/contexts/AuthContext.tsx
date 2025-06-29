@@ -30,61 +30,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const { addError } = useError();
 
   const checkAuthStatus = useCallback(async (): Promise<boolean> => {
-    try {
-      const currentToken = tokenStorage.getAccessToken();
+    // 현재 Access Token 확인
+    const currentToken = tokenStorage.getAccessToken();
 
-      if (!currentToken || tokenStorage.isAccessTokenExpiringSoon()) {
-        const { success, needsLogin } = await authService.initializeAuth();
-
-        if (!success) {
-          if (needsLogin) {
-            // Refresh Token도 만료됨 -> 로그인 필요
-            setIsAuthenticated(false);
-            setUser(null);
-            return false;
-          }
-        }
-      }
-
-      const response = await authService.checkAuth();
-
-      if (response.error) {
+    // 토큰이 없거나 만료 임박시 토큰 복구 시도
+    if (!currentToken || tokenStorage.isAccessTokenExpiringSoon()) {
+      const { success } = await authService.initializeAuth();
+      if (!success) {
         setIsAuthenticated(false);
         setUser(null);
         return false;
       }
+    }
 
-      setIsAuthenticated(true);
-      setUser(response.data?.user || null);
-      return true;
-    } catch (error) {
-      console.error("인증 상태 확인 중 오류:", error);
+    // 서버에 인증 상태 확인
+    const response = await authService.checkAuth();
+    if (response.error) {
       setIsAuthenticated(false);
       setUser(null);
       return false;
     }
+
+    setIsAuthenticated(true);
+    setUser(response.data?.user || null);
+    return true;
   }, []);
 
   const handleLogout = useCallback(async (): Promise<void> => {
-    try {
-      await authService.logout();
-      tokenStorage.clearAccessToken();
+    await authService.logout();
+    tokenStorage.clearAccessToken();
 
-      setIsAuthenticated(false);
-      setUser(null);
+    setIsAuthenticated(false);
+    setUser(null);
 
-      addError({
-        message: ERROR_MESSAGES.AUTH.LOGOUT_SUCCESS,
-        severity: "info",
-      });
+    addError({
+      message: ERROR_MESSAGES.AUTH.LOGOUT_SUCCESS,
+      severity: "info",
+    });
 
-      router.push("/login");
-    } catch {
-      tokenStorage.clearAccessToken();
-      setIsAuthenticated(false);
-      setUser(null);
-      router.push("/login");
-    }
+    router.push("/login");
   }, [addError, router]);
 
   useEffect(() => {
@@ -100,6 +84,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         });
 
         router.push("/login?sessionExpired=true");
+      } else {
       }
     };
 
