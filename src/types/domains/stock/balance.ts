@@ -51,6 +51,8 @@ export interface Summary {
   bfdy_tot_asst_evlu_amt: string;
   asst_icdc_amt: string;
   asst_icdc_erng_rt: string;
+  dailyProfitLossAmount: number;
+  dailyProfitLossRate: number;
 }
 
 export interface Balance {

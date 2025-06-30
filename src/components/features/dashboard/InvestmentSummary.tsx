@@ -22,9 +22,9 @@ const useInvestmentCalculations = (
     const totalProfitRate =
       purchaseAmount > 0 ? (totalProfitLoss / purchaseAmount) * 100 : 0;
 
-    // 임시 당일 수익률 (실제로는 API에서 받아와야 함)
-    const dailyChangeRate = 2.1; // TODO: API에서 받아오기
-    const dailyChangeAmount = Math.floor(totalValue * (dailyChangeRate / 100));
+    // 당일손익 데이터
+    const dailyChangeRate = summary.dailyProfitLossRate || 0;
+    const dailyChangeAmount = summary.dailyProfitLossAmount || 0;
 
     return {
       totalValue,
