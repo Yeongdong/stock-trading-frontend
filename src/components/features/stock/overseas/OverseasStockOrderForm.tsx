@@ -2,20 +2,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOverseasStockOrder } from "@/hooks/stock/useOverseasStockOrder";
 import styles from "../order/StockOrderForm.module.css";
 import {
-  OVERSEAS_TRADE_TYPES,
   OVERSEAS_ORDER_DIVISIONS,
   OVERSEAS_ORDER_CONDITIONS,
-  MARKET_TO_EXCHANGE_CODE,
   OverseasOrderFormData,
-  ORDER_MODE_OPTIONS,
-  getScheduledOrderGuide,
-  getMarketName,
 } from "@/types/domains/stock/overseas-order";
 
 interface OverseasStockOrderFormProps {
   selectedStockCode?: string;
   initialStockCode?: string;
   initialMarket?: string;
+  initialPrice?: number;
   onOrderSuccess?: () => void;
 }
 
@@ -23,6 +19,7 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
   selectedStockCode,
   initialStockCode,
   initialMarket,
+  initialPrice,
   onOrderSuccess,
 }) => {
   const { isLoading, submitOrder } = useOverseasStockOrder();
@@ -33,9 +30,9 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
     trId: "VTTT1002U",
     ordDvsn: "00",
     ordQty: "",
-    ordUnpr: "",
+    ordUnpr: initialPrice ? initialPrice.toString() : "",
     ordCndt: "DAY",
-    orderMode: "immediate", // 기본값: 즉시주문
+    orderMode: "immediate",
   });
 
   const selectedOrderDivision = OVERSEAS_ORDER_DIVISIONS.find(
@@ -43,13 +40,40 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
   );
   const requiresPrice = selectedOrderDivision?.requiresPrice ?? true;
 
+  // 종목코드 또는 현재가 변경 시 처리
   useEffect(() => {
     if (selectedStockCode) {
-      setFormData((prev) => ({ ...prev, pdno: selectedStockCode }));
+      setFormData((prev) => ({
+        ...prev,
+        pdno: selectedStockCode,
+        // 종목 선택 시 현재가가 있으면 자동으로 주문 단가에 설정
+        ordUnpr:
+          initialPrice && initialPrice > 0
+            ? initialPrice.toFixed(2)
+            : prev.ordUnpr,
+      }));
     } else if (initialStockCode) {
-      setFormData((prev) => ({ ...prev, pdno: initialStockCode }));
+      setFormData((prev) => ({
+        ...prev,
+        pdno: initialStockCode,
+        // 초기 종목 설정 시에도 현재가 자동 설정
+        ordUnpr:
+          initialPrice && initialPrice > 0
+            ? initialPrice.toFixed(2)
+            : prev.ordUnpr,
+      }));
     }
-  }, [selectedStockCode, initialStockCode]);
+  }, [selectedStockCode, initialStockCode, initialPrice]);
+
+  // 현재가만 변경될 때 (종목이 이미 선택된 상태에서 가격 업데이트)
+  useEffect(() => {
+    if (initialPrice && initialPrice > 0 && formData.pdno) {
+      setFormData((prev) => ({
+        ...prev,
+        ordUnpr: initialPrice.toFixed(2),
+      }));
+    }
+  }, [initialPrice, formData.pdno]);
 
   const handleInputChange = useCallback(
     (field: keyof OverseasOrderFormData, value: string) => {
@@ -68,14 +92,14 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
         setFormData((prev) => ({
           ...prev,
           ordQty: "",
-          ordUnpr: "",
+          ordUnpr: initialPrice ? initialPrice.toFixed(2) : "",
           scheduledExecutionTime: undefined,
         }));
 
         onOrderSuccess?.();
       }
     },
-    [formData, submitOrder, onOrderSuccess]
+    [formData, submitOrder, onOrderSuccess, initialPrice]
   );
 
   const getCurrencySymbol = (exchangeCode: string): string => {
@@ -112,7 +136,7 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
   };
 
   return (
-    <div className={styles.stockOrderForm}>
+    <>
       <div className={styles.formHeader}>
         <h2>해외 주식 주문</h2>
       </div>
@@ -120,58 +144,6 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
       <form onSubmit={handleSubmit}>
         <fieldset className={styles.fieldset}>
           <legend>주문 정보</legend>
-
-          {/* 주문 모드 선택 */}
-          <div className={styles.formGroup}>
-            <label>주문 타입</label>
-            <div className={styles.radioGroup}>
-              {ORDER_MODE_OPTIONS.map((option) => (
-                <label key={option.value} className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="orderMode"
-                    value={option.value}
-                    checked={formData.orderMode === option.value}
-                    onChange={(e) =>
-                      handleInputChange("orderMode", e.target.value)
-                    }
-                    disabled={isLoading}
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* 예약주문 안내 */}
-          {formData.orderMode === "scheduled" && (
-            <div className={styles.infoBox}>
-              <h4>📅 {getMarketName(formData.ovsExcgCd)} 예약주문 안내</h4>
-              <p>{getScheduledOrderGuide(formData.ovsExcgCd)}</p>
-              <small>※ 예약주문은 지정가만 가능하며, 당일 유효합니다.</small>
-            </div>
-          )}
-
-          {/* 거래소 선택 */}
-          <div className={styles.formGroup}>
-            <label htmlFor="ovsExcgCd">거래소</label>
-            <select
-              id="ovsExcgCd"
-              value={formData.ovsExcgCd}
-              onChange={(e) => handleInputChange("ovsExcgCd", e.target.value)}
-              className={styles.select}
-              disabled={isLoading}
-            >
-              {Object.entries(MARKET_TO_EXCHANGE_CODE).map(([market, code]) => (
-                <option key={code} value={code}>
-                  {getExchangeLabel(market, code)}
-                </option>
-              ))}
-            </select>
-            <div className={styles.helperText}>
-              거래 통화: {getCurrencySymbol(formData.ovsExcgCd)}
-            </div>
-          </div>
 
           {/* 종목코드 */}
           <div className={styles.formGroup}>
@@ -188,55 +160,6 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
               disabled={isLoading}
               required
             />
-          </div>
-
-          {/* 매매구분 */}
-          <div className={styles.formGroup}>
-            <label htmlFor="trId">매매 구분</label>
-            <select
-              id="trId"
-              value={formData.trId}
-              onChange={(e) =>
-                handleInputChange(
-                  "trId",
-                  e.target.value as "VTTT1002U" | "VTTT1001U"
-                )
-              }
-              className={styles.select}
-              disabled={isLoading}
-            >
-              {OVERSEAS_TRADE_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 주문구분 */}
-          <div className={styles.formGroup}>
-            <label htmlFor="ordDvsn">주문 구분</label>
-            <select
-              id="ordDvsn"
-              value={formData.ordDvsn}
-              onChange={(e) => handleInputChange("ordDvsn", e.target.value)}
-              className={styles.select}
-              disabled={isLoading || formData.orderMode === "scheduled"} // 예약주문은 지정가만
-            >
-              {OVERSEAS_ORDER_DIVISIONS.filter(
-                (division) =>
-                  formData.orderMode === "immediate" || division.value === "00"
-              ).map((division) => (
-                <option key={division.value} value={division.value}>
-                  {division.label}
-                </option>
-              ))}
-            </select>
-            {formData.orderMode === "scheduled" && (
-              <small className={styles.helperText}>
-                예약주문은 지정가만 가능합니다
-              </small>
-            )}
           </div>
 
           {/* 주문수량 */}
@@ -258,7 +181,9 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
           {/* 주문단가 */}
           {requiresPrice && (
             <div className={styles.formGroup}>
-              <label htmlFor="ordUnpr">주문 단가</label>
+              <div className={styles.priceInputHeader}>
+                <label htmlFor="ordUnpr">주문 단가</label>
+              </div>
               <input
                 id="ordUnpr"
                 type="number"
@@ -273,6 +198,12 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
               />
               <div className={styles.helperText}>
                 {getCurrencySymbol(formData.ovsExcgCd)} 단위로 입력해주세요
+                {initialPrice && initialPrice > 0 && (
+                  <span className={styles.currentPriceInfo}>
+                    (현재가: {getCurrencySymbol(formData.ovsExcgCd)}
+                    {initialPrice.toFixed(2)})
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -307,15 +238,11 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
             }
             className={styles.orderButton}
           >
-            {isLoading
-              ? "주문 처리 중..."
-              : formData.orderMode === "immediate"
-              ? "즉시 주문"
-              : "예약 주문"}
+            {isLoading ? "주문 처리 중..." : "주문하기"}
           </button>
         </fieldset>
       </form>
-    </div>
+    </>
   );
 };
 
@@ -331,17 +258,6 @@ function getExchangeCodeFromMarket(market?: string): string | undefined {
   };
 
   return marketToCode[market.toLowerCase()];
-}
-
-function getExchangeLabel(market: string, code: string): string {
-  const labels: Record<string, string> = {
-    nasdaq: "나스닥",
-    nyse: "뉴욕증권거래소",
-    tokyo: "도쿄증권거래소",
-    london: "런던증권거래소",
-    hongkong: "홍콩증권거래소",
-  };
-  return labels[market] || code;
 }
 
 export default OverseasStockOrderForm;

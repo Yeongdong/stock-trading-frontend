@@ -27,14 +27,14 @@ function OverseasPageContent() {
 
   const stockCode = searchParams.get("stockCode");
   const market = searchParams.get("market") as OverseasMarket;
+  const price = searchParams.get("price");
 
-  // 차트에 표시할 종목 정보 (선택된 종목 또는 URL 파라미터)
   const chartStockCode = selectedStock.code || stockCode || "";
   const chartStockName = selectedStock.name || "";
   const chartMarket = selectedStock.market || market || "nas";
 
   const handleStockSelect = useCallback(
-    (stock: ForeignStockInfo) => {
+    (stock: ForeignStockInfo & { fetchedCurrentPrice?: number }) => {
       const marketMapping: Record<string, OverseasMarket> = {
         NYSE: "nyse",
         NAS: "nas",
@@ -57,6 +57,12 @@ function OverseasPageContent() {
         stockCode: stock.symbol,
         market: mappedMarket,
       });
+
+      const currentPrice = stock.fetchedCurrentPrice || stock.currentPrice;
+      if (currentPrice && currentPrice > 0) {
+        params.append("price", currentPrice.toString());
+      }
+
       router.replace(`${window.location.pathname}?${params.toString()}`);
     },
     [router]
@@ -64,14 +70,12 @@ function OverseasPageContent() {
 
   const handleOrderSuccess = useCallback(() => {
     console.log("해외 주식 주문 성공!");
-    // 필요시 성공 후 처리 로직 추가
   }, []);
 
   return (
     <div className={styles.overseasPageContainer}>
       <h1 className={styles.pageTitle}>해외 주식</h1>
 
-      {/* OverseasStockView 컴포넌트 (검색 + 리스트 + 상세조회 통합) */}
       <div className={styles.stockSearchSection}>
         <OverseasStockView onStockSelect={handleStockSelect} />
       </div>
@@ -82,6 +86,9 @@ function OverseasPageContent() {
             selectedStockCode={selectedStock.code}
             initialStockCode={stockCode || undefined}
             initialMarket={market || "nas"}
+            initialPrice={
+              price ? parseFloat(price) : selectedStock.code ? 0 : undefined
+            }
             onOrderSuccess={handleOrderSuccess}
           />
         </div>

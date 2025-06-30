@@ -10,12 +10,13 @@ import { formatCurrency } from "@/utils/formatters";
 import styles from "./OverseasStockView.module.css";
 
 interface OverseasStockViewProps {
-  onStockSelect?: (stock: ForeignStockInfo) => void;
+  onStockSelect?: (
+    stock: ForeignStockInfo & { fetchedCurrentPrice?: number }
+  ) => void;
 }
 
 /**
  * 해외 주식 통합 뷰 컴포넌트
- * 시장 선택 + 검색 + 결과 리스트 + 상세 조회 통합
  */
 const OverseasStockView: React.FC<OverseasStockViewProps> = ({
   onStockSelect,
@@ -29,7 +30,6 @@ const OverseasStockView: React.FC<OverseasStockViewProps> = ({
   const overseasStock = useOverseasStock();
   const foreignStockSearch = useForeignStockSearch();
 
-  // 시장 매핑 (OverseasMarket -> 백엔드 enum)
   const getSearchMarket = (market: OverseasMarket): string => {
     const marketMap: Record<OverseasMarket, string> = {
       nas: "nasdaq", // nas → nasdaq
@@ -41,7 +41,6 @@ const OverseasStockView: React.FC<OverseasStockViewProps> = ({
     return marketMap[market];
   };
 
-  // 백엔드 API용 시장 매핑 (OverseasMarket -> 백엔드 Market enum)
   const getBackendMarket = (market: OverseasMarket): string => {
     const marketMap: Record<OverseasMarket, string> = {
       nas: "Nasdaq", // nas → Nasdaq
@@ -81,17 +80,26 @@ const OverseasStockView: React.FC<OverseasStockViewProps> = ({
   const handleStockSelect = async (stock: ForeignStockInfo) => {
     if (!selectedMarket) return;
 
-    // 상위 컴포넌트에 종목 선택 정보 전달
-    onStockSelect?.(stock);
-
     setShowResults(false);
 
-    // 백엔드 API용 시장 코드로 변환하여 현재가 조회
-    const backendMarket = getBackendMarket(selectedMarket);
-    await overseasStock.currentPrice.fetch(
-      stock.symbol,
-      backendMarket as OverseasMarket
-    );
+    let fetchedCurrentPrice = stock.currentPrice;
+
+    // 현재가가 0이거나 없으면 current-price API 호출
+    if (!fetchedCurrentPrice || fetchedCurrentPrice <= 0) {
+      const backendMarket = getBackendMarket(selectedMarket);
+      await overseasStock.currentPrice.fetch(
+        stock.symbol,
+        backendMarket as OverseasMarket
+      );
+
+      if (overseasStock.currentPrice.data)
+        fetchedCurrentPrice = overseasStock.currentPrice.data.currentPrice;
+    }
+
+    onStockSelect?.({
+      ...stock,
+      fetchedCurrentPrice,
+    });
   };
 
   const getSearchPlaceholder = () => {
