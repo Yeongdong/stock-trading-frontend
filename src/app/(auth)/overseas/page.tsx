@@ -3,11 +3,11 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback } from "react";
 import OverseasStockOrderForm from "@/components/features/stock/overseas/OverseasStockOrderForm";
+import OverseasStockView from "@/components/features/stock/overseas/OverseasStockView";
 import { OverseasMarket } from "@/types/domains/stock/overseas";
 import { ForeignStockInfo } from "@/types/domains/stock/foreignStock";
 import styles from "./page.module.css";
 import OverseasPriceChart from "@/components/features/stock/overseas/OverseasPriceChart";
-import ForeignStockSearch from "@/components/features/stock/overseas/ForeignStockSearch";
 
 interface SelectedOverseasStock {
   code: string;
@@ -27,25 +27,25 @@ function OverseasPageContent() {
 
   const stockCode = searchParams.get("stockCode");
   const market = searchParams.get("market") as OverseasMarket;
-  const price = searchParams.get("price");
 
-  const initialData = {
-    stockCode: selectedStock.code || stockCode || undefined,
-    market: selectedStock.market || market || "nas",
-    orderPrice: price ? parseFloat(price) : undefined,
-  };
+  // 차트에 표시할 종목 정보 (선택된 종목 또는 URL 파라미터)
+  const chartStockCode = selectedStock.code || stockCode || "";
+  const chartStockName = selectedStock.name || "";
+  const chartMarket = selectedStock.market || market || "nas";
 
-  const handleForeignStockSelect = useCallback(
+  const handleStockSelect = useCallback(
     (stock: ForeignStockInfo) => {
       const marketMapping: Record<string, OverseasMarket> = {
         NYSE: "nyse",
+        NAS: "nas",
         NASDAQ: "nas",
         LSE: "london",
         TSE: "tokyo",
         HKEX: "hongkong",
+        HKS: "hongkong",
       };
 
-      const mappedMarket = marketMapping[stock.exchange] || "nasdaq";
+      const mappedMarket = marketMapping[stock.exchange] || "nas";
 
       setSelectedStock({
         code: stock.symbol,
@@ -62,51 +62,26 @@ function OverseasPageContent() {
     [router]
   );
 
-  const handleOrderRequest = useCallback(
-    (stockCode: string, market: OverseasMarket, orderPrice: number) => {
-      const params = new URLSearchParams({
-        stockCode,
-        market,
-        price: orderPrice.toString(),
-      });
-
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      router.replace(newUrl);
-
-      const orderSection = document.querySelector(`.${styles.orderSection}`);
-      if (orderSection) {
-        orderSection.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    },
-    [router]
-  );
-
   const handleOrderSuccess = useCallback(() => {
     console.log("해외 주식 주문 성공!");
+    // 필요시 성공 후 처리 로직 추가
   }, []);
-
-  // 차트에 표시할 종목 정보 (선택된 종목 또는 URL 파라미터)
-  const chartStockCode = selectedStock.code || stockCode || "";
-  const chartStockName = selectedStock.name || "";
-  const chartMarket = selectedStock.market || market || "nasdaq";
 
   return (
     <div className={styles.overseasPageContainer}>
       <h1 className={styles.pageTitle}>해외 주식</h1>
 
-      {/* 검색 영역 */}
+      {/* OverseasStockView 컴포넌트 (검색 + 리스트 + 상세조회 통합) */}
       <div className={styles.stockSearchSection}>
-        <ForeignStockSearch onStockSelect={handleForeignStockSelect} />
+        <OverseasStockView onStockSelect={handleStockSelect} />
       </div>
 
       <div className={styles.twoColumnLayout}>
         <div className={styles.orderSection}>
           <OverseasStockOrderForm
-            initialStockCode={initialData.stockCode}
-            initialMarket={initialData.market}
+            selectedStockCode={selectedStock.code}
+            initialStockCode={stockCode || undefined}
+            initialMarket={market || "nas"}
             onOrderSuccess={handleOrderSuccess}
           />
         </div>
@@ -125,18 +100,6 @@ function OverseasPageContent() {
                 <p>
                   <strong>시장:</strong> {selectedStock.market.toUpperCase()}
                 </p>
-                <button
-                  onClick={() =>
-                    handleOrderRequest(
-                      selectedStock.code,
-                      selectedStock.market,
-                      100
-                    )
-                  }
-                  className={styles.quickOrderButton}
-                >
-                  빠른 주문
-                </button>
               </div>
             ) : (
               <p>종목을 선택해주세요.</p>

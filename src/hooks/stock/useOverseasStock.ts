@@ -1,15 +1,13 @@
 import { useCallback } from "react";
 import { useOverseasCurrentPrice } from "./useOverseasCurrentPrice";
-import { useOverseasStockSearch } from "./useOverseasStockSearch";
 import { OverseasMarket } from "@/types/domains/stock/overseas";
 
 /**
- * 해외 주식 통합 관리 훅
- * 현재가 조회와 검색 기능을 모두 제공
+ * 해외 주식 현재가 조회 훅
+ * 개별 종목의 상세 현재가 정보 조회만 담당
  */
 export const useOverseasStock = () => {
   const currentPriceHook = useOverseasCurrentPrice();
-  const searchHook = useOverseasStockSearch();
 
   // 특정 종목의 현재가 조회
   const fetchStockPrice = useCallback(
@@ -19,19 +17,10 @@ export const useOverseasStock = () => {
     [currentPriceHook]
   );
 
-  // 시장별 주식 목록 조회
-  const fetchMarketStocks = useCallback(
-    (market: OverseasMarket) => {
-      return searchHook.searchStocks({ market });
-    },
-    [searchHook]
-  );
-
-  // 모든 데이터 초기화
-  const clearAllData = useCallback(() => {
+  // 데이터 초기화
+  const clearData = useCallback(() => {
     currentPriceHook.clearData();
-    searchHook.clearResults();
-  }, [currentPriceHook, searchHook]);
+  }, [currentPriceHook]);
 
   return {
     // 현재가 관련
@@ -43,20 +32,9 @@ export const useOverseasStock = () => {
       clear: currentPriceHook.clearData,
     },
 
-    // 검색 관련
-    search: {
-      results: searchHook.searchResults,
-      isLoading: searchHook.isLoading,
-      error: searchHook.error,
-      totalCount: searchHook.totalCount,
-      hasMore: searchHook.hasMore,
-      fetch: fetchMarketStocks,
-      clear: searchHook.clearResults,
-    },
-
     // 공통
-    clearAll: clearAllData,
-    isAnyLoading: currentPriceHook.isLoading || searchHook.isLoading,
-    hasAnyError: !!(currentPriceHook.error || searchHook.error),
+    clearAll: clearData,
+    isLoading: currentPriceHook.isLoading,
+    hasError: !!currentPriceHook.error,
   };
 };

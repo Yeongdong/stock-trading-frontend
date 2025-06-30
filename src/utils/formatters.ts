@@ -1,5 +1,5 @@
 /**
- * 통화별 포맷팅 함수
+ * 안전한 통화별 포맷팅 함수
  */
 export const formatCurrency = (
   value: string | number,
@@ -12,23 +12,30 @@ export const formatCurrency = (
         : Number(value)
       : value;
 
-  // 통화별 locale 설정
-  const localeMap: Record<string, string> = {
-    KRW: "ko-KR",
-    USD: "en-US",
-    JPY: "ja-JP",
-    GBP: "en-GB",
-    HKD: "zh-HK",
+  // 통화 심볼 매핑
+  const currencySymbols: Record<string, string> = {
+    KRW: "₩",
+    USD: "$",
+    JPY: "¥",
+    GBP: "£",
+    EUR: "€",
+    HKD: "HK$",
+    CNY: "¥",
+    SGD: "S$",
   };
 
-  const locale = localeMap[currency] || "en-US";
+  // 통화별 소수점 설정
+  const decimalPlaces = currency === "JPY" || currency === "KRW" ? 0 : 2;
 
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: currency,
-    minimumFractionDigits: currency === "JPY" ? 0 : 2,
-    maximumFractionDigits: currency === "JPY" ? 0 : 2,
-  }).format(numValue);
+  // 안전한 숫자 포맷팅
+  const formattedNumber =
+    decimalPlaces === 0
+      ? formatNumber(Math.round(numValue))
+      : formatNumber(Number(numValue.toFixed(decimalPlaces)));
+
+  const symbol = currencySymbols[currency] || currency;
+
+  return `${symbol}${formattedNumber}`;
 };
 
 /**
