@@ -11,7 +11,7 @@ const ForeignStockSearch: React.FC<ForeignStockSearchProps> = ({
   onStockSelect,
 }) => {
   const [query, setQuery] = useState("");
-  const [exchange, setExchange] = useState("");
+  const [market, setMarket] = useState("nasdaq");
 
   const { results, isLoading, error, searchStocks, clearResults } =
     useForeignStockSearch();
@@ -25,8 +25,8 @@ const ForeignStockSearch: React.FC<ForeignStockSearchProps> = ({
     if (!query.trim()) return;
 
     searchStocks({
-      query,
-      exchange: exchange || undefined,
+      market,
+      query: query.trim(),
       limit: 50,
     });
   };
@@ -38,17 +38,15 @@ const ForeignStockSearch: React.FC<ForeignStockSearchProps> = ({
       <form onSubmit={handleSubmit} className={styles.searchForm}>
         <div className={styles.inputGroup}>
           <select
-            value={exchange}
-            onChange={(e) => setExchange(e.target.value)}
+            value={market}
+            onChange={(e) => setMarket(e.target.value)}
             className={styles.exchangeSelect}
             disabled={isLoading}
           >
-            <option value="">모든 거래소</option>
-            <option value="NYSE">NYSE</option>
-            <option value="NASDAQ">NASDAQ</option>
-            <option value="LSE">LSE</option>
-            <option value="TSE">TSE</option>
-            <option value="HKEX">HKEX</option>
+            <option value="nasdaq">나스닥 (NASDAQ)</option>
+            <option value="nyse">뉴욕증권거래소 (NYSE)</option>
+            <option value="tokyo">도쿄증권거래소 (TSE)</option>
+            <option value="hongkong">홍콩증권거래소 (HKS)</option>
           </select>
           <input
             type="text"
@@ -76,56 +74,76 @@ const ForeignStockSearch: React.FC<ForeignStockSearchProps> = ({
           {isLoading ? (
             <div className={styles.loading}>검색 중...</div>
           ) : results.stocks.length === 0 ? (
-            <div className={styles.empty}>검색 결과가 없습니다.</div>
+            <div className={styles.noResults}>
+              검색 결과가 없습니다. 다른 검색어를 시도해보세요.
+            </div>
           ) : (
-            <div className={styles.results}>
+            <div className={styles.resultsContainer}>
               <div className={styles.resultsHeader}>
-                <h3>검색 결과 ({results.count.toLocaleString()}개)</h3>
-                <button
-                  type="button"
-                  onClick={clearResults}
-                  className={styles.clearButton}
-                  disabled={isLoading}
-                >
-                  결과 지우기
+                <h3>검색 결과 ({results.count}개)</h3>
+                <button onClick={clearResults} className={styles.clearButton}>
+                  초기화
                 </button>
               </div>
 
-              <div className={styles.stockGrid}>
+              <div className={styles.resultsList}>
                 {results.stocks.map((stock) => (
                   <div
                     key={stock.symbol}
-                    className={`${styles.stockCard} ${
-                      onStockSelect ? styles.clickable : ""
-                    }`}
+                    className={styles.resultItem}
                     onClick={() => handleStockClick(stock)}
                   >
-                    <div className={styles.stockMainInfo}>
-                      <div className={styles.stockName}>
-                        <div className={styles.name}>{stock.description}</div>
-                        <div className={styles.code}>{stock.symbol}</div>
+                    <div className={styles.stockHeader}>
+                      <div className={styles.stockSymbol}>{stock.symbol}</div>
+                      <div className={styles.stockExchange}>
+                        {stock.exchange}
                       </div>
                     </div>
 
-                    <div className={styles.stockMetaInfo}>
-                      <div className={styles.metaRow}>
-                        <span className={styles.metaLabel}>거래소</span>
-                        <span className={styles.metaValue}>
-                          {stock.exchange}
-                        </span>
+                    <div className={styles.stockNames}>
+                      <div className={styles.stockName}>
+                        {stock.description}
                       </div>
-                      <div className={styles.metaRow}>
-                        <span className={styles.metaLabel}>통화</span>
-                        <span className={styles.metaValue}>
-                          {stock.currency}
-                        </span>
+                      {stock.englishName &&
+                        stock.englishName !== stock.description && (
+                          <div className={styles.stockEnglishName}>
+                            {stock.englishName}
+                          </div>
+                        )}
+                    </div>
+
+                    <div className={styles.stockDetails}>
+                      <div className={styles.stockCountry}>
+                        {stock.country} • {stock.currency}
                       </div>
-                      <div className={styles.metaRow}>
-                        <span className={styles.metaLabel}>국가</span>
-                        <span className={styles.metaValue}>
-                          {stock.country}
-                        </span>
-                      </div>
+                      {stock.currentPrice > 0 && (
+                        <div className={styles.stockPrice}>
+                          {new Intl.NumberFormat("ko-KR", {
+                            style: "currency",
+                            currency: stock.currency,
+                            minimumFractionDigits: 2,
+                          }).format(stock.currentPrice)}
+                          {stock.changeRate !== 0 && (
+                            <span
+                              className={`${styles.priceChange} ${
+                                stock.changeSign === "2" ||
+                                stock.changeSign === "1"
+                                  ? styles.positive
+                                  : stock.changeSign === "5" ||
+                                    stock.changeSign === "4"
+                                  ? styles.negative
+                                  : styles.neutral
+                              }`}
+                            >
+                              ({stock.changeRate > 0 ? "+" : ""}
+                              {stock.changeRate.toFixed(2)}%)
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {stock.isTradable && (
+                        <div className={styles.tradable}>매매가능</div>
+                      )}
                     </div>
                   </div>
                 ))}

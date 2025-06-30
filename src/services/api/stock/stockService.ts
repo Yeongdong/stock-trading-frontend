@@ -169,15 +169,17 @@ export const stockService = {
     );
   },
 
+  /**
+   * 해외 주식 검색
+   */
   searchForeignStocks: async (
     request: ForeignStockSearchRequest
   ): Promise<ApiResponse<ForeignStockSearchResult>> => {
     const queryParams = new URLSearchParams({
+      market: request.market,
       query: request.query,
       limit: (request.limit || 50).toString(),
     });
-
-    if (request.exchange) queryParams.append("exchange", request.exchange);
 
     return apiClient.get<ForeignStockSearchResult>(
       `${API.MARKET.FOREIGN_STOCK_SEARCH}?${queryParams.toString()}`,

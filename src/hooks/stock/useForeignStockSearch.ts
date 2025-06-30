@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { stockService } from "@/services/api/stock/stockService";
 import {
   ForeignStockSearchRequest,
@@ -10,33 +10,45 @@ export const useForeignStockSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const searchStocks = async (request: ForeignStockSearchRequest) => {
-    if (!request.query.trim()) {
-      setError("검색어를 입력해주세요.");
-      return;
-    }
+  const searchStocks = useCallback(
+    async (request: ForeignStockSearchRequest) => {
+      // 유효성 검사
+      if (!request.market?.trim()) {
+        setError("거래소 시장을 선택해주세요.");
+        return;
+      }
 
-    setIsLoading(true);
-    setError(null);
+      if (!request.query?.trim()) {
+        setError("검색어를 입력해주세요.");
+        return;
+      }
 
-    const response = await stockService.searchForeignStocks({
-      ...request,
-      query: request.query.trim(),
-    });
+      setIsLoading(true);
+      setError(null);
 
-    if (response.error) {
-      setError(response.error);
-    } else if (response.data) {
-      setResults(response.data);
-    }
+      const response = await stockService.searchForeignStocks({
+        market: request.market.trim(),
+        query: request.query.trim(),
+        limit: request.limit || 50,
+      });
 
-    setIsLoading(false);
-  };
+      if (response.error) {
+        setError(response.error);
+        setResults(null);
+      } else if (response.data) {
+        setResults(response.data);
+        setError(null);
+      }
 
-  const clearResults = () => {
+      setIsLoading(false);
+    },
+    []
+  );
+
+  const clearResults = useCallback(() => {
     setResults(null);
     setError(null);
-  };
+  }, []);
 
   return {
     results,
