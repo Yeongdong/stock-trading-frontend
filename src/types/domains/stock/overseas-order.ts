@@ -48,7 +48,7 @@ export interface OverseasOrderExecutionItem {
   sll_buy_dvsn_cd_name: string; // 매도매수구분코드명
   rvse_cncl_dvsn: string; // 정정취소구분
   rvse_cncl_dvsn_name: string; // 정정취소구분명
-  pdno: string; // 상품번호
+  pdno: string; // 상품번호 (종목코드)
   prdt_name: string; // 상품명
   ft_ord_qty: string; // FT주문수량
   ft_ord_unpr3: string; // FT주문단가3
@@ -58,6 +58,7 @@ export interface OverseasOrderExecutionItem {
   nccs_qty: string; // 미체결수량
   prcs_stat_name: string; // 처리상태명
   rjct_rson: string; // 거부사유
+  rjct_rson_name: string; // 거부사유명
   ord_tmd: string; // 주문시각
   tr_mket_name: string; // 거래시장명
   tr_natn: string; // 거래국가
