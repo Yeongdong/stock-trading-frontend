@@ -14,6 +14,7 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
   const { addError } = useError();
   const { handleGoogleLogin } = useLoginHandler();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -30,14 +31,26 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
     credentialResponse: CredentialResponse
   ) => {
     setIsLoading(true);
+    setLoadingMessage("로그인 중...");
 
     try {
+      setTimeout(() => {
+        if (isLoading) {
+          setLoadingMessage("KIS 토큰 확인 중...");
+        }
+      }, 2000);
+
       const result = await handleGoogleLogin(credentialResponse);
 
-      if (result.success && result.redirectTo)
-        onLoginSuccess?.(result.redirectTo);
+      if (result.success && result.redirectTo) {
+        setLoadingMessage("로그인 완료! 이동 중...");
+        setTimeout(() => {
+          onLoginSuccess?.(result.redirectTo);
+        }, 500);
+      }
     } finally {
       setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -62,7 +75,14 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
           {isLoading ? (
             <div className={styles.loadingContainer}>
               <div className={styles.spinner}></div>
-              <span className={styles.loadingText}>로그인 중...</span>
+              <span className={styles.loadingText}>
+                {loadingMessage || "로그인 중..."}
+              </span>
+              {loadingMessage.includes("KIS") && (
+                <p className={styles.subLoadingText}>
+                  투자 정보를 준비하고 있습니다...
+                </p>
+              )}
             </div>
           ) : (
             <GoogleLogin
