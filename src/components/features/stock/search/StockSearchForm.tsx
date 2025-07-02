@@ -1,17 +1,14 @@
-import React, { useState, useCallback, useEffect } from "react";
-import useDebounce from "@/hooks/common/useDebounce";
+import React, { useState, useCallback } from "react";
 import { StockSearchRequest } from "@/types/domains/stock/search";
 import { StockSearchFormProps } from "@/types/domains/stock/components";
 import styles from "./StockSearchForm.module.css";
 
 const MIN_SEARCH_LENGTH = 1;
-const DEBOUNCE_DELAY = 300;
 
 const StockSearchForm: React.FC<StockSearchFormProps> = ({
   stockSearchHook,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, DEBOUNCE_DELAY);
   const { searchStocks, isLoading, clearResults } = stockSearchHook;
 
   const handleSearch = useCallback(
@@ -37,10 +34,12 @@ const StockSearchForm: React.FC<StockSearchFormProps> = ({
     await handleSearch(searchTerm);
   };
 
-  // 디바운싱된 검색어로 자동 검색
-  useEffect(() => {
-    handleSearch(debouncedSearchTerm);
-  }, [debouncedSearchTerm, handleSearch]);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch(searchTerm);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className={styles.stockSearchForm}>
@@ -49,6 +48,7 @@ const StockSearchForm: React.FC<StockSearchFormProps> = ({
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="종목명 또는 종목코드를 입력하세요 (예: 삼성전자, 005930)"
           disabled={isLoading}
           className={styles.searchInput}
