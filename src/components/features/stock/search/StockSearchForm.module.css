@@ -88,11 +88,7 @@
 /* 검색 버튼 */
 .searchButton {
   padding: var(--spacing-lg) var(--spacing-xl);
-  background: linear-gradient(
-    135deg,
-    var(--color-primary),
-    var(--color-primary-dark)
-  );
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius);
@@ -106,11 +102,7 @@
 }
 
 .searchButton:hover:not(:disabled) {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-dark),
-    var(--color-primary)
-  );
+  background: var(--color-primary-hover);
   box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
   transform: translateY(-1px);
 }
