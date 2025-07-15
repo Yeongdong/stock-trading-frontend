@@ -6,7 +6,14 @@ module.exports = {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(ts|tsx)$": [
+      "ts-jest",
+      {
+        tsconfig: {
+          jsx: "react-jsx",
+        },
+      },
+    ],
     "^.+\\.(js|jsx)$": "babel-jest",
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
