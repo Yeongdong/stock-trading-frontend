@@ -57,14 +57,23 @@ const createApiResponse = (hasError = false): ApiResponse => ({
 });
 
 describe("useStockOrder", () => {
+  let consoleErrorSpy: jest.SpyInstance;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // console.error를 모킹하여 의도된 에러 로그 숨김
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
     mockUseError.mockReturnValue({
       errors: [],
       addError: mockAddError,
       removeError: mockRemoveError,
       clearErrors: mockClearErrors,
     });
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   describe("초기 상태", () => {
@@ -183,6 +192,12 @@ describe("useStockOrder", () => {
         message: expect.any(String),
         severity: "error",
       });
+
+      // console.error가 호출되었는지 확인 (의도된 동작)
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "주문 실행 중 오류:",
+        expect.any(Error)
+      );
     });
 
     it("로딩 상태가 올바르게 관리되어야 한다", async () => {
@@ -252,7 +267,7 @@ describe("useStockOrder", () => {
       expect(validation.isValid).toBe(false);
     });
 
-    it("소수점 수량을 거부해야 한다", () => {
+    it("소수점 수량을 거부해야 한다 (비즈니스 로직 개선)", () => {
       const { result } = renderHook(() => useStockOrder());
 
       const validation = result.current.validateOrder({
@@ -260,7 +275,53 @@ describe("useStockOrder", () => {
         quantity: "10.5",
       });
 
+      // 주식 거래에서는 정수 수량만 허용
       expect(validation.isValid).toBe(false);
+      expect(validation.error).toBe("주문 수량은 1 이상의 정수여야 합니다.");
+    });
+
+    it("추가 수량 검증 케이스", () => {
+      const { result } = renderHook(() => useStockOrder());
+
+      // 빈 문자열 수량
+      expect(
+        result.current.validateOrder({
+          ...validOrderData,
+          quantity: "",
+        }).isValid
+      ).toBe(false);
+
+      // 공백 수량
+      expect(
+        result.current.validateOrder({
+          ...validOrderData,
+          quantity: " ",
+        }).isValid
+      ).toBe(false);
+
+      // 문자 포함 수량
+      expect(
+        result.current.validateOrder({
+          ...validOrderData,
+          quantity: "10abc",
+        }).isValid
+      ).toBe(false);
+
+      // NaN 수량
+      expect(
+        result.current.validateOrder({
+          ...validOrderData,
+          quantity: "NaN",
+        }).isValid
+      ).toBe(false);
+
+      // Infinity 수량
+      expect(
+        result.current.validateOrder({
+          ...validOrderData,
+          quantity: "Infinity",
+        }).isValid
+      ).toBe(false);
     });
   });
 });

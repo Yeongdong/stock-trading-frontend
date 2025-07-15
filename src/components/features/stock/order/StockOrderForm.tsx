@@ -9,7 +9,7 @@ const StockOrderForm: React.FC<StockOrderFormProps> = ({
   selectedStockCode,
   onOrderSuccess,
 }) => {
-  const { isLoading, submitOrder } = useStockOrder();
+  const { isLoading, submitOrder, validateOrder } = useStockOrder();
 
   const [formData, setFormData] = useState<OrderFormState>({
     stockCode: initialData?.stockCode || "",
@@ -52,6 +52,14 @@ const StockOrderForm: React.FC<StockOrderFormProps> = ({
 
   const handleInputChange = useCallback(
     (field: keyof OrderFormState, value: string) => {
+      // 수량 입력 시 정수만 허용
+      if (field === "quantity") {
+        // 숫자와 빈 문자열만 허용
+        if (value !== "" && !/^\d+$/.test(value)) {
+          return; // 유효하지 않은 입력은 무시
+        }
+      }
+
       setFormData((prev) => ({ ...prev, [field]: value }));
     },
     []
@@ -60,6 +68,13 @@ const StockOrderForm: React.FC<StockOrderFormProps> = ({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+
+      // 클라이언트 사이드 검증
+      const validation = validateOrder(formData);
+      if (!validation.isValid) {
+        // 에러는 useStockOrder 내부에서 처리됨
+        return;
+      }
 
       const success = await submitOrder(formData);
 
@@ -75,98 +90,94 @@ const StockOrderForm: React.FC<StockOrderFormProps> = ({
         onOrderSuccess?.();
       }
     },
-    [formData, submitOrder, selectedStockCode, onOrderSuccess]
+    [formData, submitOrder, validateOrder, selectedStockCode, onOrderSuccess]
   );
 
   return (
-    <div className={styles.stockOrderForm}>
-      <div className={styles.formHeader}>
-        <h2>주식 주문</h2>
+    <form onSubmit={handleSubmit} className={styles.orderForm}>
+      <div className={styles.formGroup}>
+        <label htmlFor="stockCode" className={styles.label}>
+          종목코드
+        </label>
+        <input
+          id="stockCode"
+          type="text"
+          value={formData.stockCode}
+          onChange={(e) => handleInputChange("stockCode", e.target.value)}
+          className={styles.input}
+          placeholder="종목코드 6자리"
+          maxLength={6}
+          pattern="[0-9]{6}"
+          required
+        />
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <fieldset className={styles.fieldset}>
-          <legend>주문 정보</legend>
+      <div className={styles.formGroup}>
+        <label htmlFor="orderType" className={styles.label}>
+          주문구분
+        </label>
+        <select
+          id="orderType"
+          value={formData.orderType}
+          onChange={(e) => handleInputChange("orderType", e.target.value)}
+          className={styles.select}
+          required
+        >
+          {ORDER_TYPES.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="stockCode">종목 코드</label>
-            <input
-              id="stockCode"
-              type="text"
-              value={formData.stockCode}
-              onChange={(e) => handleInputChange("stockCode", e.target.value)}
-              placeholder="6자리 종목 코드 (예: 005930)"
-              maxLength={6}
-              pattern="[0-9]*"
-              className={styles.input}
-              disabled={isLoading}
-              required
-            />
-            <div className={styles.helperText}>
-              삼성전자: 005930, SK하이닉스: 000660
-            </div>
-          </div>
+      <div className={styles.formGroup}>
+        <label htmlFor="quantity" className={styles.label}>
+          주문수량 (주)
+        </label>
+        <input
+          id="quantity"
+          type="text"
+          value={formData.quantity}
+          onChange={(e) => handleInputChange("quantity", e.target.value)}
+          className={styles.input}
+          placeholder="주문수량 (정수만 입력)"
+          pattern="[1-9][0-9]*"
+          inputMode="numeric"
+          required
+        />
+        <small className={styles.helpText}>
+          * 주식은 1주 단위로만 거래 가능합니다
+        </small>
+      </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="orderType">주문 구분</label>
-            <select
-              id="orderType"
-              value={formData.orderType}
-              onChange={(e) => handleInputChange("orderType", e.target.value)}
-              className={styles.select}
-              disabled={isLoading}
-            >
-              {ORDER_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
+      {requiresPrice && (
+        <div className={styles.formGroup}>
+          <label htmlFor="price" className={styles.label}>
+            주문단가 (원)
+          </label>
+          <input
+            id="price"
+            type="number"
+            value={formData.price}
+            onChange={(e) => handleInputChange("price", e.target.value)}
+            className={styles.input}
+            placeholder="주문단가"
+            min="1"
+            step="1"
+            required
+          />
+        </div>
+      )}
 
-          <div className={styles.formGroup}>
-            <label htmlFor="quantity">주문 수량</label>
-            <input
-              id="quantity"
-              type="number"
-              min="1"
-              value={formData.quantity}
-              onChange={(e) => handleInputChange("quantity", e.target.value)}
-              placeholder="주문 수량"
-              className={styles.input}
-              disabled={isLoading}
-              required
-            />
-          </div>
-
-          {requiresPrice && (
-            <div className={styles.formGroup}>
-              <label htmlFor="price">주문 단가</label>
-              <input
-                id="price"
-                type="number"
-                min="1"
-                value={formData.price}
-                onChange={(e) => handleInputChange("price", e.target.value)}
-                placeholder="주문 단가"
-                className={styles.input}
-                disabled={isLoading}
-                required={requiresPrice}
-              />
-              <div className={styles.helperText}>원 단위로 입력해주세요</div>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading || !formData.stockCode || !formData.quantity}
-            className={styles.orderButton}
-          >
-            {isLoading ? "주문 처리 중..." : "주문 실행"}
-          </button>
-        </fieldset>
-      </form>
-    </div>
+      <button
+        type="submit"
+        className={`${styles.submitButton} ${isLoading ? styles.loading : ""}`}
+        disabled={isLoading}
+      >
+        {isLoading ? "주문 처리 중..." : "주문하기"}
+      </button>
+    </form>
   );
 };
 

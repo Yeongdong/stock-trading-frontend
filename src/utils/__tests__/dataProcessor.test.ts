@@ -2,7 +2,6 @@ import { DataProcessor, ProcessedChartData } from "../dataProcessor";
 import { PeriodPriceData } from "@/types/domains/stock/price";
 import { Time } from "lightweight-charts";
 
-// 테스트 데이터 팩토리
 const createPeriodData = (
   overrides: Partial<PeriodPriceData> = {}
 ): PeriodPriceData => ({
@@ -19,6 +18,18 @@ const createPeriodData = (
   splitRate: 1.0,
   ...overrides,
 });
+
+// 유효한 날짜 생성 함수
+const generateValidDate = (index: number): string => {
+  const baseDate = new Date(2024, 0, 1); // 2024년 1월 1일
+  baseDate.setDate(baseDate.getDate() + index);
+
+  const year = baseDate.getFullYear();
+  const month = String(baseDate.getMonth() + 1).padStart(2, "0");
+  const day = String(baseDate.getDate()).padStart(2, "0");
+
+  return `${year}${month}${day}`;
+};
 
 describe("DataProcessor", () => {
   describe("formatChartData", () => {
@@ -215,9 +226,10 @@ describe("DataProcessor", () => {
     });
 
     it("대용량 데이터를 빠르게 처리한다", () => {
+      // 올바른 날짜 형식으로 1000개 데이터 생성
       const largeDataset = Array.from({ length: 1000 }, (_, i) =>
         createPeriodData({
-          date: `2024${String(i + 1).padStart(4, "0")}`,
+          date: generateValidDate(i), // 순차적으로 유효한 날짜 생성
         })
       );
 

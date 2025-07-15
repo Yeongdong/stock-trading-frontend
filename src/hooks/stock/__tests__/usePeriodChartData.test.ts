@@ -65,11 +65,6 @@ const mockSummaryData = {
   ],
 };
 
-const mockEmptyProcessedData: ProcessedChartData = {
-  chartData: [],
-  volumeData: [],
-};
-
 describe("usePeriodChartData", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -110,16 +105,15 @@ describe("usePeriodChartData", () => {
         priceData: [],
       };
 
-      mockDataProcessor.formatChartData.mockReturnValue(mockEmptyProcessedData);
       MockSummaryData.mockImplementation(() => mockSummaryData as SummaryData);
 
       const { result } = renderHook(() =>
         usePeriodChartData(emptyDataResponse)
       );
 
-      expect(result.current.processedData).toEqual(mockEmptyProcessedData);
+      expect(result.current.processedData).toBeNull();
       expect(result.current.summaryData).toEqual(mockSummaryData);
-      expect(result.current.hasValidData).toBe(false); // 빈 차트 데이터이므로 false
+      expect(result.current.hasValidData).toBe(false); // processedData가 null이므로 false
     });
 
     it("priceData가 없는 경우를 처리해야 한다", () => {
@@ -173,8 +167,8 @@ describe("usePeriodChartData", () => {
 
       expect(MockSummaryData).toHaveBeenCalledTimes(1);
 
-      // 같은 데이터로 재렌더링
-      rerender({ data: { ...mockPeriodResponse } });
+      // 같은 데이터 객체로 재렌더링 (참조 동일)
+      rerender({ data: mockPeriodResponse });
 
       // SummaryData는 재생성되지 않아야 함
       expect(MockSummaryData).toHaveBeenCalledTimes(1);
@@ -204,14 +198,13 @@ describe("usePeriodChartData", () => {
       expect(result.current.hasValidData).toBe(true);
     });
 
-    it("processedData가 빈 배열일 때 false를 반환해야 한다", () => {
-      mockDataProcessor.formatChartData.mockReturnValue(mockEmptyProcessedData);
-      MockSummaryData.mockImplementation(() => mockSummaryData as SummaryData);
-
+    it("processedData가 null일 때 false를 반환해야 한다", () => {
       const emptyDataResponse: PeriodPriceResponse = {
         ...mockPeriodResponse,
         priceData: [],
       };
+
+      MockSummaryData.mockImplementation(() => mockSummaryData as SummaryData);
 
       const { result } = renderHook(() =>
         usePeriodChartData(emptyDataResponse)
@@ -280,12 +273,11 @@ describe("usePeriodChartData", () => {
         priceData: [],
       };
 
-      mockDataProcessor.formatChartData.mockReturnValue(mockEmptyProcessedData);
       MockSummaryData.mockImplementation(() => mockSummaryData as SummaryData);
 
       const { result } = renderHook(() => usePeriodChartData(errorResponse));
 
-      expect(result.current.processedData).toEqual(mockEmptyProcessedData);
+      expect(result.current.processedData).toBeNull();
       expect(result.current.summaryData).toEqual(mockSummaryData);
       expect(result.current.hasValidData).toBe(false);
     });

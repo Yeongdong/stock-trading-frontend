@@ -6,4 +6,6 @@ export {
   isValidStockCode,
   isNumericString,
   isPositiveNumber,
+  isPositiveInteger,
+  isValidStockQuantity,
 } from "./validation";

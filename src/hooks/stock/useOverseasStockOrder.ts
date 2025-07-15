@@ -6,6 +6,7 @@ import {
   OverseasOrderFormData,
   OverseasOrderResponse,
 } from "@/types/domains/stock/overseas-order";
+import { isValidStockQuantity } from "@/utils/validation";
 
 interface UseOverseasStockOrderResult {
   isLoading: boolean;
@@ -21,39 +22,36 @@ export const useOverseasStockOrder = (): UseOverseasStockOrderResult => {
   const { addError } = useError();
 
   const validateOrder = useCallback((orderData: OverseasOrderFormData) => {
-    if (!orderData.pdno || orderData.pdno.trim().length === 0) {
+    // 종목 코드 검증
+    if (!orderData.pdno || orderData.pdno.trim().length === 0)
       return {
         isValid: false,
         error: "종목코드는 필수입니다.",
       };
-    }
 
-    const quantity = parseInt(orderData.ordQty);
-    if (!orderData.ordQty || quantity <= 0) {
+    // 수량 검증 - 정수만 허용
+    if (!isValidStockQuantity(orderData.ordQty))
       return {
         isValid: false,
-        error: "주문수량은 1 이상이어야 합니다.",
+        error: "주문 수량은 1 이상의 정수여야 합니다.",
       };
-    }
 
     // 지정가인 경우 가격 검증
     if (orderData.ordDvsn === "00") {
       const price = parseFloat(orderData.ordUnpr);
-      if (!orderData.ordUnpr || price <= 0) {
+      if (!orderData.ordUnpr || price <= 0)
         return {
           isValid: false,
           error: "지정가 주문시 가격은 필수입니다.",
         };
-      }
     }
 
     // 예약주문은 지정가만 가능
-    if (orderData.orderMode === "scheduled" && orderData.ordDvsn !== "00") {
+    if (orderData.orderMode === "scheduled" && orderData.ordDvsn !== "00")
       return {
         isValid: false,
         error: "예약주문은 지정가만 가능합니다.",
       };
-    }
 
     return { isValid: true };
   }, []);

@@ -15,6 +15,16 @@ interface OverseasStockOrderFormProps {
   onOrderSuccess?: () => void;
 }
 
+// 시장별 거래소 코드 매핑
+function getExchangeCodeFromMarket(market?: string): string {
+  const marketMap: Record<string, string> = {
+    NASDAQ: "NASD",
+    NYSE: "NYSE",
+    AMEX: "AMEX",
+  };
+  return marketMap[market || ""] || "NASD";
+}
+
 const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
   selectedStockCode,
   initialStockCode,
@@ -22,7 +32,7 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
   initialPrice,
   onOrderSuccess,
 }) => {
-  const { isLoading, submitOrder } = useOverseasStockOrder();
+  const { isLoading, submitOrder, validateOrder } = useOverseasStockOrder();
 
   const [formData, setFormData] = useState<OverseasOrderFormData>({
     pdno: selectedStockCode || initialStockCode || "",
@@ -40,13 +50,12 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
   );
   const requiresPrice = selectedOrderDivision?.requiresPrice ?? true;
 
-  // 종목코드 또는 현재가 변경 시 처리
+  // 종목코드 또는 현재가 변경시 처리
   useEffect(() => {
     if (selectedStockCode) {
       setFormData((prev) => ({
         ...prev,
         pdno: selectedStockCode,
-        // 종목 선택 시 현재가가 있으면 자동으로 주문 단가에 설정
         ordUnpr:
           initialPrice && initialPrice > 0
             ? initialPrice.toFixed(2)
@@ -56,7 +65,6 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
       setFormData((prev) => ({
         ...prev,
         pdno: initialStockCode,
-        // 초기 종목 설정 시에도 현재가 자동 설정
         ordUnpr:
           initialPrice && initialPrice > 0
             ? initialPrice.toFixed(2)
@@ -77,6 +85,12 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
 
   const handleInputChange = useCallback(
     (field: keyof OverseasOrderFormData, value: string) => {
+      // 수량 입력 시 정수만 허용
+      if (field === "ordQty")
+        if (value !== "" && !/^\d+$/.test(value))
+          // 숫자와 빈 문자열만 허용
+          return; // 유효하지 않은 입력은 무시
+
       setFormData((prev) => ({ ...prev, [field]: value }));
     },
     []
@@ -85,6 +99,10 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+
+      // 클라이언트 사이드 검증
+      const validation = validateOrder(formData);
+      if (!validation.isValid) return;
 
       const success = await submitOrder(formData);
 
@@ -99,165 +117,168 @@ const OverseasStockOrderForm: React.FC<OverseasStockOrderFormProps> = ({
         onOrderSuccess?.();
       }
     },
-    [formData, submitOrder, onOrderSuccess, initialPrice]
+    [formData, submitOrder, validateOrder, initialPrice, onOrderSuccess]
   );
-
-  const getCurrencySymbol = (exchangeCode: string): string => {
-    switch (exchangeCode) {
-      case "NASD":
-      case "NYSE":
-      case "AMEX":
-        return "USD";
-      case "TKSE":
-        return "JPY";
-      case "LNSE":
-        return "GBP";
-      case "SEHK":
-        return "HKD";
-      default:
-        return "USD";
-    }
-  };
-
-  const getStockCodePlaceholder = (): string => {
-    switch (formData.ovsExcgCd) {
-      case "NASD":
-      case "NYSE":
-        return "해외 종목 코드 (예: AAPL, TSLA)";
-      case "TKSE":
-        return "일본 종목 코드 (예: 7203, 6758)";
-      case "LNSE":
-        return "영국 종목 코드 (예: LLOY, BP)";
-      case "SEHK":
-        return "홍콩 종목 코드 (예: 0700, 0941)";
-      default:
-        return "종목 코드를 입력하세요";
-    }
-  };
 
   return (
-    <>
-      <div className={styles.formHeader}>
-        <h2>해외 주식 주문</h2>
+    <form onSubmit={handleSubmit} className={styles.orderForm}>
+      <div className={styles.formGroup}>
+        <label htmlFor="pdno" className={styles.label}>
+          종목코드 (Symbol)
+        </label>
+        <input
+          id="pdno"
+          type="text"
+          value={formData.pdno}
+          onChange={(e) => handleInputChange("pdno", e.target.value)}
+          className={styles.input}
+          placeholder="예: AAPL, TSLA"
+          required
+        />
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <fieldset className={styles.fieldset}>
-          <legend>주문 정보</legend>
+      <div className={styles.formGroup}>
+        <label htmlFor="ovsExcgCd" className={styles.label}>
+          거래소
+        </label>
+        <select
+          id="ovsExcgCd"
+          value={formData.ovsExcgCd}
+          onChange={(e) => handleInputChange("ovsExcgCd", e.target.value)}
+          className={styles.select}
+          required
+        >
+          <option value="NASD">나스닥 (NASDAQ)</option>
+          <option value="NYSE">뉴욕증권거래소 (NYSE)</option>
+          <option value="AMEX">아멕스 (AMEX)</option>
+        </select>
+      </div>
 
-          {/* 종목코드 */}
-          <div className={styles.formGroup}>
-            <label htmlFor="pdno">종목 코드</label>
-            <input
-              id="pdno"
-              type="text"
-              value={formData.pdno}
-              onChange={(e) =>
-                handleInputChange("pdno", e.target.value.toUpperCase())
-              }
-              placeholder={getStockCodePlaceholder()}
-              className={styles.input}
-              disabled={isLoading}
-              required
-            />
-          </div>
+      <div className={styles.formGroup}>
+        <label htmlFor="ordDvsn" className={styles.label}>
+          주문구분
+        </label>
+        <select
+          id="ordDvsn"
+          value={formData.ordDvsn}
+          onChange={(e) => handleInputChange("ordDvsn", e.target.value)}
+          className={styles.select}
+          required
+        >
+          {OVERSEAS_ORDER_DIVISIONS.map((division) => (
+            <option key={division.value} value={division.value}>
+              {division.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          {/* 주문수량 */}
-          <div className={styles.formGroup}>
-            <label htmlFor="ordQty">주문 수량</label>
-            <input
-              id="ordQty"
-              type="number"
-              min="1"
-              value={formData.ordQty}
-              onChange={(e) => handleInputChange("ordQty", e.target.value)}
-              placeholder="주문 수량"
-              className={styles.input}
-              disabled={isLoading}
-              required
-            />
-          </div>
+      <div className={styles.formGroup}>
+        <label htmlFor="ordQty" className={styles.label}>
+          주문수량 (Shares)
+        </label>
+        <input
+          id="ordQty"
+          type="text"
+          value={formData.ordQty}
+          onChange={(e) => handleInputChange("ordQty", e.target.value)}
+          className={styles.input}
+          placeholder="주문수량 (정수만 입력)"
+          pattern="[1-9][0-9]*"
+          inputMode="numeric"
+          required
+        />
+        <small className={styles.helpText}>
+          * 해외 주식도 1주 단위로만 거래 가능합니다
+        </small>
+      </div>
 
-          {/* 주문단가 */}
-          {requiresPrice && (
-            <div className={styles.formGroup}>
-              <div className={styles.priceInputHeader}>
-                <label htmlFor="ordUnpr">주문 단가</label>
-              </div>
-              <input
-                id="ordUnpr"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={formData.ordUnpr}
-                onChange={(e) => handleInputChange("ordUnpr", e.target.value)}
-                placeholder="주문 단가"
-                className={styles.input}
-                disabled={isLoading}
-                required={requiresPrice}
-              />
-              <div className={styles.helperText}>
-                {getCurrencySymbol(formData.ovsExcgCd)} 단위로 입력해주세요
-                {initialPrice && initialPrice > 0 && (
-                  <span className={styles.currentPriceInfo}>
-                    (현재가: {getCurrencySymbol(formData.ovsExcgCd)}
-                    {initialPrice.toFixed(2)})
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
+      {requiresPrice && (
+        <div className={styles.formGroup}>
+          <label htmlFor="ordUnpr" className={styles.label}>
+            주문단가 (USD)
+          </label>
+          <input
+            id="ordUnpr"
+            type="number"
+            value={formData.ordUnpr}
+            onChange={(e) => handleInputChange("ordUnpr", e.target.value)}
+            className={styles.input}
+            placeholder="주문단가"
+            min="0.01"
+            step="0.01"
+            required
+          />
+        </div>
+      )}
 
-          {/* 주문조건 */}
-          <div className={styles.formGroup}>
-            <label htmlFor="ordCndt">주문 조건</label>
-            <select
-              id="ordCndt"
-              value={formData.ordCndt}
-              onChange={(e) =>
-                handleInputChange("ordCndt", e.target.value as "DAY" | "FTC")
-              }
-              className={styles.select}
-              disabled={isLoading}
-            >
-              {OVERSEAS_ORDER_CONDITIONS.map((condition) => (
-                <option key={condition.value} value={condition.value}>
-                  {condition.label}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className={styles.formGroup}>
+        <label htmlFor="ordCndt" className={styles.label}>
+          주문조건
+        </label>
+        <select
+          id="ordCndt"
+          value={formData.ordCndt}
+          onChange={(e) => handleInputChange("ordCndt", e.target.value)}
+          className={styles.select}
+          required
+        >
+          {OVERSEAS_ORDER_CONDITIONS.map((condition) => (
+            <option key={condition.value} value={condition.value}>
+              {condition.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          <button
-            type="submit"
-            disabled={
-              isLoading ||
-              !formData.pdno ||
-              !formData.ordQty ||
-              (requiresPrice && !formData.ordUnpr)
+      <div className={styles.formGroup}>
+        <label htmlFor="orderMode" className={styles.label}>
+          주문모드
+        </label>
+        <select
+          id="orderMode"
+          value={formData.orderMode}
+          onChange={(e) =>
+            handleInputChange(
+              "orderMode",
+              e.target.value as "immediate" | "scheduled"
+            )
+          }
+          className={styles.select}
+          required
+        >
+          <option value="immediate">즉시주문</option>
+          <option value="scheduled">예약주문</option>
+        </select>
+      </div>
+
+      {formData.orderMode === "scheduled" && (
+        <div className={styles.formGroup}>
+          <label htmlFor="scheduledTime" className={styles.label}>
+            예약시간
+          </label>
+          <input
+            id="scheduledTime"
+            type="datetime-local"
+            value={formData.scheduledExecutionTime || ""}
+            onChange={(e) =>
+              handleInputChange("scheduledExecutionTime", e.target.value)
             }
-            className={styles.orderButton}
-          >
-            {isLoading ? "주문 처리 중..." : "주문하기"}
-          </button>
-        </fieldset>
-      </form>
-    </>
+            className={styles.input}
+            required
+          />
+        </div>
+      )}
+
+      <button
+        type="submit"
+        className={`${styles.submitButton} ${isLoading ? styles.loading : ""}`}
+        disabled={isLoading}
+      >
+        {isLoading ? "주문 처리 중..." : "주문하기"}
+      </button>
+    </form>
   );
 };
-
-function getExchangeCodeFromMarket(market?: string): string | undefined {
-  if (!market) return undefined;
-
-  const marketToCode: Record<string, string> = {
-    nasdaq: "NASD",
-    nyse: "NYSE",
-    tokyo: "TKSE",
-    london: "LNSE",
-    hongkong: "SEHK",
-  };
-
-  return marketToCode[market.toLowerCase()];
-}
 
 export default OverseasStockOrderForm;

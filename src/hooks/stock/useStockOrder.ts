@@ -7,23 +7,25 @@ import {
   OrderFormData,
   UseStockOrderResult,
 } from "@/types/domains/stock/hooks";
+import { isValidStockQuantity } from "@/utils/validation";
 
 export const useStockOrder = (): UseStockOrderResult => {
   const [isLoading, setIsLoading] = useState(false);
   const { addError } = useError();
 
   const validateOrder = useCallback((orderData: OrderFormData) => {
+    // 종목 코드 검증
     if (!orderData.stockCode || orderData.stockCode.trim().length !== 6)
       return {
         isValid: false,
         error: ERROR_MESSAGES.ORDER.INVALID_SYMBOL,
       };
 
-    const quantity = parseInt(orderData.quantity);
-    if (!orderData.quantity || quantity <= 0)
+    // 수량 검증 - 정수만 허용
+    if (!isValidStockQuantity(orderData.quantity))
       return {
         isValid: false,
-        error: ERROR_MESSAGES.ORDER.INVALID_QUANTITY,
+        error: "주문 수량은 1 이상의 정수여야 합니다.",
       };
 
     // 지정가인 경우 가격 검증
