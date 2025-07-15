@@ -1,4 +1,18 @@
 /**
+ * 숫자를 천단위 콤마로 포맷팅
+ */
+export const formatNumber = (value: string | number): string => {
+  const numValue =
+    typeof value === "string"
+      ? value === "" || isNaN(Number(value))
+        ? 0
+        : Number(value)
+      : value;
+
+  return new Intl.NumberFormat("ko-KR").format(numValue);
+};
+
+/**
  * 안전한 통화별 포맷팅 함수
  */
 export const formatCurrency = (
@@ -24,16 +38,18 @@ export const formatCurrency = (
     SGD: "S$",
   };
 
-  // 통화별 소수점 설정
-  const decimalPlaces = currency === "JPY" || currency === "KRW" ? 0 : 2;
-
-  // 안전한 숫자 포맷팅
-  const formattedNumber =
-    decimalPlaces === 0
-      ? formatNumber(Math.round(numValue))
-      : formatNumber(Number(numValue.toFixed(decimalPlaces)));
-
   const symbol = currencySymbols[currency] || currency;
+
+  // 정수 통화 (KRW, JPY)
+  if (currency === "JPY" || currency === "KRW") {
+    return `${symbol}${formatNumber(Math.round(numValue))}`;
+  }
+
+  // 소수점 통화 (USD, EUR 등) - 항상 2자리 표시
+  const formattedNumber = new Intl.NumberFormat("ko-KR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numValue);
 
   return `${symbol}${formattedNumber}`;
 };
@@ -43,20 +59,6 @@ export const formatCurrency = (
  */
 export const formatKRW = (value: string | number): string => {
   return formatCurrency(value, "KRW");
-};
-
-/**
- * 숫자를 천단위 콤마로 포맷팅
- */
-export const formatNumber = (value: string | number): string => {
-  const numValue =
-    typeof value === "string"
-      ? value === "" || isNaN(Number(value))
-        ? 0
-        : Number(value)
-      : value;
-
-  return new Intl.NumberFormat("ko-KR").format(numValue);
 };
 
 /**
@@ -71,7 +73,7 @@ export const formatPercent = (
 };
 
 /**
- * 환율 포맷팅
+ * 환율 포맷팅 (정확한 소수점 표시)
  */
 export const formatExchangeRate = (
   rate: string | number,
@@ -85,6 +87,7 @@ export const formatExchangeRate = (
         : Number(rate)
       : rate;
 
+  // 환율은 정확한 값 표시 (소수점 보존)
   return `1 ${fromCurrency} = ${formatNumber(numRate)} ${toCurrency}`;
 };
 

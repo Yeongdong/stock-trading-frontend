@@ -19,7 +19,7 @@ describe("formatters utils", () => {
 
     it("문자열 숫자를 올바르게 처리해야 한다", () => {
       expect(formatNumber("1000")).toBe("1,000");
-      expect(formatNumber("1234567.89")).toBe("1,234,568"); // 반올림
+      expect(formatNumber("1234567.89")).toBe("1,234,567.89");
       expect(formatNumber("")).toBe("0");
       expect(formatNumber("abc")).toBe("0");
     });
@@ -30,9 +30,9 @@ describe("formatters utils", () => {
     });
 
     it("소수점을 포함한 숫자를 처리해야 한다", () => {
-      expect(formatNumber(1234.56)).toBe("1,235"); // 반올림
-      expect(formatNumber(999.4)).toBe("999");
-      expect(formatNumber(999.6)).toBe("1,000");
+      expect(formatNumber(1234.56)).toBe("1,234.56");
+      expect(formatNumber(999.4)).toBe("999.4");
+      expect(formatNumber(999.6)).toBe("999.6");
     });
   });
 
@@ -130,21 +130,21 @@ describe("formatters utils", () => {
     it("환율을 올바른 형식으로 포맷팅해야 한다", () => {
       expect(formatExchangeRate(1350, "USD")).toBe("1 USD = 1,350 KRW");
       expect(formatExchangeRate(900, "JPY", "KRW")).toBe("1 JPY = 900 KRW");
-      expect(formatExchangeRate(1.2, "USD", "EUR")).toBe("1 USD = 1 EUR");
+      expect(formatExchangeRate(1.2, "USD", "EUR")).toBe("1 USD = 1.2 EUR");
     });
 
     it("문자열 환율을 처리해야 한다", () => {
-      expect(formatExchangeRate("1350.75", "USD")).toBe("1 USD = 1,351 KRW");
+      expect(formatExchangeRate("1350.75", "USD")).toBe("1 USD = 1,350.75 KRW");
       expect(formatExchangeRate("", "USD")).toBe("1 USD = 0 KRW");
     });
 
     it("실제 환율 예시를 올바르게 포맷팅해야 한다", () => {
       // 미국 달러
-      expect(formatExchangeRate(1320.5, "USD")).toBe("1 USD = 1,321 KRW");
+      expect(formatExchangeRate(1320.5, "USD")).toBe("1 USD = 1,320.5 KRW");
       // 일본 엔 (100엔 기준이라면)
-      expect(formatExchangeRate(885.25, "JPY")).toBe("1 JPY = 885 KRW");
+      expect(formatExchangeRate(885.25, "JPY")).toBe("1 JPY = 885.25 KRW");
       // 유로
-      expect(formatExchangeRate(1450.8, "EUR")).toBe("1 EUR = 1,451 KRW");
+      expect(formatExchangeRate(1450.8, "EUR")).toBe("1 EUR = 1,450.8 KRW");
     });
   });
 

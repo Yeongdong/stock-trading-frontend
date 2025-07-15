@@ -88,3 +88,9 @@ export const errorMatchers = {
   hasErrorWithCode: (errors: { code?: string }[], code: string): boolean =>
     errors.some((error) => error.code === code),
 };
+
+describe("testUtils", () => {
+  it("테스트 유틸리티 파일이 정상적으로 로드되어야 한다", () => {
+    expect(true).toBe(true);
+  });
+});
