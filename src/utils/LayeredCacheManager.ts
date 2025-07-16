@@ -1,7 +1,6 @@
 /**
- * 계층적 캐시 매니저 (메모리 + localStorage)
+ * 최적화된 계층적 캐시 매니저 (메모리 + localStorage)
  */
-
 import {
   ICacheManager,
   CacheConfig,
@@ -14,18 +13,17 @@ import {
 } from "@/types/domains/cache";
 
 export class LayeredCacheManager<T> implements ICacheManager<T> {
-  private memoryCache = new Map<string, MemoryCacheEntry<T>>();
+  private readonly memoryCache = new Map<string, MemoryCacheEntry<T>>();
+  private readonly eventListeners: Array<(event: CacheEvent<T>) => void> = [];
   private stats: CacheStats;
-  private eventListeners: Array<(event: CacheEvent<T>) => void> = [];
+  private cleanupTimer?: NodeJS.Timeout;
 
-  constructor(private config: CacheConfig) {
+  constructor(private readonly config: CacheConfig) {
     this.stats = this.initializeStats();
     this.setupPeriodicCleanup();
   }
 
-  /**
-   * 캐시에서 데이터 조회
-   */
+  // 공개 메서드
   get(key: string): CacheHitResult<T> {
     const normalizedKey = this.normalizeKey(key);
 
@@ -37,56 +35,45 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
       return memoryResult;
     }
 
-    // localStorage 확인
+    // 메모리에서 미스 - 메모리 미스 카운트 증가
+    this.stats.memory.missCount++;
+
+    // localStorage 확인 및 메모리로 승격
     const storageResult = this.getFromStorage(normalizedKey);
     if (storageResult.isHit) {
-      // 스토리지에서 찾은 데이터를 메모리에도 캐시
-      this.setToMemory(normalizedKey, storageResult.data!);
+      this.promoteToMemory(normalizedKey, storageResult.data!);
       this.emitEvent("hit", normalizedKey, "storage", storageResult.data);
       return storageResult;
     }
 
-    // 캐시 미스
-    this.stats.memory.missCount++;
+    // 스토리지에서도 미스 - 스토리지 미스 카운트 증가
     this.stats.storage.missCount++;
     this.emitEvent("miss", normalizedKey, "memory");
-
     return { isHit: false, source: "miss" };
   }
 
-  /**
-   * 캐시에 데이터 저장
-   */
   set(key: string, data: T): void {
     const normalizedKey = this.normalizeKey(key);
 
-    // 메모리와 스토리지 둘 다 저장
+    // 동시에 메모리와 스토리지에 저장
     this.setToMemory(normalizedKey, data);
     this.setToStorage(normalizedKey, data);
-
     this.emitEvent("set", normalizedKey, "memory", data);
   }
 
-  /**
-   * 특정 키의 캐시 삭제
-   */
   delete(key: string): boolean {
     const normalizedKey = this.normalizeKey(key);
-
     const memoryDeleted = this.memoryCache.delete(normalizedKey);
     const storageDeleted = this.deleteFromStorage(normalizedKey);
 
     if (memoryDeleted || storageDeleted) {
+      this.updateMemorySize();
       this.emitEvent("delete", normalizedKey, "memory");
       return true;
     }
-
     return false;
   }
 
-  /**
-   * 모든 캐시 삭제
-   */
   clear(): void {
     this.memoryCache.clear();
     this.clearStorage();
@@ -94,31 +81,11 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
     this.emitEvent("clear", "", "memory");
   }
 
-  /**
-   * 만료된 캐시 정리
-   */
   cleanup(): void {
-    const now = Date.now();
-    let evictedCount = 0;
-
-    // 메모리 캐시 정리
-    const memoryEntries = Array.from(this.memoryCache.entries());
-    for (const [key, entry] of memoryEntries) {
-      if (now > entry.expiryTime) {
-        this.memoryCache.delete(key);
-        evictedCount++;
-      }
-    }
-
-    // 스토리지 캐시 정리
+    this.cleanupExpiredMemoryEntries();
     this.cleanupStorage();
-
-    this.stats.memory.evictionCount += evictedCount;
   }
 
-  /**
-   * 캐시 통계 조회
-   */
   getStats(): CacheStats {
     return {
       ...this.stats,
@@ -130,46 +97,38 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
     };
   }
 
-  /**
-   * 캐시 설정 조회
-   */
   getConfig(): CacheConfig {
     return { ...this.config };
   }
 
-  /**
-   * 이벤트 리스너 등록
-   */
   addEventListener(listener: (event: CacheEvent<T>) => void): void {
     this.eventListeners.push(listener);
   }
 
-  /**
-   * 이벤트 리스너 제거
-   */
   removeEventListener(listener: (event: CacheEvent<T>) => void): void {
     const index = this.eventListeners.indexOf(listener);
-    if (index > -1) {
-      this.eventListeners.splice(index, 1);
+    if (index > -1) this.eventListeners.splice(index, 1);
+  }
+
+  destroy(): void {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = undefined;
     }
+    this.eventListeners.length = 0;
+    this.memoryCache.clear();
+    this.updateMemorySize();
   }
 
-  // Private Methods
-
-  private normalizeKey(key: string): string {
-    return key.toLowerCase().trim();
-  }
-
+  // 메모리 캐시 관리
   private getFromMemory(key: string): CacheHitResult<T> {
     const entry = this.memoryCache.get(key);
+    if (!entry) return { isHit: false, source: "miss" };
 
-    if (!entry) {
-      return { isHit: false, source: "miss" };
-    }
-
-    if (Date.now() > entry.expiryTime) {
+    if (this.isExpired(entry.expiryTime)) {
       this.memoryCache.delete(key);
       this.stats.memory.evictionCount++;
+      this.updateMemorySize();
       return { isHit: false, source: "miss" };
     }
 
@@ -187,21 +146,17 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
   }
 
   private setToMemory(key: string, data: T): void {
-    // 메모리 크기 제한 확인
-    if (this.memoryCache.size >= this.config.memoryMaxSize) {
+    if (this.memoryCache.size >= this.config.memoryMaxSize)
       this.evictLRUFromMemory();
-    }
 
-    const entry: MemoryCacheEntry<T> = {
-      data,
-      timestamp: Date.now(),
-      expiryTime: Date.now() + this.config.ttl,
-      accessCount: 1,
-      lastAccessed: Date.now(),
-    };
+    this.memoryCache.set(key, this.createMemoryEntry(data));
+    this.updateMemorySize();
+  }
 
-    this.memoryCache.set(key, entry);
-    this.stats.memory.size = this.memoryCache.size;
+  private promoteToMemory(key: string, data: T): void {
+    // storage에서 메모리로 승격 시에는 크기 제한 무시
+    this.memoryCache.set(key, this.createMemoryEntry(data));
+    this.updateMemorySize();
   }
 
   private updateMemoryAccess(key: string): void {
@@ -213,46 +168,60 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
   }
 
   private evictLRUFromMemory(): void {
+    const oldestEntry = this.findLRUEntry();
+    if (oldestEntry) {
+      this.memoryCache.delete(oldestEntry.key);
+      this.stats.memory.evictionCount++;
+      this.emitEvent("evict", oldestEntry.key, "memory");
+    }
+  }
+
+  private findLRUEntry(): { key: string; lastAccessed: number } | null {
     let oldestKey = "";
     let oldestTime = Date.now();
 
-    const memoryEntries = Array.from(this.memoryCache.entries());
-    for (const [key, entry] of memoryEntries) {
+    const entries = Array.from(this.memoryCache.entries());
+    for (const [key, entry] of entries) {
       if (entry.lastAccessed < oldestTime) {
         oldestTime = entry.lastAccessed;
         oldestKey = key;
       }
     }
 
-    if (oldestKey) {
-      this.memoryCache.delete(oldestKey);
-      this.stats.memory.evictionCount++;
-      this.emitEvent("evict", oldestKey, "memory");
-    }
+    return oldestKey ? { key: oldestKey, lastAccessed: oldestTime } : null;
   }
 
-  private getFromStorage(key: string): CacheHitResult<T> {
-    if (!this.isStorageAvailable()) {
-      return { isHit: false, source: "miss" };
+  private cleanupExpiredMemoryEntries(): void {
+    const now = Date.now();
+    let evictedCount = 0;
+
+    const entries = Array.from(this.memoryCache.entries());
+    for (const [key, entry] of entries) {
+      if (this.isExpired(entry.expiryTime, now)) {
+        this.memoryCache.delete(key);
+        evictedCount++;
+      }
     }
+
+    this.stats.memory.evictionCount += evictedCount;
+    this.updateMemorySize();
+  }
+
+  // localStorage 관리
+  private getFromStorage(key: string): CacheHitResult<T> {
+    if (!this.isStorageAvailable()) return { isHit: false, source: "miss" };
 
     const storageKey = this.getStorageKey(key);
     const stored = localStorage.getItem(storageKey);
-
-    if (!stored) {
-      return { isHit: false, source: "miss" };
-    }
+    if (!stored) return { isHit: false, source: "miss" };
 
     const entry: StorageCacheEntry<T> = JSON.parse(stored);
 
-    // 버전 확인
-    if (entry.version !== this.config.version) {
-      localStorage.removeItem(storageKey);
-      return { isHit: false, source: "miss" };
-    }
-
-    // 만료 확인
-    if (Date.now() > entry.expiryTime) {
+    // 버전 및 만료 검사
+    if (
+      entry.version !== this.config.version ||
+      this.isExpired(entry.expiryTime)
+    ) {
       localStorage.removeItem(storageKey);
       this.stats.storage.evictionCount++;
       return { isHit: false, source: "miss" };
@@ -271,13 +240,9 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
   }
 
   private setToStorage(key: string, data: T): void {
-    if (!this.isStorageAvailable()) {
-      return;
-    }
+    if (!this.isStorageAvailable()) return;
 
-    // 스토리지 크기 제한 확인
     this.manageStorageSize();
-
     const storageKey = this.getStorageKey(key);
     const entry: StorageCacheEntry<T> = {
       data,
@@ -287,13 +252,11 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
     };
 
     localStorage.setItem(storageKey, JSON.stringify(entry));
-    this.updateStorageStats();
+    this.updateStorageSize();
   }
 
   private deleteFromStorage(key: string): boolean {
-    if (!this.isStorageAvailable()) {
-      return false;
-    }
+    if (!this.isStorageAvailable()) return false;
 
     const storageKey = this.getStorageKey(key);
     const existed = localStorage.getItem(storageKey) !== null;
@@ -302,73 +265,94 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
   }
 
   private clearStorage(): void {
-    if (!this.isStorageAvailable()) {
-      return;
-    }
+    if (!this.isStorageAvailable()) return;
 
-    const keys = Object.keys(localStorage);
-    const prefix = this.config.storagePrefix;
-
-    keys.forEach((key) => {
-      if (key.startsWith(prefix)) {
-        localStorage.removeItem(key);
-      }
-    });
+    const keysToRemove = Object.keys(localStorage).filter((key) =>
+      key.startsWith(this.config.storagePrefix)
+    );
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
   }
 
   private cleanupStorage(): void {
-    if (!this.isStorageAvailable()) {
-      return;
-    }
+    if (!this.isStorageAvailable()) return;
 
-    const keys = Object.keys(localStorage);
-    const prefix = this.config.storagePrefix;
     const now = Date.now();
+    const prefix = this.config.storagePrefix;
+    let cleanedCount = 0;
 
-    keys.forEach((key) => {
+    for (const key of Object.keys(localStorage)) {
       if (key.startsWith(prefix)) {
         const stored = localStorage.getItem(key);
         if (stored) {
           const entry: StorageCacheEntry<T> = JSON.parse(stored);
-          if (now > entry.expiryTime || entry.version !== this.config.version) {
+          if (
+            this.isExpired(entry.expiryTime, now) ||
+            entry.version !== this.config.version
+          ) {
             localStorage.removeItem(key);
-            this.stats.storage.evictionCount++;
+            cleanedCount++;
           }
         }
       }
-    });
+    }
+
+    this.stats.storage.evictionCount += cleanedCount;
+    this.updateStorageSize();
   }
 
   private manageStorageSize(): void {
-    const currentSize = this.getStorageSize();
-    if (currentSize >= this.config.storageMaxSize) {
+    if (this.getStorageSize() >= this.config.storageMaxSize) {
       this.cleanupStorage();
     }
   }
 
-  private getStorageSize(): number {
-    if (!this.isStorageAvailable()) {
-      return 0;
-    }
-
-    const keys = Object.keys(localStorage);
-    const prefix = this.config.storagePrefix;
-    return keys.filter((key) => key.startsWith(prefix)).length;
+  private normalizeKey(key: string): string {
+    return key.toLowerCase().trim();
   }
 
-  private updateStorageStats(): void {
-    this.stats.storage.size = this.getStorageSize();
+  private isExpired(expiryTime: number, now = Date.now()): boolean {
+    return now > expiryTime;
+  }
+
+  private createMemoryEntry(data: T): MemoryCacheEntry<T> {
+    const now = Date.now();
+    return {
+      data,
+      timestamp: now,
+      expiryTime: now + this.config.ttl,
+      accessCount: 1,
+      lastAccessed: now,
+    };
   }
 
   private getStorageKey(key: string): string {
     return `${this.config.storagePrefix}${key}`;
   }
 
+  private getStorageSize(): number {
+    if (!this.isStorageAvailable()) return 0;
+    return Object.keys(localStorage).filter((key) =>
+      key.startsWith(this.config.storagePrefix)
+    ).length;
+  }
+
+  private updateMemorySize(): void {
+    this.stats.memory.size = this.memoryCache.size;
+  }
+
+  private updateStorageSize(): void {
+    this.stats.storage.size = this.getStorageSize();
+  }
+
   private isStorageAvailable(): boolean {
-    const testKey = "__cache_test__";
-    localStorage.setItem(testKey, "test");
-    localStorage.removeItem(testKey);
-    return true;
+    try {
+      const testKey = "__cache_test__";
+      localStorage.setItem(testKey, "test");
+      localStorage.removeItem(testKey);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private initializeStats(): CacheStats {
@@ -397,17 +381,14 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
 
   private calculateHitRate(): number {
     const totalRequests =
-      this.stats.overall.totalHits + this.stats.overall.totalMisses;
+      this.stats.memory.hitCount + this.stats.memory.missCount;
     return totalRequests > 0
-      ? (this.stats.overall.totalHits / totalRequests) * 100
+      ? (this.stats.memory.hitCount / totalRequests) * 100
       : 0;
   }
 
   private setupPeriodicCleanup(): void {
-    // 5분마다 만료된 캐시 정리
-    setInterval(() => {
-      this.cleanup();
-    }, 5 * 60 * 1000);
+    this.cleanupTimer = setInterval(() => this.cleanup(), 5 * 60 * 1000);
   }
 
   private emitEvent(
@@ -416,6 +397,8 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
     source: "memory" | "storage",
     data?: T
   ): void {
+    if (this.eventListeners.length === 0) return; // 성능 최적화
+
     const event: CacheEvent<T> = {
       type,
       key,
@@ -424,8 +407,6 @@ export class LayeredCacheManager<T> implements ICacheManager<T> {
       timestamp: Date.now(),
     };
 
-    this.eventListeners.forEach((listener) => {
-      listener(event);
-    });
+    this.eventListeners.forEach((listener) => listener(event));
   }
 }
