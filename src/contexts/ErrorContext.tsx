@@ -82,8 +82,9 @@ export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
   const [state, dispatch] = useReducer(errorReducer, initialState);
 
   const addError = useCallback((error: Omit<AppError, "id" | "timestamp">) => {
-    if (process.env.NODE_ENV === "development")
+    if (process.env.NODE_ENV === "development") {
       console.error("Error occurred:", error);
+    }
 
     dispatch({ type: "ADD_ERROR", payload: error });
   }, []);
@@ -108,22 +109,18 @@ export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
 
   // 자동 에러 제거 (10초 후)
   useEffect(() => {
-    if (state.errors.length === 0) return;
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const expiredErrorIds = state.errors
+        .filter((error) => now - error.timestamp.getTime() > 10000)
+        .map((error) => error.id);
 
-    const now = Date.now();
-    const oldErrors = state.errors.filter(
-      (error) => now - error.timestamp.getTime() > 10000 // 10초
-    );
+      expiredErrorIds.forEach((id) => {
+        dispatch({ type: "REMOVE_ERROR", payload: id });
+      });
+    }, 1000); // 1초마다 체크
 
-    if (oldErrors.length > 0) {
-      const timer = setTimeout(() => {
-        oldErrors.forEach((error) => {
-          dispatch({ type: "REMOVE_ERROR", payload: error.id });
-        });
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
+    return () => clearInterval(timer);
   }, [state.errors]);
 
   return (
@@ -133,8 +130,9 @@ export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useError = (): ErrorContextType => {
   const context = useContext(ErrorContext);
-  if (context === undefined)
+  if (context === undefined) {
     throw new Error("useError must be used within an ErrorProvider");
+  }
 
   return context;
 };

@@ -210,13 +210,10 @@ describe("AuthContext", () => {
       success: false,
       needsLogin: true,
     });
-    mockAuthService.checkAuth
-      .mockResolvedValueOnce({ status: 401, error: "No token" }) // 초기 호출
-      .mockResolvedValueOnce({
-        status: 200,
-        data: { user: mockUser, isAuthenticated: true },
-        error: undefined,
-      }); // 수동 호출
+    mockAuthService.checkAuth.mockResolvedValue({
+      status: 401,
+      error: "No token",
+    });
 
     render(
       <TestWrapper>
@@ -229,9 +226,19 @@ describe("AuthContext", () => {
       expect(screen.getByTestId("is-authenticated")).toHaveTextContent("false");
     });
 
-    // 수동 인증 확인 (토큰이 갱신되었다고 가정)
+    // Mock을 새로운 인증된 상태로 변경 (토큰이 갱신되었다고 가정)
     mockTokenStorage.getAccessToken.mockReturnValue("new-token");
+    mockAuthService.initializeAuth.mockResolvedValue({
+      success: true,
+      needsLogin: false,
+    });
+    mockAuthService.checkAuth.mockResolvedValue({
+      status: 200,
+      data: { user: mockUser, isAuthenticated: true },
+      error: undefined,
+    });
 
+    // 수동 인증 확인 호출
     act(() => {
       screen.getByTestId("check-auth").click();
     });

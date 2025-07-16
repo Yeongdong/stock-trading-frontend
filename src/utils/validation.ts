@@ -24,6 +24,9 @@ export const isPositiveInteger = (value: string | number): boolean => {
 export const isValidStockQuantity = (quantity: string): boolean => {
   if (!quantity || quantity.trim() === "") return false;
 
+  // 공백이 포함된 경우 거부 (주식 수량은 공백 허용 안함)
+  if (quantity !== quantity.trim()) return false;
+
   const num = Number(quantity);
 
   // NaN, Infinity 체크

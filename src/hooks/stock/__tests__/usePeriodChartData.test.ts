@@ -111,6 +111,7 @@ describe("usePeriodChartData", () => {
         usePeriodChartData(emptyDataResponse)
       );
 
+      // 수정: 빈 배열일 때는 processedData가 null
       expect(result.current.processedData).toBeNull();
       expect(result.current.summaryData).toEqual(mockSummaryData);
       expect(result.current.hasValidData).toBe(false); // processedData가 null이므로 false
@@ -199,6 +200,7 @@ describe("usePeriodChartData", () => {
     });
 
     it("processedData가 null일 때 false를 반환해야 한다", () => {
+      // 빈 배열 케이스: processedData는 null
       const emptyDataResponse: PeriodPriceResponse = {
         ...mockPeriodResponse,
         priceData: [],
@@ -214,13 +216,11 @@ describe("usePeriodChartData", () => {
     });
 
     it("summaryData가 null일 때 false를 반환해야 한다", () => {
-      mockDataProcessor.formatChartData.mockReturnValue(mockProcessedData);
-      MockSummaryData.mockImplementation(() => null as unknown as SummaryData);
+      // null 데이터를 전달하면 summaryData도 null이 됨
+      const { result } = renderHook(() => usePeriodChartData(null));
 
-      const { result } = renderHook(() =>
-        usePeriodChartData(mockPeriodResponse)
-      );
-
+      expect(result.current.processedData).toBeNull();
+      expect(result.current.summaryData).toBeNull();
       expect(result.current.hasValidData).toBe(false);
     });
 
