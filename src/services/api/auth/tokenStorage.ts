@@ -1,10 +1,20 @@
-import { TokenData } from "@/types";
+import { TokenData } from "@/types/domains/auth";
 
 class TokenStorage {
   private token: TokenData | null = null;
   private refreshTimer: NodeJS.Timeout | null = null;
+  private readonly REFRESH_BUFFER_TIME = 2 * 60 * 1000; // 2분 (만료 임박 판단보다 여유있게)
+  private readonly EXPIRY_WARNING_TIME = 60 * 1000; // 1분
 
   setAccessToken(accessToken: string, expiresIn: number): void {
+    // 음수나 0은 즉시 만료로 처리
+    if (expiresIn <= 0) {
+      console.warn(
+        `Invalid expiresIn: ${expiresIn}. Token will be immediately expired.`
+      );
+      return; // 토큰을 저장하지 않음
+    }
+
     const expiresAt = Date.now() + expiresIn * 1000;
 
     this.token = {
@@ -39,8 +49,8 @@ class TokenStorage {
   isAccessTokenExpiringSoon(): boolean {
     if (!this.token) return false;
 
-    const oneMinuteFromNow = Date.now() + 60 * 1000; // 1분
-    return this.token.expiresAt <= oneMinuteFromNow;
+    const warningTime = Date.now() + this.EXPIRY_WARNING_TIME;
+    return this.token.expiresAt <= warningTime;
   }
 
   private scheduleRefresh(): void {
@@ -48,18 +58,32 @@ class TokenStorage {
 
     if (!this.token) return;
 
-    const refreshTime = this.token.expiresAt - Date.now() - 60 * 1000; // 1분 전
+    const refreshTime =
+      this.token.expiresAt - Date.now() - this.REFRESH_BUFFER_TIME;
 
-    if (refreshTime > 0)
-      this.refreshTimer = setTimeout(() => {
+    // 갱신 시점이 너무 가까우면 즉시 갱신 시도
+    if (refreshTime <= 0) {
+      // 토큰이 유효하면 즉시 갱신 시도
+      if (Date.now() < this.token.expiresAt) {
         this.handleSilentRefresh();
-      }, refreshTime);
+      }
+      return;
+    }
+
+    this.refreshTimer = setTimeout(() => {
+      this.handleSilentRefresh();
+    }, refreshTime);
   }
 
   private async handleSilentRefresh(): Promise<void> {
-    // Dynamic import로 순환 참조 방지
-    const { authService } = await import("@/services/api/auth/authService");
-    await authService.silentRefresh();
+    // 순환 참조 방지를 위한 dynamic import
+    try {
+      const { authService } = await import("@/services/api/auth/authService");
+      await authService.silentRefresh();
+    } catch (error) {
+      console.error("Silent refresh failed:", error);
+      // 갱신 실패 시 토큰을 정리하지 않음 (상위에서 처리)
+    }
   }
 }
 

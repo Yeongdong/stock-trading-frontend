@@ -3,6 +3,7 @@ import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";
 import { AuthCheckResponse, GoogleLoginResponse } from "@/types";
 import { tokenStorage } from "./tokenStorage";
+import { AuthInitResult, RefreshTokenResponse } from "@/types/domains/auth";
 
 /**
  * 인증 관련 API 서비스
@@ -20,13 +21,24 @@ export const authService = {
         error: "인증 정보가 필요합니다.",
       };
 
+    const trimmedCredential = credential.trim();
+    if (trimmedCredential.split(".").length !== 3)
+      return {
+        status: 400,
+        error: "유효하지 않은 인증 정보입니다.",
+      };
+
     const response = await apiClient.post<GoogleLoginResponse>(
       API.AUTH.GOOGLE_LOGIN,
       { Credential: credential.trim() },
       { requiresAuth: false }
     );
 
-    if (response.data?.accessToken && response.data?.expiresIn)
+    if (
+      response.status === 200 &&
+      response.data?.accessToken &&
+      response.data?.expiresIn
+    )
       tokenStorage.setAccessToken(
         response.data.accessToken,
         response.data.expiresIn
@@ -65,13 +77,13 @@ export const authService = {
   refreshAccessToken: async (): Promise<
     ApiResponse<{ accessToken: string; expiresIn: number }>
   > => {
-    const response = await apiClient.post<{
-      accessToken: string;
-      expiresIn: number;
-    }>(API.AUTH.REFRESH, {}, { requiresAuth: false });
+    const response = await apiClient.post<RefreshTokenResponse>(
+      API.AUTH.REFRESH,
+      {},
+      { requiresAuth: false }
+    );
 
-    if (response.data?.accessToken) {
-      // ExpiresIn이 없는 경우 기본값 3600초(1시간) 사용
+    if (response.status === 200 && response.data?.accessToken) {
       const expiresIn = response.data.expiresIn || 3600;
 
       tokenStorage.setAccessToken(response.data.accessToken, expiresIn);
@@ -85,17 +97,14 @@ export const authService = {
    */
   silentRefresh: async (): Promise<boolean> => {
     const response = await authService.refreshAccessToken();
-    return response.status === 200 && !!response.data;
+    return response.status === 200 && Boolean(response.data?.accessToken);
   },
 
   /**
    * 페이지 로드 시 토큰 복구 시도
    * Refresh Token이 쿠키에 있으면 자동으로 Access Token 발급
    */
-  initializeAuth: async (): Promise<{
-    success: boolean;
-    needsLogin: boolean;
-  }> => {
+  initializeAuth: async (): Promise<AuthInitResult> => {
     // 이미 유효한 Access Token이 있으면 복구할 필요 없음
     const currentToken = tokenStorage.getAccessToken();
     if (currentToken && !tokenStorage.isAccessTokenExpiringSoon())
