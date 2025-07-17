@@ -1,4 +1,3 @@
-// src/services/api/auth/authService.ts
 import { apiClient } from "@/services/api/common/apiClient";
 import { API } from "@/constants";
 import { ApiResponse } from "@/types/common/api";

@@ -6,31 +6,24 @@ import {
 
 export class DateFormatter {
   static parseYYYYMMDD(dateStr: string): Date {
-    if (!dateStr || typeof dateStr !== "string" || dateStr.length !== 8) {
-      console.error("Invalid data format:", dateStr);
-      return new Date(2000, 0, 1); // 기본값
-    }
+    if (!dateStr || typeof dateStr !== "string" || dateStr.length !== 8)
+      throw new Error(`Invalid date format: ${dateStr}`);
 
     const year = parseInt(dateStr.slice(0, 4));
     const month = parseInt(dateStr.slice(4, 6)) - 1;
     const day = parseInt(dateStr.slice(6, 8));
 
-    if (isNaN(year) || isNaN(month) || isNaN(day)) {
-      console.error("Invalid date components:", dateStr);
-      return new Date(2000, 0, 1);
-    }
+    if (isNaN(year) || isNaN(month) || isNaN(day))
+      throw new Error(`Invalid date components: ${dateStr}`);
 
     const date = new Date(year, month, day, 12, 0, 0, 0);
 
-    // 검증
     if (
       date.getFullYear() !== year ||
       date.getMonth() !== month ||
       date.getDate() !== day
-    ) {
-      console.error("Date validation failed:", dateStr);
-      return new Date(2000, 0, 1);
-    }
+    )
+      throw new Error(`Date validation failed: ${dateStr}`);
 
     return date;
   }
@@ -67,30 +60,45 @@ export class DateFormatter {
 
 export class ChartDataProcessor {
   static transformToChartData(priceData: PeriodPriceData[]): ChartData[] {
-    const transformedData = priceData.map((item) => {
-      const date = DateFormatter.parseYYYYMMDD(item.date);
+    const transformedData = priceData
+      .map((item) => {
+        try {
+          const date = DateFormatter.parseYYYYMMDD(item.date);
 
-      const result = {
-        date,
-        open: item.openPrice,
-        high: item.highPrice,
-        low: item.lowPrice,
-        close: item.closePrice,
-        volume: item.volume,
-      };
+          return {
+            date,
+            open: item.openPrice,
+            high: item.highPrice,
+            low: item.lowPrice,
+            close: item.closePrice,
+            volume: item.volume,
+          };
+        } catch {
+          console.warn("Invalid date data filtered:", item.date);
+          return null;
+        }
+      })
+      .filter((item): item is ChartData => {
+        if (item === null) return false;
 
-      return result;
-    });
+        const hasValidPrices =
+          item.open > 0 &&
+          item.high > 0 &&
+          item.low > 0 &&
+          item.close > 0 &&
+          item.high >= Math.max(item.open, item.close) &&
+          item.low <= Math.min(item.open, item.close);
 
-    const validData = transformedData.filter((item) => {
-      const isValid =
-        !isNaN(item.date.getTime()) && item.date.getFullYear() > 1900;
-      if (!isValid) console.warn("Invalid date filtered:", item.date);
+        if (!hasValidPrices) {
+          console.warn("Invalid price data filtered:", item);
+          return false;
+        }
 
-      return isValid;
-    });
+        return true;
+      });
 
-    const sortedData = validData.sort(
+    // 날짜순 정렬
+    const sortedData = transformedData.sort(
       (a, b) => a.date.getTime() - b.date.getTime()
     );
 
