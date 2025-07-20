@@ -195,6 +195,60 @@ export type RealtimeAction =
 - TypeScript 고급 타입 기능(Union, Generic, Conditional Types) 활용
 - 도메인 모델링을 통한 비즈니스 로직의 타입 안전성 확보
 
+## 🧪 테스트 커버리지
+
+> **전체 커버리지: 92.24%** - 높은 품질의 코드와 안정성을 보장하는 포괄적인 테스트 환경
+
+![Test Coverage](https://img.shields.io/badge/Coverage-92.24%25-brightgreen?style=flat&logo=jest)
+![Statements](https://img.shields.io/badge/Statements-92.24%25-brightgreen)
+![Branches](https://img.shields.io/badge/Branches-82.35%25-green)
+![Functions](https://img.shields.io/badge/Functions-92.57%25-brightgreen)
+![Lines](https://img.shields.io/badge/Lines-92.95%25-brightgreen)
+
+### 📊 모듈별 커버리지 현황
+
+| 모듈             | Statements | Branches | Functions | Lines   |
+| ---------------- | ---------- | -------- | --------- | ------- |
+| **Stock Chart**  | 99.01%     | 97.43%   | 100%      | 98.92%  |
+| **Stock Hooks**  | 94.5%      | 83.83%   | 97.67%    | 94.39%  |
+| **API Services** | 87-100%    | 78-88%   | 80-100%   | 90-100% |
+| **Utilities**    | 94.32%     | 85.34%   | 96.77%    | 96.18%  |
+| **Contexts**     | 83.83%     | 64.4%    | 94.28%    | 83.04%  |
+| **Constants**    | 76%        | 75%      | 33.33%    | 76%     |
+
+### 🎯 핵심 성과
+
+#### ✅ 높은 커버리지 달성 영역
+
+- **주식 차트 모델** (`PeriodPriceChartModel.ts`): 99.01% 커버리지
+- **Stock Hooks**: 평균 94.5% 커버리지로 비즈니스 로직 안정성 확보
+- **캐시 매니저** (`LayeredCacheManager.ts`): 92.3% 커버리지
+- **데이터 처리** (`dataProcessor.ts`): 96.61% 커버리지
+
+### 📈 테스트 전략
+
+#### **Unit Tests**
+
+- **React Hooks**: 커스텀 훅의 상태 관리 및 부수 효과 검증
+- **Utility Functions**: 데이터 변환, 검증, 포맷팅 로직 테스트
+- **API Services**: 외부 API 통신 로직 및 에러 처리 검증
+
+#### **Integration Tests**
+
+- **Context Providers**: 여러 컴포넌트 간 상태 공유 검증
+- **Cache Manager**: 다층 캐시 시스템의 정합성 검증
+- **Error Handling**: 전역 에러 처리 플로우 검증
+
+#### **Test Utilities**
+
+- **Custom Render**: Provider 조합을 통한 컴포넌트 테스트 환경 구성
+- **Mock Data**: 실제 API 응답과 유사한 테스트 데이터 제공
+- **Time Utils**: 비동기 작업 및 타이머 관련 테스트 지원
+
+---
+
+> 💡 **테스트 품질 관리**: 새로운 기능 추가 시 최소 80% 이상의 커버리지 유지를 원칙으로 하며, 핵심 비즈니스 로직은 95% 이상을 목표로 합니다.
+
 ## 🔧 설치 및 실행
 
 ### **Prerequisites**
